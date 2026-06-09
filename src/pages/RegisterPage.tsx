@@ -10,7 +10,7 @@ export function RegisterPage() {
 
   const update = (field: string, value: string) => setForm(f => ({ ...f, [field]: value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -23,14 +23,14 @@ export function RegisterPage() {
     if (form.password.length < 8) { setError('Mật khẩu phải có ít nhất 8 ký tự'); return; }
     if (form.password !== form.confirmPassword) { setError('Mật khẩu xác nhận không khớp'); return; }
 
-    const success = registerFn({
-      name: form.name, email: form.email, age,
+    const success = await registerFn({
+      fullName: form.name, email: form.email, age,
       phone: form.phone || undefined,
       speechDescription: form.speechDescription,
       password: form.password,
     });
 
-    if (!success) setError('Email này đã được sử dụng');
+    if (!success) setError('Đăng ký thất bại (email có thể đã được sử dụng)');
   };
 
   return (

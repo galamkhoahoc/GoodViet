@@ -1,50 +1,13 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useAssessmentStore } from '../store/assessmentStore';
 import { phaseISentences, phaseIISentences, phaseIIIPrompts, mockAssessmentResult } from '../data/mockAssessment';
-import { Mic, Square, Play, ChevronRight, CheckCircle, AlertTriangle } from 'lucide-react';
-
-function AudioRecorder({ onComplete }: { onComplete: (duration: number) => void }) {
-  const [recording, setRecording] = useState(false);
-  const [seconds, setSeconds] = useState(0);
-  const timerRef = useRef<number | null>(null);
-
-  const startRecording = () => {
-    setRecording(true);
-    setSeconds(0);
-    timerRef.current = window.setInterval(() => setSeconds(s => s + 1), 1000);
-  };
-
-  const stopRecording = () => {
-    setRecording(false);
-    if (timerRef.current) clearInterval(timerRef.current);
-    onComplete(seconds);
-  };
-
-  const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
-
-  return (
-    <div className="recorder">
-      <button
-        className={`recorder-btn ${recording ? 'recording' : ''}`}
-        onClick={recording ? stopRecording : startRecording}
-      >
-        {recording ? <Square size={28} color="#E74C3C" /> : <Mic size={28} color="#191A23" />}
-      </button>
-      <div className="recorder-timer">{formatTime(seconds)}</div>
-      {recording && (
-        <div className="recorder-wave">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="recorder-wave-bar" style={{ animationDelay: `${i * 0.1}s` }} />
-          ))}
-        </div>
-      )}
-      <p className="text-sm text-muted">
-        {recording ? 'Đang ghi âm... Nhấn để dừng' : 'Nhấn để bắt đầu ghi âm'}
-      </p>
-    </div>
-  );
-}
+import { AudioRecorder } from '../components/audio/AudioRecorder';
+import { AudioPlayer } from '../components/audio/AudioPlayer';
+import { indexedDBService } from '../services/storage/indexedDB';
+import { toast } from '../components/common/Toast';
+import { Play, ChevronRight, CheckCircle, AlertTriangle } from 'lucide-react';
+import { config } from '../config/env';
 
 function IntroPhase({ onStart }: { onStart: () => void }) {
   return (
@@ -85,19 +48,55 @@ function SentenceRecording({ sentences, title, subtitle, onComplete }: {
   onComplete: () => void;
 }) {
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [recorded, setRecorded] = useState<Set<number>>(new Set());
+  const [recordings, setRecordings] = useState<Map<number, { blob: Blob; duration: number; url: string }>>(new Map());
   const addRecording = useAssessmentStore(s => s.addRecording);
+  const user = useAuthStore(s => s.user);
 
-  const handleRecordComplete = useCallback((duration: number) => {
+  const handleRecordComplete = useCallback(async (blob: Blob, duration: number) => {
+    const url = URL.createObjectURL(blob);
+    setRecordings(prev => {
+      const next = new Map(prev);
+      // Revoke old URL if re-recording
+      const old = next.get(currentIdx);
+      if (old?.url) URL.revokeObjectURL(old.url);
+      next.set(currentIdx, { blob, duration, url });
+      return next;
+    });
+
     addRecording({
       sentenceId: sentences[currentIdx].id,
+      blob,
       duration,
       timestamp: new Date().toISOString(),
     });
-    setRecorded(prev => new Set(prev).add(currentIdx));
-  }, [currentIdx, sentences, addRecording]);
 
-  const allDone = recorded.size === sentences.length;
+    // Save to IndexedDB
+    try {
+      await indexedDBService.saveRecording(blob, {
+        userId: user?.userId || 'anonymous',
+        sentenceId: sentences[currentIdx].id,
+        phase: title.includes('I') ? 'phase_1' : 'phase_2',
+        duration,
+        format: blob.type || 'audio/webm',
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.warn('Failed to save to IndexedDB:', err);
+    }
+
+    toast.success('Ghi âm thành công!', `Câu ${currentIdx + 1} đã được ghi.`);
+  }, [currentIdx, sentences, addRecording, user?.userId, title]);
+
+  // Cleanup blob URLs on unmount
+  useEffect(() => {
+    return () => {
+      recordings.forEach(r => URL.revokeObjectURL(r.url));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const allDone = recordings.size === sentences.length;
+  const isRecorded = recordings.has(currentIdx);
 
   return (
     <div className="animate-fade-in-up" style={{ maxWidth: 700, margin: '0 auto' }}>
@@ -108,23 +107,36 @@ function SentenceRecording({ sentences, title, subtitle, onComplete }: {
 
       <div className="flex items-center justify-between mb-lg">
         <span className="badge badge-primary">Câu {currentIdx + 1} / {sentences.length}</span>
-        <span className="text-sm text-muted">Đã ghi: {recorded.size} / {sentences.length}</span>
+        <span className="text-sm text-muted">Đã ghi: {recordings.size} / {sentences.length}</span>
       </div>
 
       <div className="progress-bar mb-lg">
-        <div className="progress-bar-fill" style={{ width: `${(recorded.size / sentences.length) * 100}%` }} />
+        <div className="progress-bar-fill" style={{ width: `${(recordings.size / sentences.length) * 100}%` }} />
       </div>
 
       <div className="card-positivus" style={{ textAlign: 'center', marginBottom: 'var(--gv-space-xl)' }}>
         <p style={{ fontSize: 'var(--gv-font-size-xl)', fontWeight: 600, lineHeight: 1.8, padding: 'var(--gv-space-md)' }}>
           "{sentences[currentIdx].text}"
         </p>
-        {recorded.has(currentIdx) && (
-          <span className="badge badge-success mt-md"><CheckCircle size={12} /> Đã ghi âm</span>
+        {isRecorded && (
+          <div style={{ marginTop: 'var(--gv-space-md)' }}>
+            <span className="badge badge-success"><CheckCircle size={12} /> Đã ghi âm</span>
+            <div style={{ marginTop: 'var(--gv-space-sm)' }}>
+              <AudioPlayer
+                src={recordings.get(currentIdx)?.url || null}
+                compact
+                label={`Câu ${currentIdx + 1}`}
+              />
+            </div>
+          </div>
         )}
       </div>
 
-      <AudioRecorder onComplete={handleRecordComplete} />
+      <AudioRecorder
+        onRecordingComplete={handleRecordComplete}
+        maxDuration={config.audio.maxDurationSeconds}
+        showPlayback={false}
+      />
 
       <div className="flex justify-between mt-lg">
         <button className="btn btn-secondary" disabled={currentIdx === 0} onClick={() => setCurrentIdx(i => i - 1)}>
@@ -140,6 +152,108 @@ function SentenceRecording({ sentences, title, subtitle, onComplete }: {
           </button>
         )}
       </div>
+
+      {!allDone && currentIdx === sentences.length - 1 && (
+        <p className="text-xs text-muted text-center mt-md" style={{ color: 'var(--gv-warning)' }}>
+          <AlertTriangle size={12} style={{ verticalAlign: 'middle' }} /> Bạn cần ghi âm tất cả {sentences.length} câu trước khi hoàn thành.
+        </p>
+      )}
+    </div>
+  );
+}
+
+function StorytellingPhase({ onComplete }: { onComplete: () => void }) {
+  const [recorded, setRecorded] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const user = useAuthStore(s => s.user);
+  const addRecording = useAssessmentStore(s => s.addRecording);
+
+  const handleRecordComplete = useCallback(async (blob: Blob, duration: number) => {
+    const url = URL.createObjectURL(blob);
+    setAudioUrl(url);
+    setRecorded(true);
+
+    addRecording({
+      sentenceId: 'phase_3_storytelling',
+      blob,
+      duration,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Save to IndexedDB
+    try {
+      await indexedDBService.saveRecording(blob, {
+        userId: user?.userId || 'anonymous',
+        sentenceId: 'phase_3_storytelling',
+        phase: 'phase_3',
+        duration,
+        format: blob.type || 'audio/webm',
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.warn('Failed to save to IndexedDB:', err);
+    }
+
+    toast.success('Ghi âm hoàn tất!', 'Bài kể chuyện của bạn đã được lưu.');
+  }, [addRecording, user?.userId]);
+
+  useEffect(() => {
+    return () => {
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+    };
+  }, [audioUrl]);
+
+  return (
+    <div className="animate-fade-in-up" style={{ maxWidth: 700, margin: '0 auto' }}>
+      <div className="text-center mb-lg">
+        <h2 style={{ fontSize: 'var(--gv-font-size-2xl)', fontWeight: 700 }}>
+          Giai đoạn III — Kể chuyện tự do
+        </h2>
+        <p className="text-secondary mt-md">
+          Hãy kể về câu chuyện hàng ngày của bạn. Chúng tôi sẽ đánh giá phát âm, hơi thở, âm điệu và sự tự tin.
+        </p>
+      </div>
+
+      <div className="card-positivus text-center mb-lg" style={{ padding: 'var(--gv-space-xl)' }}>
+        <p style={{ fontSize: 'var(--gv-font-size-lg)', fontStyle: 'italic', lineHeight: 1.8 }}>
+          "{phaseIIIPrompts[0]}"
+        </p>
+      </div>
+
+      <AudioRecorder
+        onRecordingComplete={handleRecordComplete}
+        maxDuration={config.audio.maxDurationSeconds}
+        minDuration={config.audio.minStorytellingDuration}
+        showPlayback
+      />
+
+      <div className="card mt-lg" style={{ padding: 'var(--gv-space-md)' }}>
+        <p className="text-sm font-semibold mb-md">Câu hỏi gợi ý thêm:</p>
+        {phaseIIIPrompts.slice(1).map((q, i) => (
+          <p key={i} className="text-sm text-secondary" style={{ padding: '4px 0' }}>• {q}</p>
+        ))}
+      </div>
+
+      {recorded && audioUrl && (
+        <div style={{ marginTop: 'var(--gv-space-lg)' }}>
+          <AudioPlayer src={audioUrl} label="Bài kể chuyện của bạn" />
+        </div>
+      )}
+
+      <div className="text-center mt-lg">
+        <button
+          className="btn btn-success btn-lg"
+          disabled={!recorded}
+          onClick={onComplete}
+        >
+          <CheckCircle size={18} /> Hoàn thành bài test
+        </button>
+        {!recorded && (
+          <p className="text-xs text-muted mt-md">
+            Bạn cần ghi âm ít nhất 2 phút trước khi hoàn thành.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
@@ -148,25 +262,26 @@ function ProcessingPhase({ onDone }: { onDone: () => void }) {
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState('Đang phân tích giọng nói...');
 
-  useState(() => {
+  useEffect(() => {
     const texts = [
       'Đang phân tích giọng nói...',
       'AI đang xử lý phát âm...',
+      'Phát hiện lỗi phát âm L/N, TR/CH, S/X...',
       'Chuyên gia đang xác nhận kết quả...',
       'Sắp hoàn thành...',
     ];
     let step = 0;
     const interval = setInterval(() => {
       step++;
-      setProgress(Math.min(step * 25, 100));
+      setProgress(Math.min(step * 20, 100));
       setStatusText(texts[Math.min(step, texts.length - 1)]);
-      if (step >= 4) {
+      if (step >= 5) {
         clearInterval(interval);
         setTimeout(onDone, 500);
       }
     }, 1500);
     return () => clearInterval(interval);
-  });
+  }, [onDone]);
 
   return (
     <div className="processing-container animate-scale-in">
@@ -174,9 +289,14 @@ function ProcessingPhase({ onDone }: { onDone: () => void }) {
       <h2 style={{ fontSize: 'var(--gv-font-size-2xl)', fontWeight: 700 }}>Đang xử lý kết quả</h2>
       <p className="text-secondary">{statusText}</p>
       <div className="progress-bar" style={{ width: 300, marginTop: 'var(--gv-space-md)' }}>
-        <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
+        <div className="progress-bar-fill" style={{ width: `${progress}%`, transition: 'width 0.5s ease' }} />
       </div>
-      <p className="text-xs text-muted">Vui lòng đợi khoảng 2-3 phút...</p>
+      <p className="text-xs text-muted" style={{ marginTop: 'var(--gv-space-md)' }}>
+        Vui lòng đợi khoảng 2-3 phút...
+      </p>
+      <p className="text-xs text-muted">
+        Thời gian ước tính: ~{Math.max(0, Math.ceil((100 - progress) / 20 * 1.5))} giây
+      </p>
     </div>
   );
 }
@@ -353,43 +473,14 @@ export function AssessmentPage() {
       )}
 
       {phase === 'phase_3' && (
-        <div className="animate-fade-in-up" style={{ maxWidth: 700, margin: '0 auto' }}>
-          <div className="text-center mb-lg">
-            <h2 style={{ fontSize: 'var(--gv-font-size-2xl)', fontWeight: 700 }}>
-              Giai đoạn III — Kể chuyện tự do
-            </h2>
-            <p className="text-secondary mt-md">
-              Hãy kể về câu chuyện hàng ngày của bạn. Chúng tôi sẽ đánh giá phát âm, hơi thở, âm điệu và sự tự tin.
-            </p>
-          </div>
-
-          <div className="card-positivus text-center mb-lg" style={{ padding: 'var(--gv-space-xl)' }}>
-            <p style={{ fontSize: 'var(--gv-font-size-lg)', fontStyle: 'italic', lineHeight: 1.8 }}>
-              "{phaseIIIPrompts[0]}"
-            </p>
-          </div>
-
-          <AudioRecorder onComplete={() => {}} />
-
-          <div className="card mt-lg" style={{ padding: 'var(--gv-space-md)' }}>
-            <p className="text-sm font-semibold mb-md">Câu hỏi gợi ý thêm:</p>
-            {phaseIIIPrompts.slice(1).map((q, i) => (
-              <p key={i} className="text-sm text-secondary" style={{ padding: '4px 0' }}>• {q}</p>
-            ))}
-          </div>
-
-          <div className="text-center mt-lg">
-            <button className="btn btn-success btn-lg" onClick={() => setPhase('processing')}>
-              <CheckCircle size={18} /> Hoàn thành bài test
-            </button>
-          </div>
-        </div>
+        <StorytellingPhase onComplete={() => setPhase('processing')} />
       )}
 
       {phase === 'processing' && (
         <ProcessingPhase onDone={() => {
           completeAssessment();
           updateUser({ assessmentCompleted: true, currentPathwayId: 'pathway-001' });
+          toast.success('Hoàn thành!', 'Kết quả GOODVIET Check đã sẵn sàng.');
         }} />
       )}
 

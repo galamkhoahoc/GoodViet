@@ -9,11 +9,11 @@ export function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (!email || !password) { setError('Vui lòng điền đầy đủ thông tin'); return; }
-    const success = login(email, password);
+    const success = await login(email, password);
     if (!success) setError('Email hoặc mật khẩu không đúng. Hãy đăng ký nếu chưa có tài khoản.');
   };
 

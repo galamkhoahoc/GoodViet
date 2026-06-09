@@ -1,6 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { mockPathways } from '../data/mockPathways';
-import { Route, Play, CheckCircle, Pause, Video, Mic, Square, ChevronDown, ChevronUp } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
+import { AudioRecorder } from '../components/audio/AudioRecorder';
+import { indexedDBService } from '../services/storage/indexedDB';
+import { toast } from '../components/common/Toast';
+import { Route, Play, CheckCircle, Pause, Video, ChevronDown, ChevronUp } from 'lucide-react';
 import type { Exercise } from '../data/mockPathways';
 
 function DayExerciseCard({ exercise, onRecord }: { exercise: Exercise; onRecord: () => void }) {
@@ -29,7 +33,7 @@ function DayExerciseCard({ exercise, onRecord }: { exercise: Exercise; onRecord:
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted">Lặp lại {exercise.repetitions} lần · ~{exercise.estimatedDuration} phút</span>
         <button className="btn btn-lime btn-sm" onClick={onRecord}>
-          <Mic size={14} /> Ghi âm
+          🎙️ Ghi âm
         </button>
       </div>
     </div>
@@ -37,25 +41,33 @@ function DayExerciseCard({ exercise, onRecord }: { exercise: Exercise; onRecord:
 }
 
 function RecordingModal({ exercise, onClose }: { exercise: Exercise; onClose: () => void }) {
-  const [recording, setRecording] = useState(false);
-  const [seconds, setSeconds] = useState(0);
-  const [done, setDone] = useState(false);
-  const timerRef = useRef<number | null>(null);
+  const user = useAuthStore(s => s.user);
+  const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
-  const toggleRecord = () => {
-    if (recording) {
-      setRecording(false);
-      if (timerRef.current) clearInterval(timerRef.current);
-      setDone(true);
-    } else {
-      setRecording(true);
-      setSeconds(0);
-      setDone(false);
-      timerRef.current = window.setInterval(() => setSeconds(s => s + 1), 1000);
+  const handleRecordComplete = async (blob: Blob, duration: number) => {
+    const url = URL.createObjectURL(blob);
+    setRecordedUrl(url);
+
+    // Save to IndexedDB
+    try {
+      await indexedDBService.saveRecording(blob, {
+        userId: user?.userId || 'anonymous',
+        exerciseId: exercise.exerciseId,
+        duration,
+        format: blob.type || 'audio/webm',
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.warn('Failed to save to IndexedDB:', err);
     }
   };
 
-  const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
+  const handleSave = () => {
+    setSaved(true);
+    toast.success('Ghi âm đã lưu!', exercise.title);
+    setTimeout(onClose, 800);
+  };
 
   return (
     <div style={{
@@ -67,28 +79,31 @@ function RecordingModal({ exercise, onClose }: { exercise: Exercise; onClose: ()
         <div className="card-glow text-center mb-lg" style={{ padding: 'var(--gv-space-md)' }}>
           <p style={{ fontSize: 'var(--gv-font-size-lg)', lineHeight: 1.8 }}>"{exercise.practiceText}"</p>
         </div>
-        <div className="recorder">
-          <button className={`recorder-btn ${recording ? 'recording' : ''}`} onClick={toggleRecord}>
-            {recording ? <Square size={28} color="#E74C3C" /> : <Mic size={28} color="#191A23" />}
-          </button>
-          <div className="recorder-timer">{formatTime(seconds)}</div>
-          {recording && (
-            <div className="recorder-wave">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="recorder-wave-bar" style={{ animationDelay: `${i * 0.1}s` }} />
-              ))}
+
+        {!saved ? (
+          <>
+            <AudioRecorder
+              onRecordingComplete={handleRecordComplete}
+              maxDuration={300}
+              showPlayback
+              compact
+            />
+
+            <div className="flex justify-between mt-lg">
+              <button className="btn btn-secondary" onClick={onClose}>Đóng</button>
+              {recordedUrl && (
+                <button className="btn btn-success" onClick={handleSave}>
+                  <CheckCircle size={14} /> Lưu & Tiếp tục
+                </button>
+              )}
             </div>
-          )}
-        </div>
-        {done && (
-          <div className="text-center">
-            <span className="badge badge-success"><CheckCircle size={12} /> Đã ghi âm thành công!</span>
+          </>
+        ) : (
+          <div className="text-center" style={{ padding: 'var(--gv-space-lg)' }}>
+            <CheckCircle size={48} color="var(--gv-success)" style={{ margin: '0 auto var(--gv-space-md)' }} />
+            <p className="font-semibold">Đã lưu thành công!</p>
           </div>
         )}
-        <div className="flex justify-between mt-lg">
-          <button className="btn btn-secondary" onClick={onClose}>Đóng</button>
-          {done && <button className="btn btn-success" onClick={onClose}>Lưu & Tiếp tục</button>}
-        </div>
       </div>
     </div>
   );
@@ -108,6 +123,7 @@ export function PathwayPage() {
 
   const handleCheckIn = (day: number) => {
     setCheckedIn(prev => new Set(prev).add(day));
+    toast.success('Chấm công thành công!', `Ngày ${day} đã hoàn thành 🎉`);
   };
 
   return (

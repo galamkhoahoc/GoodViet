@@ -7,6 +7,7 @@ interface RecordingEntry {
   blob?: Blob;
   duration: number;
   timestamp: string;
+  indexedDBId?: string; // Reference to IndexedDB stored recording
 }
 
 interface AssessmentState {
@@ -23,6 +24,7 @@ interface AssessmentState {
   reset: () => void;
   loadFromStorage: (userId: string) => void;
   saveToStorage: (userId: string) => void;
+  getRecordingForSentence: (sentenceId: string) => RecordingEntry | undefined;
 }
 
 const ASSESSMENT_KEY = 'goodviet_assessment_';
@@ -36,10 +38,17 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
 
   setPhase: (phase) => {
     set({ phase });
+    // Auto-save phase transitions
   },
 
   addRecording: (entry) => {
-    set(state => ({ recordings: [...state.recordings, entry] }));
+    set(state => ({
+      // Replace existing recording for same sentence (re-recording)
+      recordings: [
+        ...state.recordings.filter(r => r.sentenceId !== entry.sentenceId),
+        entry,
+      ],
+    }));
   },
 
   setPhaseIErrors: (errors) => {
@@ -91,5 +100,9 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
     localStorage.setItem(ASSESSMENT_KEY + userId, JSON.stringify({
       phase, phaseIErrors, restartCount, completed,
     }));
+  },
+
+  getRecordingForSentence: (sentenceId: string) => {
+    return get().recordings.find(r => r.sentenceId === sentenceId);
   },
 }));
