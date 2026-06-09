@@ -92,10 +92,7 @@ const AudioRecordingSchema = new Schema<IAudioRecording>(
 );
 
 // Indexes for performance
-AudioRecordingSchema.index({ assessmentId: 1 });
-AudioRecordingSchema.index({ practiceSessionId: 1 });
-AudioRecordingSchema.index({ uploadedAt: -1 });
-
+// Note: assessmentId, practiceSessionId, uploadedAt already indexed via index:true
 // Compound index for assessment recordings
 AudioRecordingSchema.index({ assessmentId: 1, phase: 1 });
 

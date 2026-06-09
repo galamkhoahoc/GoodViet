@@ -1,54 +1,72 @@
 import { create } from 'zustand';
-import type { ChatMessage } from '../data/mockChat';
-import { mockChatHistory, generateBotResponse } from '../data/mockChat';
+import { apiClient } from '../services/api/apiClient';
+
+export interface ChatMessage {
+  _id?: string;
+  messageId?: string;
+  senderType: 'user' | 'bot';
+  content: string;
+  timestamp: string;
+}
 
 interface ChatState {
   messages: ChatMessage[];
   isTyping: boolean;
-  sendMessage: (content: string) => void;
-  loadMessages: () => void;
+  sendMessage: (content: string) => Promise<void>;
+  loadMessages: () => Promise<void>;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isTyping: false,
 
-  loadMessages: () => {
+  loadMessages: async () => {
     try {
-      const saved = localStorage.getItem('goodviet_chat');
-      if (saved) {
-        set({ messages: JSON.parse(saved) });
-      } else {
-        set({ messages: mockChatHistory });
+      const response: any = await apiClient.get('/api/chat/history');
+      if (response && response.messages) {
+        // Map backend history to frontend format
+        const msgs = response.messages.map((m: any) => ({
+          messageId: m._id,
+          senderType: m.senderType,
+          content: m.content,
+          timestamp: m.timestamp,
+        })).reverse(); // show oldest first
+        set({ messages: msgs });
       }
-    } catch {
-      set({ messages: mockChatHistory });
+    } catch (err) {
+      console.error('Failed to load chat history:', err);
     }
   },
 
-  sendMessage: (content: string) => {
+  sendMessage: async (content: string) => {
     const userMsg: ChatMessage = {
-      messageId: 'msg-' + Date.now(),
+      messageId: 'temp-' + Date.now(),
       senderType: 'user',
       content,
       timestamp: new Date().toISOString(),
     };
 
     const { messages } = get();
-    const updated = [...messages, userMsg];
-    set({ messages: updated, isTyping: true });
+    set({ messages: [...messages, userMsg], isTyping: true });
 
-    // Simulate bot typing delay
-    setTimeout(() => {
-      const botMsg: ChatMessage = {
-        messageId: 'msg-' + (Date.now() + 1),
-        senderType: 'bot',
-        content: generateBotResponse(content),
-        timestamp: new Date().toISOString(),
-      };
-      const allMsgs = [...updated, botMsg];
-      set({ messages: allMsgs, isTyping: false });
-      localStorage.setItem('goodviet_chat', JSON.stringify(allMsgs));
-    }, 800 + Math.random() * 1200);
+    try {
+      const response: any = await apiClient.post('/api/chat/messages', { content });
+      if (response && response.botMessage) {
+        const botMsg: ChatMessage = {
+          messageId: response.botMessage._id,
+          senderType: 'bot',
+          content: response.botMessage.content,
+          timestamp: response.botMessage.timestamp,
+        };
+        // Update temporary user message with real ID if needed, and add bot message
+        const allMsgs = [...get().messages];
+        // Replace temp msg with real one if you want, but for now just add bot msg
+        allMsgs.push(botMsg);
+        set({ messages: allMsgs, isTyping: false });
+      }
+    } catch (err) {
+      console.error('Failed to send message:', err);
+      set({ isTyping: false });
+    }
   },
 }));

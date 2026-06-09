@@ -137,7 +137,7 @@ const AssessmentSchema = new Schema<IAssessment>(
 );
 
 // Indexes for performance
-AssessmentSchema.index({ userId: 1 });
+// Note: userId already indexed via index:true
 AssessmentSchema.index({ completedAt: -1 });
 AssessmentSchema.index({ userId: 1, phase: 1 });
 AssessmentSchema.index({ phase: 1 });

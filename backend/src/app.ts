@@ -65,6 +65,7 @@ export function createApp(): Application {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       environment: env.NODE_ENV,
+      storage: env.AWS_ACCESS_KEY_ID && env.S3_BUCKET_NAME ? 'AWS S3' : 'MongoDB GridFS',
     });
   });
 

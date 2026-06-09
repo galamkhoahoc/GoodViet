@@ -96,7 +96,7 @@ const UserSchema = new Schema<IUser>(
 );
 
 // Indexes for performance
-UserSchema.index({ email: 1 });
+// Note: email already indexed via unique:true, no need to index again
 UserSchema.index({ createdAt: -1 });
 UserSchema.index({ assessmentCompleted: 1 });
 

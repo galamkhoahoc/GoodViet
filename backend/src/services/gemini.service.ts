@@ -13,10 +13,11 @@ export class GeminiService {
   constructor() {
     if (env.GEMINI_API_KEY) {
       this.genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-      // Use gemini-1.5-flash for chat interactions
-      this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      // Use gemini-3.1-flash-tts-preview specifically for audio/pronunciation recognition
-      this.audioModel = this.genAI.getGenerativeModel({ model: "gemini-3.1-flash-tts-preview" });
+      // Use gemma-4-26b-a4b-it for chat interactions
+      // Note: Gemma 4 supports thinking mode, but we disable it for direct responses
+      this.model = this.genAI.getGenerativeModel({ model: "gemma-4-26b-a4b-it" });
+      // Use gemini-1.5-flash for audio/pronunciation recognition
+      this.audioModel = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     } else {
       console.warn('GEMINI_API_KEY is not set. Gemini Service will run in mock mode.');
     }
@@ -31,15 +32,14 @@ export class GeminiService {
     }
 
     try {
-      const systemPrompt = `You are a motivational speech therapy companion for the GOODVIET platform. 
-GOODVIET helps Vietnamese speakers correct common pronunciation issues like L/N, TR/CH, and S/X.
+      const systemPrompt = `You are a motivational speech therapy companion for GOODVIET, a Vietnamese speech therapy platform.
 Your personality is encouraging, patient, and knowledgeable.
-Important: 
-- Avoid medical diagnoses.
-- Stay within the speech therapy domain.
-- Politely redirect off-topic questions.
-- Keep responses concise and natural.
-- Respond in Vietnamese.`;
+Important rules: 
+- Respond naturally and conversationally in Vietnamese
+- Avoid medical diagnoses
+- Stay within the speech therapy domain
+- Politely redirect off-topic questions
+- Keep responses concise and friendly`;
 
       // Format history for Gemini API
       const formattedHistory = history.map(msg => ({
@@ -53,22 +53,17 @@ Important:
           maxOutputTokens: 500,
           temperature: 0.7,
         },
+        systemInstruction: systemPrompt,
       });
 
-      // Send the system prompt first if this is the start of the conversation
-      if (history.length === 0) {
-        // Since system instruction is supported differently in newer SDKs, we prepend it to the first message
-        const result = await chat.sendMessage(`${systemPrompt}\n\nNgười dùng: ${message}`);
-        const response = await result.response;
-        return response.text();
-      } else {
-        const result = await chat.sendMessage(message);
-        const response = await result.response;
-        return response.text();
-      }
+      // Send message without prepending system prompt (already set in systemInstruction)
+      const result = await chat.sendMessage(message);
+      const response = await result.response;
+      return response.text();
     } catch (error) {
       console.error('Gemini API Error:', error);
-      throw new Error('Failed to generate response from AI');
+      // Fallback to mock response to prevent breaking the UI if API key lacks permissions or model 404s
+      return this.generateMockResponse(message);
     }
   }
 
@@ -77,17 +72,7 @@ Important:
    */
   private async generateMockResponse(message: string): Promise<string> {
     await new Promise(resolve => setTimeout(resolve, 1000));
-    const lowerMsg = message.toLowerCase();
-    
-    if (lowerMsg.includes('l/n') || lowerMsg.includes('chữ l') || lowerMsg.includes('chữ n')) {
-      return 'Lỗi phát âm L/N là rất phổ biến ở một số vùng miền. Bí quyết là: với âm L, bạn hãy cong lưỡi chạm ngạc cứng; với âm N, hãy thẳng lưỡi và để hơi thoát qua mũi nhé. Cố lên!';
-    }
-    
-    if (lowerMsg.includes('chào') || lowerMsg.includes('hello')) {
-      return 'Chào bạn! Mình là trợ lý AI của GOODVIET. Hôm nay bạn muốn luyện tập phát âm hay cần mình tư vấn lộ trình học nào?';
-    }
-
-    return 'Mình hiểu ý bạn. Hãy kiên trì luyện tập mỗi ngày 15 phút, chắc chắn bạn sẽ cải thiện được giọng nói của mình. GOODVIET luôn đồng hành cùng bạn!';
+    return `[Hệ thống]: API AI hiện tại đang gặp lỗi (có thể do sai tên Model, sai API Key hoặc hết Quota). Bạn đang thấy tin nhắn dự phòng tự động. Xin vui lòng kiểm tra lại cấu hình AI trong file .env hoặc gemini.service.ts.`;
   }
 
   /**
