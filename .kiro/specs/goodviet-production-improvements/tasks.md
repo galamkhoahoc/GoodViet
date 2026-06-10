@@ -2,14 +2,26 @@
 
 ## Overview
 
-This document outlines the implementation tasks for transforming GOODVIET from a UI/UX prototype with mock data into a production-ready Vietnamese speech therapy platform. The implementation follows a 20-week roadmap broken into 9 phases, covering backend infrastructure, audio recording, AI-powered assessment, practice systems, chatbot integration, expert connections, security hardening, testing, and deployment.
+This document outlines the implementation tasks for transforming GOODVIET from a UI/UX prototype with mock data into a production-ready Vietnamese speech therapy platform. The backend infrastructure and database schemas are largely complete; remaining work focuses on frontend integration, AI pronunciation analysis, testing, security hardening, and deployment.
 
 **Technology Stack:**
-- **Frontend**: React 19 + TypeScript + Vite 8 + Zustand
-- **Backend**: Node.js 20 + Express + TypeScript + Prisma
-- **Database**: PostgreSQL 15+
-- **Storage**: AWS S3 or Google Cloud Storage
-- **AI Services**: Pronunciation Analysis API + Google Gemma 4
+- **Frontend**: React 19 + TypeScript + Vite 8 + Zustand 5
+- **Backend**: Node.js 20 + Express 4 + TypeScript + Mongoose 8
+- **Database**: MongoDB Atlas (cloud-hosted at glkh2.wtvyhjt.mongodb.net/goodviet)
+- **Storage**: GridFS (MongoDB) + AWS S3 (for production audio files)
+- **AI Services**: Google Gemini API (Gemma 4 via @google/generative-ai) + Custom Vietnamese Pronunciation Analysis
+
+**Current Status:**
+- ✅ Backend API structure complete (all controllers, routes, models exist)
+- ✅ MongoDB schemas implemented for all entities (User, Assessment, Practice, Expert, Chat)
+- ✅ JWT authentication + bcrypt password hashing implemented
+- ✅ Gemma 4 chatbot backend integration complete (Gemini + Ollama services)
+- ✅ GridFS storage service configured
+- ⚠️ Frontend pages exist but use mock data (need API integration)
+- ❌ Audio recording frontend implementation incomplete
+- ❌ AI pronunciation analysis not implemented
+- ❌ Testing incomplete (some unit tests exist)
+- ❌ Production deployment not configured
 
 **Key Features:**
 - Real audio recording with MediaRecorder API
@@ -24,180 +36,66 @@ This document outlines the implementation tasks for transforming GOODVIET from a
 
 ## Tasks
 
-### Phase 1: Backend Foundation (Weeks 1-3)
+### Phase 1: Backend Foundation & Core API (MOSTLY COMPLETE)
 
-- [x] 1. Set up backend project and database infrastructure
-  - [x] 1.1 Initialize Node.js + TypeScript + Express backend project
-    - Create `backend/` directory structure with src/, tests/, prisma/ folders
-    - Initialize package.json with TypeScript, Express, Prisma, bcrypt, jsonwebtoken dependencies
-    - Configure tsconfig.json for Node.js + ES modules
-    - Set up .env file structure for environment variables
-    - _Requirements: 9, 10, 23_
+- [x] 1. Backend project and database infrastructure (COMPLETE)
+  - All MongoDB Mongoose schemas created (User, Assessment, AudioRecording, Practice, Expert, Chat, Notification)
+  - Authentication endpoints implemented (register, login, JWT middleware, rate limiting)
+  - User profile GET and PATCH endpoints complete
+  - GridFS storage service configured
+  - All controllers, routes, and models exist in backend/src/
 
-  - [x] 1.2 Set up PostgreSQL database and Prisma ORM
-    - Provision PostgreSQL 15+ database (Railway/Supabase/local)
-    - Create Prisma schema file with User, Assessment, AudioRecording models
-    - Configure Prisma client generation
-    - Run initial migrations to create database tables
-    - Test database connection
-    - _Requirements: 9, 10, 18_
+- [ ] 2. Validate and test backend implementation
+  - [ ] 2.1 Verify all backend endpoints are functional
+    - Test POST /api/users/register with various inputs
+    - Test POST /api/users/login and JWT token validation
+    - Test GET /api/users/profile and PATCH /api/users/profile
+    - Test authentication middleware on protected routes
+    - Verify rate limiting works correctly
+    - _Requirements: 9, 10_
 
-  - [x] 1.3 Create User and Assessment database schemas
-    - Define User model with id, email, passwordHash, fullName, profile fields
-    - Define Assessment model with phases, scores, pronunciationIssues JSON field
-    - Define AudioRecording model with file metadata and relationships
-    - Add indexes for userId, timestamp fields for query performance
-    - _Requirements: 10, 12, 18_
+  - [ ] 2.2 Complete audio file upload integration
+    - Verify GridFS upload functionality in storage.service.ts
+    - Test POST /api/audio/upload endpoint (appears to exist in audio.controller.ts)
+    - Ensure file format validation (WAV/WebM only, max 50MB)
+    - Generate presigned URLs for audio playback
+    - Test upload with real audio files
+    - _Requirements: 12.1, 12.2, 12.3, 12.4_
 
-  - [x] 1.4 Implement user registration endpoint with password hashing
-    - Create POST /api/users/register endpoint
-    - Implement email format validation (RFC 5322)
-    - Hash passwords using bcrypt with 12 salt rounds
-    - Check for duplicate email addresses before registration
-    - Return 201 with JWT token on success
-    - Return 400 for validation errors, 409 for duplicate email
-    - _Requirements: 9.1, 9.2, 9.3, 9.4, 11.2, 11.3, 11.4_
-
-  - [x] 1.5 Implement login endpoint with JWT token generation
-    - Create POST /api/users/login endpoint
-    - Verify email and password using bcrypt.compare()
-    - Generate JWT token with 7-day expiration using jsonwebtoken
-    - Include userId, email in JWT payload
-    - Sign token with secret key from environment variables
-    - Return 200 with user data and token on success
-    - Return 401 for invalid credentials
-    - _Requirements: 9.5, 9.6, 9.7, 11.3_
-
-  - [x] 1.6 Implement JWT authentication middleware
-    - Create middleware to extract JWT from Authorization header
-    - Verify JWT signature and expiration using jsonwebtoken.verify()
-    - Attach decoded user data to request object
-    - Return 401 for expired or invalid tokens
-    - Apply middleware to all protected routes
-    - _Requirements: 9.8, 9.9, 9.10, 10.11, 10.12_
-
-  - [x] 1.7 Add rate limiting for authentication endpoints
-    - Install and configure express-rate-limit middleware
-    - Set limit to 5 failed login attempts per email within 15 minutes
-    - Block login attempts for 30 minutes after exceeding limit
-    - Return 429 error when rate limit is exceeded
-    - _Requirements: 9.12, 9.13_
-
-  - [ ]* 1.8 Write unit tests for authentication service
-    - Test password hashing with bcrypt
-    - Test JWT token generation and validation
-    - Test rate limiting behavior
-    - Test invalid credentials handling
-    - _Requirements: 9.1-9.13_
-
-- [ ] 2. Implement core API endpoints and middleware
-  - [x] 2.1 Create user profile GET and PATCH endpoints
-    - Implement GET /api/users/profile with JWT authentication
-    - Return user profile data including assessmentCompleted status
-    - Implement PATCH /api/users/profile for updating profile fields
-    - Validate updatable fields (fullName, phoneNumber, dateOfBirth, profileImageUrl)
-    - Return 200 with updated user object
-    - _Requirements: 10.3, 10.4_
-
-  - [ ] 2.2 Set up cloud storage for audio files (AWS S3 or GCS)
-    - Create S3 bucket or GCS bucket with appropriate IAM permissions
-    - Configure bucket CORS for frontend uploads
-    - Install AWS SDK or Google Cloud Storage SDK
-    - Create storage service with upload, download, delete methods
-    - Generate secure temporary URLs (presigned URLs) expiring after 3600 seconds
-    - _Requirements: 12.1, 12.4, 12.9_
-
-  - [ ] 2.3 Implement file upload endpoint with Multer middleware
-    - Install and configure Multer for multipart/form-data handling
-    - Create POST /api/assessments/:id/recordings endpoint
-    - Validate file format (WAV or WebM only)
-    - Validate file size (max 50MB)
-    - Upload file to cloud storage with unique identifier
-    - Store file metadata in database (duration, format, uploadedAt)
-    - Return 201 with recordingId
-    - _Requirements: 11.5, 11.6, 12.1, 12.2, 12.3_
-
-  - [ ] 2.4 Create request validation middleware using Zod
-    - Install Zod for TypeScript schema validation
-    - Create validation schemas for registration, login, profile updates
-    - Create validation middleware that validates req.body against schemas
-    - Return 400 with specific error messages for validation failures
+  - [ ] 2.3 Implement request validation middleware
+    - Review existing validation.middleware.ts
+    - Create Zod schemas for all endpoints (registration, login, profile, chat, practice)
+    - Apply validation middleware to all routes
+    - Test validation error responses
     - _Requirements: 11.1, 11.2, 11.4, 11.9, 11.10_
 
-  - [ ] 2.5 Implement error handling middleware
-    - Create centralized error handler middleware
-    - Handle different error types (validation, authentication, not found, server errors)
-    - Return appropriate HTTP status codes (400, 401, 403, 404, 500)
-    - Log errors to console in development, use Winston in production
-    - Prevent exposing stack traces to clients in production
-    - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 14.10_
+  - [ ] 2.4 Complete error handling and logging
+    - Review existing error.middleware.ts
+    - Ensure proper HTTP status codes (400, 401, 403, 404, 500)
+    - Configure Winston logging for production
+    - Test error responses don't expose stack traces
+    - _Requirements: 14.1-14.5, 14.10_
 
-  - [ ] 2.6 Add input sanitization for SQL injection and XSS prevention
-    - Use Prisma parameterized queries (built-in SQL injection protection)
-    - Sanitize text inputs using validator.escape() or similar
-    - Add Content Security Policy (CSP) headers
-    - _Requirements: 11.7, 11.8, 18.6_
+  - [ ]* 2.5 Write unit tests for authentication and core services
+    - Test password hashing and JWT generation (auth.service.test.ts exists)
+    - Test storage service (storage.service.test.ts exists)
+    - Test chat controller (chat.controller.test.ts exists)
+    - Test auth controller (auth.controller.test.ts exists)
+    - Achieve 70%+ coverage for critical paths
+    - _Requirements: 9, 10, 12_
 
-  - [ ]* 2.7 Write integration tests for core API endpoints
-    - Test registration, login, profile endpoints with real database
-    - Test file upload with mock S3/GCS
-    - Test validation error responses
-    - Test authentication middleware
-    - _Requirements: 9, 10, 11, 12_
-
-- [ ] 3. Complete database schema for all system modules
-  - [x] 3.1 Create practice pathway and progress schemas
-    - Define PracticePathway model with name, description, durationDays, weeks JSON
-    - Define PracticeProgress model with currentWeek, currentDay, streaks
-    - Define PracticeSession model with week, day, completedAt, recordings
-    - Add foreign key relationships and cascade delete rules
-    - _Requirements: 16.1, 16.2, 16.3, 16.9_
-
-  - [x] 3.2 Create chat message schema
-    - Define ChatMessage model with userId, senderType, content, timestamp
-    - Add index on userId and timestamp for fast queries
-    - Include optional fields for bot metadata (promptTokens, completionTokens)
-    - _Requirements: 8.10_
-
-  - [x] 3.3 Create expert system schemas
-    - Define Expert model with fullName, licenseNumber, specializations, ratings
-    - Define ExpertConnection model with userId, expertId, status, timestamps
-    - Define ExpertSession model with scheduledAt, duration, sessionType, rating
-    - Add unique constraint on userId + expertId for connections
-    - _Requirements: 17.1, 17.3, 17.6, 17.7, 17.8_
-
-  - [x] 3.4 Create notification schema
-    - Define Notification model with userId, type, title, message, read, timestamp
-    - Add index on userId, read status, and timestamp
-    - Include actionUrl and actionData JSON fields
-    - _Requirements: 8.7_
-
-  - [x] 3.5 Seed database with initial practice pathways and expert data
-    - Create seed script with at least 3 practice pathways (L/N, TR/CH, S/X focus)
-    - Include complete pathway content with weekly exercises
-    - Seed at least 5 expert profiles with varied specializations
-    - Run seed script in development environment
-    - _Requirements: 16.1, 17.1_
-
-  - [x] 3.6 Add database indexes for performance optimization
-    - Add index on User.email for fast login lookups
-    - Add composite index on PracticeProgress(userId, pathwayId)
-    - Add index on ChatMessage(userId, timestamp) for pagination
-    - Add index on AudioRecording(assessmentId) and (practiceSessionId)
-    - Verify index usage with EXPLAIN queries
-    - _Requirements: 21.9_
-
-- [ ] 4. Checkpoint - Backend foundation complete
-  - Ensure all tests pass
-  - Verify database migrations applied successfully
-  - Test authentication flow end-to-end
+- [ ] 3. Checkpoint - Backend validation complete
+  - Ensure all existing endpoints tested and functional
+  - Verify GridFS/S3 audio upload works end-to-end
+  - Confirm error handling and validation are robust
   - Ask user if questions arise
 
-### Phase 2: Audio Recording & Storage (Weeks 4-5)
+### Phase 2: Frontend Audio Recording & Offline Storage
 
-- [ ] 5. Build frontend audio recording system
-  - [ ] 5.1 Create AudioRecorder component with MediaRecorder API
-    - Create React component in src/components/audio/AudioRecorder.tsx
+- [ ] 4. Build frontend audio recording system
+  - [ ] 4.1 Create AudioRecorder component with MediaRecorder API
+    - Implement in src/components/audio/AudioRecorder.tsx (component may exist but needs completion)
+    - Review existing useAudioRecorder hook in src/hooks/useAudioRecorder.ts
     - Request microphone permission using navigator.mediaDevices.getUserMedia()
     - Display error message if permission denied with instructions to enable
     - Initialize MediaRecorder with audio/webm;codecs=opus MIME type
@@ -205,7 +103,7 @@ This document outlines the implementation tasks for transforming GOODVIET from a
     - Configure 16kHz sample rate and 128kbps bit rate
     - _Requirements: 1.1, 1.2, 1.5_
 
-  - [ ] 5.2 Add recording controls and visual feedback
+  - [ ] 4.2 Add recording controls and visual feedback
     - Create start, pause, stop, cancel recording buttons
     - Disable navigation/buttons while recording is in progress
     - Display elapsed time counter during recording
@@ -214,28 +112,28 @@ This document outlines the implementation tasks for transforming GOODVIET from a
     - Auto-stop recording if 300 seconds exceeded with notification
     - _Requirements: 1.3, 1.7, 1.8_
 
-  - [ ] 5.3 Implement audio playback functionality
+  - [ ] 4.3 Implement audio playback functionality
     - Create AudioPlayer component for playing back recordings
     - Allow user to review recording before submission
     - Display playback progress bar and time
     - Add play, pause, seek controls
     - _Requirements: 1.6_
 
-  - [ ] 5.4 Handle browser compatibility for audio formats
+  - [ ] 4.4 Handle browser compatibility for audio formats
     - Detect supported MIME types using MediaRecorder.isTypeSupported()
     - Prefer audio/webm, fallback to audio/wav
     - Test on Chrome, Firefox, Safari (iOS and desktop)
     - Handle Safari-specific MediaRecorder limitations
     - _Requirements: 1.4, 20.9_
 
-  - [ ]* 5.5 Write unit tests for AudioRecorder component
+  - [ ]* 4.5 Write unit tests for AudioRecorder component
     - Mock navigator.mediaDevices.getUserMedia()
     - Test permission request and denial handling
     - Test recording start, stop, cancel flows
     - Test maximum duration enforcement
     - _Requirements: 1.1-1.8_
 
-- [ ] 6. Implement offline storage and synchronization
+- [ ] 5. Implement offline storage and synchronization
   - [ ] 6.1 Set up IndexedDB database with idb library
     - Install idb library for promise-based IndexedDB access
     - Create IndexedDB database named "goodviet-audio" with version 1

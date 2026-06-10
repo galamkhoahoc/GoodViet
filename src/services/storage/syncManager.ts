@@ -94,13 +94,17 @@ export const useSyncStore = create<SyncState>((set, get) => ({
             await indexedDBService.markAsUploaded(record.id);
             uploaded++;
           } else {
-            // TODO: Real upload via apiClient
-            // await apiClient.upload('/recordings', record.blob, 'audio', {
-            //   userId: record.metadata.userId,
-            //   sentenceId: record.metadata.sentenceId || '',
-            //   duration: record.metadata.duration.toString(),
-            //   format: record.metadata.format,
-            // });
+            // Real upload via apiClient
+            const { apiClient } = await import('../api/apiClient');
+            await apiClient.upload('/api/audio/upload', record.blob, 'audio', {
+              assessmentId: record.metadata.assessmentId || '',
+              sentenceId: record.metadata.sentenceId || '',
+              phase: record.metadata.phase || '',
+              metadata: JSON.stringify({
+                duration: record.metadata.duration,
+                format: record.metadata.format,
+              })
+            });
             await indexedDBService.markAsUploaded(record.id);
             uploaded++;
           }

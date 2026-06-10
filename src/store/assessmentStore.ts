@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { assessmentApi, Assessment, AssessmentSentence } from '../services/api/assessmentApi';
 
 export type AssessmentPhase = 'not_started' | 'intro' | 'phase_1' | 'phase_2' | 'phase_3' | 'processing' | 'results';
 
@@ -7,43 +8,113 @@ interface RecordingEntry {
   blob?: Blob;
   duration: number;
   timestamp: string;
-  indexedDBId?: string; // Reference to IndexedDB stored recording
+  indexedDBId?: string;
 }
 
 interface AssessmentState {
+  assessmentId: string | null;
   phase: AssessmentPhase;
+  sentences: AssessmentSentence[];
   recordings: RecordingEntry[];
-  phaseIErrors: string[];
-  restartCount: number;
+  result: Assessment | null;
   completed: boolean;
+  isLoading: boolean;
+  
+  startAssessment: () => Promise<void>;
+  completeCurrentPhase: () => Promise<void>;
+  checkStatus: () => Promise<void>;
+  loadResult: () => Promise<void>;
+  
   setPhase: (phase: AssessmentPhase) => void;
   addRecording: (entry: RecordingEntry) => void;
-  setPhaseIErrors: (errors: string[]) => void;
-  restart: () => void;
-  completeAssessment: () => void;
   reset: () => void;
-  loadFromStorage: (userId: string) => void;
-  saveToStorage: (userId: string) => void;
   getRecordingForSentence: (sentenceId: string) => RecordingEntry | undefined;
 }
 
-const ASSESSMENT_KEY = 'goodviet_assessment_';
-
 export const useAssessmentStore = create<AssessmentState>((set, get) => ({
+  assessmentId: null,
   phase: 'not_started',
+  sentences: [],
   recordings: [],
-  phaseIErrors: [],
-  restartCount: 0,
+  result: null,
   completed: false,
+  isLoading: false,
 
-  setPhase: (phase) => {
-    set({ phase });
-    // Auto-save phase transitions
+  startAssessment: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await assessmentApi.startAssessment();
+      set({ 
+        assessmentId: response.assessmentId, 
+        phase: response.phase as AssessmentPhase,
+        sentences: response.sentences,
+        isLoading: false 
+      });
+    } catch (err) {
+      console.error('Failed to start assessment:', err);
+      set({ isLoading: false });
+    }
   },
+
+  completeCurrentPhase: async () => {
+    const { assessmentId, phase } = get();
+    if (!assessmentId) return;
+    
+    set({ isLoading: true });
+    try {
+      if (phase === 'phase_1' || phase === 'phase_2' || phase === 'phase_3') {
+        const response: any = await assessmentApi.completePhase(assessmentId, phase);
+        
+        if (response.nextPhase) {
+          set({ 
+            phase: response.nextPhase as AssessmentPhase,
+            sentences: response.sentences || [],
+            isLoading: false
+          });
+        } else if (response.message === 'Analysis started' || response.estimatedTime) {
+          // It moved to processing
+          set({ phase: 'processing', isLoading: false });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to complete phase:', err);
+      set({ isLoading: false });
+    }
+  },
+
+  checkStatus: async () => {
+    const { assessmentId } = get();
+    if (!assessmentId) return;
+    
+    try {
+      const { apiClient } = await import('../services/api/apiClient');
+      const res: any = await apiClient.get(`/api/assessments/${assessmentId}/status`);
+      if (res.status === 'completed') {
+        set({ phase: 'results', completed: true });
+        await get().loadResult();
+      } else if (res.status === 'failed') {
+        console.error('Analysis failed');
+      }
+    } catch (err) {
+      console.error('Failed to check status:', err);
+    }
+  },
+
+  loadResult: async () => {
+    try {
+      set({ isLoading: true });
+      const result = await assessmentApi.getResult();
+      set({ result, completed: true, phase: 'results', isLoading: false });
+    } catch (err) {
+      console.error('Failed to load result:', err);
+      set({ isLoading: false });
+    }
+  },
+
+  setPhase: (phase) => set({ phase }),
 
   addRecording: (entry) => {
     set(state => ({
-      // Replace existing recording for same sentence (re-recording)
       recordings: [
         ...state.recordings.filter(r => r.sentenceId !== entry.sentenceId),
         entry,
@@ -51,55 +122,16 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
     }));
   },
 
-  setPhaseIErrors: (errors) => {
-    set({ phaseIErrors: errors });
-  },
-
-  restart: () => {
-    const { restartCount } = get();
-    if (restartCount >= 3) return;
-    set({
-      phase: 'phase_1',
-      recordings: [],
-      phaseIErrors: [],
-      restartCount: restartCount + 1,
-    });
-  },
-
-  completeAssessment: () => {
-    set({ completed: true, phase: 'results' });
-  },
-
   reset: () => {
     set({
+      assessmentId: null,
       phase: 'not_started',
+      sentences: [],
       recordings: [],
-      phaseIErrors: [],
-      restartCount: 0,
+      result: null,
       completed: false,
+      isLoading: false,
     });
-  },
-
-  loadFromStorage: (userId: string) => {
-    try {
-      const saved = localStorage.getItem(ASSESSMENT_KEY + userId);
-      if (saved) {
-        const data = JSON.parse(saved);
-        set({
-          phase: data.phase || 'not_started',
-          phaseIErrors: data.phaseIErrors || [],
-          restartCount: data.restartCount || 0,
-          completed: data.completed || false,
-        });
-      }
-    } catch { /* ignore */ }
-  },
-
-  saveToStorage: (userId: string) => {
-    const { phase, phaseIErrors, restartCount, completed } = get();
-    localStorage.setItem(ASSESSMENT_KEY + userId, JSON.stringify({
-      phase, phaseIErrors, restartCount, completed,
-    }));
   },
 
   getRecordingForSentence: (sentenceId: string) => {
