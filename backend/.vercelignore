@@ -1,0 +1,23 @@
+# Node modules
+node_modules
+
+# Python AI Service (not supported on Vercel)
+python-ai-service
+
+# Development files
+*.log
+.env.local
+.env.development
+
+# Tests
+__tests__
+*.test.ts
+*.spec.ts
+
+# Documentation
+*.md
+!README.md
+
+# Git
+.git
+.gitignore
