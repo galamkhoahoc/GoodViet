@@ -38,72 +38,226 @@ export function ExpertPage() {
   };
 
   return (
-    <div className="animate-fade-in-up">
-      <div className="page-header">
-        <h1 className="page-title">👨‍⚕️ Kết nối <span className="heading-highlight">Chuyên gia</span></h1>
-        <p className="page-subtitle">Tìm và kết nối với chuyên gia âm ngữ trị liệu phù hợp</p>
+    <div style={{ padding: 'var(--md-sys-space-2xl)' }}>
+      {/* Page Header */}
+      <div style={{ marginBottom: 'var(--md-sys-space-2xl)' }}>
+        <h1 style={{
+          fontSize: 'var(--md-sys-typescale-headline-medium-size)',
+          fontWeight: 700,
+          color: 'var(--md-sys-color-on-surface)',
+          marginBottom: 'var(--md-sys-space-xs)',
+        }}>
+          👨‍⚕️ Kết nối <span style={{ color: 'var(--md-sys-color-primary)' }}>Chuyên gia</span>
+        </h1>
+        <p style={{
+          fontSize: 'var(--md-sys-typescale-body-large-size)',
+          color: 'var(--md-sys-color-on-surface-variant)',
+        }}>
+          Tìm và kết nối với chuyên gia âm ngữ trị liệu phù hợp
+        </p>
       </div>
 
       {/* Info Banner */}
-      <div className="card-dark mb-lg" style={{ borderLeft: '4px solid var(--gv-lime)' }}>
-        <p style={{ lineHeight: 1.8, color: 'rgba(255,255,255,0.8)' }}>
-          💡 <strong style={{ color: 'var(--gv-lime)' }}>GOODVIET Expert</strong> là dịch vụ kết nối 1:1 với chuyên gia. Bạn có thể yêu cầu kết nối bất kỳ lúc nào,
+      <div style={{
+        background: 'var(--md-sys-color-tertiary-container)',
+        borderRadius: 'var(--md-sys-shape-corner-extra-large)',
+        padding: 'var(--md-sys-space-xl)',
+        marginBottom: 'var(--md-sys-space-xl)',
+        borderLeft: `4px solid var(--md-sys-color-tertiary)`,
+      }}>
+        <p style={{
+          lineHeight: 1.8,
+          color: 'var(--md-sys-color-on-tertiary-container)',
+          fontSize: 'var(--md-sys-typescale-body-large-size)',
+        }}>
+          💡 <strong>GOODVIET Expert</strong> là dịch vụ kết nối 1:1 với chuyên gia. Bạn có thể yêu cầu kết nối bất kỳ lúc nào,
           hoặc hệ thống sẽ đề xuất khi lộ trình luyện tập chưa đạt kết quả mong muốn.
         </p>
       </div>
 
       {/* Expert Grid */}
-      <div className="grid-2">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: 'var(--md-sys-space-xl)',
+      }}>
         {mockExperts.map(expert => (
           <div
             key={expert.expertId}
-            className="card-positivus"
-            style={{
-              cursor: 'pointer',
-              background: selectedExpert === expert.expertId ? 'var(--gv-lime-soft)' : undefined,
-            }}
             onClick={() => setSelectedExpert(expert.expertId === selectedExpert ? null : expert.expertId)}
+            style={{
+              background: selectedExpert === expert.expertId ? 'var(--md-sys-color-primary-container)' : 'var(--md-sys-color-surface-container-lowest)',
+              borderRadius: 'var(--md-sys-shape-corner-extra-large)',
+              padding: 'var(--md-sys-space-xl)',
+              cursor: 'pointer',
+              transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
+              boxShadow: 'var(--md-sys-elevation-1)',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-2)'}
+            onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-1)'}
           >
-            <div className="flex items-center gap-md mb-md">
-              <div className="sidebar-avatar" style={{ width: 52, height: 52, fontSize: 'var(--gv-font-size-md)' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--md-sys-space-md)',
+              marginBottom: 'var(--md-sys-space-md)',
+            }}>
+              <div style={{
+                width: 56,
+                height: 56,
+                borderRadius: 'var(--md-sys-shape-corner-full)',
+                background: 'var(--md-sys-color-secondary-container)',
+                color: 'var(--md-sys-color-on-secondary-container)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 'var(--md-sys-typescale-headline-small-size)',
+              }}>
                 {expert.avatar}
               </div>
               <div style={{ flex: 1 }}>
-                <div className="font-semibold">{expert.name}</div>
-                <div className="flex items-center gap-sm mt-md">
+                <div style={{
+                  fontSize: 'var(--md-sys-typescale-title-medium-size)',
+                  fontWeight: 500,
+                  color: 'var(--md-sys-color-on-surface)',
+                }}>
+                  {expert.name}
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--md-sys-space-sm)',
+                  marginTop: 'var(--md-sys-space-xs)',
+                }}>
                   <StarRating rating={Math.round(expert.rating)} />
-                  <span className="text-sm font-semibold">{expert.rating}</span>
+                  <span style={{
+                    fontSize: 'var(--md-sys-typescale-body-small-size)',
+                    fontWeight: 500,
+                    color: 'var(--md-sys-color-on-surface)',
+                  }}>
+                    {expert.rating}
+                  </span>
                 </div>
               </div>
-              <span className="badge badge-success">Sẵn sàng</span>
+              <span style={{
+                padding: '6px 16px',
+                background: 'var(--md-sys-color-primary)',
+                color: 'var(--md-sys-color-on-primary)',
+                borderRadius: 'var(--md-sys-shape-corner-full)',
+                fontSize: 'var(--md-sys-typescale-label-small-size)',
+                fontWeight: 500,
+              }}>
+                Sẵn sàng
+              </span>
             </div>
 
-            <p className="text-sm text-secondary mb-md" style={{ lineHeight: 1.6 }}>
+            <p style={{
+              fontSize: 'var(--md-sys-typescale-body-medium-size)',
+              color: 'var(--md-sys-color-on-surface-variant)',
+              lineHeight: 1.6,
+              marginBottom: 'var(--md-sys-space-md)',
+            }}>
               {expert.bio}
             </p>
 
-            <div className="flex gap-sm mb-md" style={{ flexWrap: 'wrap' }}>
+            <div style={{
+              display: 'flex',
+              gap: 'var(--md-sys-space-sm)',
+              flexWrap: 'wrap',
+              marginBottom: 'var(--md-sys-space-md)',
+            }}>
               {expert.specializations.map((s, i) => (
-                <span key={i} className="badge badge-primary">{s}</span>
+                <span
+                  key={i}
+                  style={{
+                    padding: '4px 12px',
+                    background: 'var(--md-sys-color-secondary-container)',
+                    color: 'var(--md-sys-color-on-secondary-container)',
+                    borderRadius: 'var(--md-sys-shape-corner-small)',
+                    fontSize: 'var(--md-sys-typescale-label-small-size)',
+                    fontWeight: 500,
+                  }}
+                >
+                  {s}
+                </span>
               ))}
             </div>
 
-            <div className="flex items-center gap-lg text-sm text-muted">
-              <span className="flex items-center gap-xs"><Users size={14} /> {expert.totalUsers} học viên</span>
-              <span className="flex items-center gap-xs"><MessageSquare size={14} /> {expert.totalSessions} buổi</span>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--md-sys-space-xl)',
+              fontSize: 'var(--md-sys-typescale-body-small-size)',
+              color: 'var(--md-sys-color-on-surface-variant)',
+            }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--md-sys-space-xs)' }}>
+                <Users size={14} /> {expert.totalUsers} học viên
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--md-sys-space-xs)' }}>
+                <MessageSquare size={14} /> {expert.totalSessions} buổi
+              </span>
             </div>
 
             {selectedExpert === expert.expertId && (
-              <div style={{ marginTop: 'var(--gv-space-lg)', borderTop: '2px solid var(--gv-border)', paddingTop: 'var(--gv-space-lg)' }}>
-                <h4 className="font-semibold mb-sm">Bằng cấp & Chứng chỉ</h4>
-                <ul className="flex flex-col gap-xs mb-lg">
+              <div style={{
+                marginTop: 'var(--md-sys-space-xl)',
+                borderTop: `1px solid var(--md-sys-color-outline-variant)`,
+                paddingTop: 'var(--md-sys-space-xl)',
+              }}>
+                <h4 style={{
+                  fontSize: 'var(--md-sys-typescale-title-small-size)',
+                  fontWeight: 500,
+                  marginBottom: 'var(--md-sys-space-sm)',
+                  color: 'var(--md-sys-color-on-surface)',
+                }}>
+                  Bằng cấp & Chứng chỉ
+                </h4>
+                <ul style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 'var(--md-sys-space-xs)',
+                  marginBottom: 'var(--md-sys-space-xl)',
+                  listStyle: 'none',
+                  padding: 0,
+                }}>
                   {expert.credentials.map((c, i) => (
-                    <li key={i} className="text-sm text-secondary flex items-center gap-sm">
+                    <li
+                      key={i}
+                      style={{
+                        fontSize: 'var(--md-sys-typescale-body-small-size)',
+                        color: 'var(--md-sys-color-on-surface-variant)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--md-sys-space-sm)',
+                      }}
+                    >
                       <Award size={14} /> {c}
                     </li>
                   ))}
                 </ul>
-                <button className="btn btn-lime w-full" onClick={(e) => { e.stopPropagation(); setShowRequest(true); }}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowRequest(true);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px 24px',
+                    background: 'var(--md-sys-color-primary)',
+                    color: 'var(--md-sys-color-on-primary)',
+                    border: 'none',
+                    borderRadius: 'var(--md-sys-shape-corner-full)',
+                    fontSize: 'var(--md-sys-typescale-label-large-size)',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 'var(--md-sys-space-sm)',
+                    boxShadow: 'var(--md-sys-elevation-1)',
+                    transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
+                  }}
+                >
                   <Send size={16} /> Yêu cầu kết nối
                 </button>
               </div>
