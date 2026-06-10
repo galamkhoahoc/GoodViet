@@ -12,5 +12,6 @@ router.post('/start', PracticeController.startPathway);
 router.get('/progress', PracticeController.getProgress);
 router.get('/day/:week/:day', PracticeController.getDayExercises);
 router.post('/checkin', PracticeController.checkin);
+router.get('/history', PracticeController.getHistory);
 
 export default router;

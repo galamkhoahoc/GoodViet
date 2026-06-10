@@ -270,4 +270,36 @@ export class PracticeController {
       next(error);
     }
   }
+
+  /**
+   * GET /api/practice/history
+   * Get user's practice history (sessions)
+   */
+  static async getHistory(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const userId = req.userId;
+      if (!userId) throw new AppError(401, 'Unauthorized');
+
+      const progress = await PracticeProgress.findOne({ userId });
+      if (!progress) {
+        res.status(200).json({ success: true, history: [] });
+        return;
+      }
+
+      const sessions = await PracticeSession.find({ progressId: progress._id })
+        .sort({ completedAt: -1 })
+        .limit(50); // Get last 50 sessions
+
+      res.status(200).json({
+        success: true,
+        history: sessions,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

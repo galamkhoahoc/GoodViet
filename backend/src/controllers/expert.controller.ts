@@ -245,4 +245,34 @@ export class ExpertController {
       next(error);
     }
   }
+
+  /**
+   * GET /api/expert-sessions
+   * Get user's sessions
+   */
+  static async getSessions(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const userId = req.userId;
+      if (!userId) throw new AppError(401, 'Unauthorized');
+
+      // First find user connections
+      const connections = await ExpertConnection.find({ userId });
+      const connectionIds = connections.map(c => c._id);
+
+      const sessions = await ExpertSession.find({ connectionId: { $in: connectionIds } })
+        .populate('expertId', 'fullName profileImageUrl')
+        .sort({ scheduledAt: 1 });
+
+      res.status(200).json({
+        success: true,
+        sessions,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

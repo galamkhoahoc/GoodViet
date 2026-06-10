@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useAssessmentStore } from '../store/assessmentStore';
-import { phaseISentences, phaseIISentences, phaseIIIPrompts, mockAssessmentResult } from '../data/mockAssessment';
 import { AudioRecorder } from '../components/audio/AudioRecorder';
 import { AudioPlayer } from '../components/audio/AudioPlayer';
 import { indexedDBService } from '../services/storage/indexedDB';
@@ -9,7 +8,7 @@ import { toast } from '../components/common/Toast';
 import { Play, ChevronRight, CheckCircle, AlertTriangle } from 'lucide-react';
 import { config } from '../config/env';
 
-function IntroPhase({ onStart }: { onStart: () => void }) {
+function IntroPhase({ onStart, isLoading }: { onStart: () => void, isLoading: boolean }) {
   return (
     <div style={{
       maxWidth: 700,
@@ -86,6 +85,7 @@ function IntroPhase({ onStart }: { onStart: () => void }) {
       </p>
       <button
         onClick={onStart}
+        disabled={isLoading}
         style={{
           width: '100%',
           maxWidth: 300,
@@ -96,7 +96,8 @@ function IntroPhase({ onStart }: { onStart: () => void }) {
           borderRadius: 'var(--md-sys-shape-corner-full)',
           fontSize: 'var(--md-sys-typescale-label-large-size)',
           fontWeight: 500,
-          cursor: 'pointer',
+          cursor: isLoading ? 'not-allowed' : 'pointer',
+          opacity: isLoading ? 0.7 : 1,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -105,37 +106,29 @@ function IntroPhase({ onStart }: { onStart: () => void }) {
           margin: '0 auto',
           transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
         }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-2)';
-          e.currentTarget.style.transform = 'translateY(-1px)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-1)';
-          e.currentTarget.style.transform = 'translateY(0)';
-        }}
       >
-        <Play size={18} /> Bắt đầu bài test
+        <Play size={18} /> {isLoading ? 'Đang khởi tạo...' : 'Bắt đầu bài test'}
       </button>
     </div>
   );
 }
 
-function SentenceRecording({ sentences, title, subtitle, onComplete }: {
+function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading }: {
   sentences: { id: string; text: string }[];
   title: string;
   subtitle: string;
   onComplete: () => void;
+  isLoading: boolean;
 }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [recordings, setRecordings] = useState<Map<number, { blob: Blob; duration: number; url: string }>>(new Map());
-  const addRecording = useAssessmentStore(s => s.addRecording);
+  const { addRecording, assessmentId } = useAssessmentStore();
   const user = useAuthStore(s => s.user);
 
   const handleRecordComplete = useCallback(async (blob: Blob, duration: number) => {
     const url = URL.createObjectURL(blob);
     setRecordings(prev => {
       const next = new Map(prev);
-      // Revoke old URL if re-recording
       const old = next.get(currentIdx);
       if (old?.url) URL.revokeObjectURL(old.url);
       next.set(currentIdx, { blob, duration, url });
@@ -149,10 +142,10 @@ function SentenceRecording({ sentences, title, subtitle, onComplete }: {
       timestamp: new Date().toISOString(),
     });
 
-    // Save to IndexedDB
     try {
       await indexedDBService.saveRecording(blob, {
         userId: user?.userId || 'anonymous',
+        assessmentId: assessmentId || '',
         sentenceId: sentences[currentIdx].id,
         phase: title.includes('I') ? 'phase_1' : 'phase_2',
         duration,
@@ -164,15 +157,17 @@ function SentenceRecording({ sentences, title, subtitle, onComplete }: {
     }
 
     toast.success('Ghi âm thành công!', `Câu ${currentIdx + 1} đã được ghi.`);
-  }, [currentIdx, sentences, addRecording, user?.userId, title]);
+  }, [currentIdx, sentences, addRecording, user?.userId, title, assessmentId]);
 
-  // Cleanup blob URLs on unmount
   useEffect(() => {
     return () => {
       recordings.forEach(r => URL.revokeObjectURL(r.url));
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (!sentences || sentences.length === 0) {
+    return <div className="text-center p-xl">Đang tải dữ liệu câu hỏi...</div>;
+  }
 
   const allDone = recordings.size === sentences.length;
   const isRecorded = recordings.has(currentIdx);
@@ -201,11 +196,7 @@ function SentenceRecording({ sentences, title, subtitle, onComplete }: {
           <div style={{ marginTop: 'var(--gv-space-md)' }}>
             <span className="badge badge-success"><CheckCircle size={12} /> Đã ghi âm</span>
             <div style={{ marginTop: 'var(--gv-space-sm)' }}>
-              <AudioPlayer
-                src={recordings.get(currentIdx)?.url || null}
-                compact
-                label={`Câu ${currentIdx + 1}`}
-              />
+              <AudioPlayer src={recordings.get(currentIdx)?.url || null} compact label={`Câu ${currentIdx + 1}`} />
             </div>
           </div>
         )}
@@ -226,8 +217,8 @@ function SentenceRecording({ sentences, title, subtitle, onComplete }: {
             Câu tiếp →
           </button>
         ) : (
-          <button className="btn btn-success" disabled={!allDone} onClick={onComplete}>
-            <ChevronRight size={16} /> Hoàn thành giai đoạn
+          <button className="btn btn-success" disabled={!allDone || isLoading} onClick={onComplete}>
+            <ChevronRight size={16} /> {isLoading ? 'Đang gửi...' : 'Hoàn thành giai đoạn'}
           </button>
         )}
       </div>
@@ -241,11 +232,13 @@ function SentenceRecording({ sentences, title, subtitle, onComplete }: {
   );
 }
 
-function StorytellingPhase({ onComplete }: { onComplete: () => void }) {
+function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: any[], onComplete: () => void, isLoading: boolean }) {
   const [recorded, setRecorded] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const user = useAuthStore(s => s.user);
-  const addRecording = useAssessmentStore(s => s.addRecording);
+  const { addRecording, assessmentId } = useAssessmentStore();
+  
+  const mainPrompt = sentences[0]?.text || "Hãy kể về một ngày của bạn";
 
   const handleRecordComplete = useCallback(async (blob: Blob, duration: number) => {
     const url = URL.createObjectURL(blob);
@@ -253,17 +246,17 @@ function StorytellingPhase({ onComplete }: { onComplete: () => void }) {
     setRecorded(true);
 
     addRecording({
-      sentenceId: 'phase_3_storytelling',
+      sentenceId: sentences[0]?.id || 'phase_3_storytelling',
       blob,
       duration,
       timestamp: new Date().toISOString(),
     });
 
-    // Save to IndexedDB
     try {
       await indexedDBService.saveRecording(blob, {
         userId: user?.userId || 'anonymous',
-        sentenceId: 'phase_3_storytelling',
+        assessmentId: assessmentId || '',
+        sentenceId: sentences[0]?.id || 'phase_3_storytelling',
         phase: 'phase_3',
         duration,
         format: blob.type || 'audio/webm',
@@ -274,7 +267,7 @@ function StorytellingPhase({ onComplete }: { onComplete: () => void }) {
     }
 
     toast.success('Ghi âm hoàn tất!', 'Bài kể chuyện của bạn đã được lưu.');
-  }, [addRecording, user?.userId]);
+  }, [addRecording, user?.userId, assessmentId, sentences]);
 
   useEffect(() => {
     return () => {
@@ -295,7 +288,7 @@ function StorytellingPhase({ onComplete }: { onComplete: () => void }) {
 
       <div className="card-positivus text-center mb-lg" style={{ padding: 'var(--gv-space-xl)' }}>
         <p style={{ fontSize: 'var(--gv-font-size-lg)', fontStyle: 'italic', lineHeight: 1.8 }}>
-          "{phaseIIIPrompts[0]}"
+          "{mainPrompt}"
         </p>
       </div>
 
@@ -306,13 +299,6 @@ function StorytellingPhase({ onComplete }: { onComplete: () => void }) {
         showPlayback
       />
 
-      <div className="card mt-lg" style={{ padding: 'var(--gv-space-md)' }}>
-        <p className="text-sm font-semibold mb-md">Câu hỏi gợi ý thêm:</p>
-        {phaseIIIPrompts.slice(1).map((q, i) => (
-          <p key={i} className="text-sm text-secondary" style={{ padding: '4px 0' }}>• {q}</p>
-        ))}
-      </div>
-
       {recorded && audioUrl && (
         <div style={{ marginTop: 'var(--gv-space-lg)' }}>
           <AudioPlayer src={audioUrl} label="Bài kể chuyện của bạn" />
@@ -322,10 +308,10 @@ function StorytellingPhase({ onComplete }: { onComplete: () => void }) {
       <div className="text-center mt-lg">
         <button
           className="btn btn-success btn-lg"
-          disabled={!recorded}
+          disabled={!recorded || isLoading}
           onClick={onComplete}
         >
-          <CheckCircle size={18} /> Hoàn thành bài test
+          <CheckCircle size={18} /> {isLoading ? 'Đang nộp...' : 'Hoàn thành bài test'}
         </button>
         {!recorded && (
           <p className="text-xs text-muted mt-md">
@@ -337,30 +323,36 @@ function StorytellingPhase({ onComplete }: { onComplete: () => void }) {
   );
 }
 
-function ProcessingPhase({ onDone }: { onDone: () => void }) {
-  const [progress, setProgress] = useState(0);
+function ProcessingPhase() {
   const [statusText, setStatusText] = useState('Đang phân tích giọng nói...');
+  const { checkStatus, phase } = useAssessmentStore();
 
   useEffect(() => {
     const texts = [
-      'Đang phân tích giọng nói...',
-      'AI đang xử lý phát âm...',
-      'Phát hiện lỗi phát âm L/N, TR/CH, S/X...',
-      'Chuyên gia đang xác nhận kết quả...',
+      'Đang đồng bộ dữ liệu...',
+      'AI đang xử lý âm thanh...',
+      'Phân tích ngữ âm...',
+      'Đánh giá kết quả...',
       'Sắp hoàn thành...',
     ];
     let step = 0;
-    const interval = setInterval(() => {
-      step++;
-      setProgress(Math.min(step * 20, 100));
-      setStatusText(texts[Math.min(step, texts.length - 1)]);
-      if (step >= 5) {
-        clearInterval(interval);
-        setTimeout(onDone, 500);
+    const textInterval = setInterval(() => {
+      step = (step + 1) % texts.length;
+      setStatusText(texts[step]);
+    }, 3000);
+    
+    // Poll status from API
+    const checkInterval = setInterval(() => {
+      if (phase === 'processing') {
+        checkStatus();
       }
-    }, 1500);
-    return () => clearInterval(interval);
-  }, [onDone]);
+    }, 5000);
+
+    return () => {
+      clearInterval(textInterval);
+      clearInterval(checkInterval);
+    };
+  }, [checkStatus, phase]);
 
   return (
     <div className="processing-container animate-scale-in">
@@ -368,20 +360,26 @@ function ProcessingPhase({ onDone }: { onDone: () => void }) {
       <h2 style={{ fontSize: 'var(--gv-font-size-2xl)', fontWeight: 700 }}>Đang xử lý kết quả</h2>
       <p className="text-secondary">{statusText}</p>
       <div className="progress-bar" style={{ width: 300, marginTop: 'var(--gv-space-md)' }}>
-        <div className="progress-bar-fill" style={{ width: `${progress}%`, transition: 'width 0.5s ease' }} />
+        <div className="progress-bar-fill" style={{ width: '100%', animation: 'progress-indeterminate 2s infinite linear' }} />
       </div>
       <p className="text-xs text-muted" style={{ marginTop: 'var(--gv-space-md)' }}>
-        Vui lòng đợi khoảng 2-3 phút...
-      </p>
-      <p className="text-xs text-muted">
-        Thời gian ước tính: ~{Math.max(0, Math.ceil((100 - progress) / 20 * 1.5))} giây
+        Vui lòng đợi trong giây lát... Hệ thống đang kết nối AI.
       </p>
     </div>
   );
 }
 
 function ResultsPhase() {
-  const result = mockAssessmentResult;
+  const { result } = useAssessmentStore();
+  const updateUser = useAuthStore(s => s.updateUser);
+  
+  useEffect(() => {
+    if (result) {
+      updateUser({ assessmentCompleted: true, currentPathwayId: result.recommendedPathwayId });
+    }
+  }, [result, updateUser]);
+
+  if (!result) return <div className="text-center p-xl">Đang tải kết quả...</div>;
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'var(--gv-success)';
@@ -403,10 +401,9 @@ function ResultsPhase() {
       <div className="text-center mb-lg">
         <div style={{ fontSize: '3rem', marginBottom: 'var(--gv-space-md)' }}>📊</div>
         <h2 style={{ fontSize: 'var(--gv-font-size-2xl)', fontWeight: 700 }}>Kết quả <span className="heading-highlight">GOODVIET Check</span></h2>
-        <p className="text-secondary mt-md">Kết quả kết hợp phân tích AI và đánh giá của chuyên gia</p>
+        <p className="text-secondary mt-md">Kết quả phân tích từ AI</p>
       </div>
 
-      {/* Overall Score */}
       <div className="card-positivus text-center" style={{ marginBottom: 'var(--gv-space-xl)', padding: 'var(--gv-space-2xl)' }}>
         <div style={{ fontSize: '4rem', fontWeight: 700, color: getScoreColor(result.overallScore) }}>
           {result.overallScore}
@@ -414,7 +411,6 @@ function ResultsPhase() {
         <div className="text-secondary">Điểm tổng thể / 100</div>
       </div>
 
-      {/* Score Breakdown */}
       <div className="stats-grid" style={{ marginBottom: 'var(--gv-space-xl)' }}>
         {[
           { label: 'Phát âm rõ ràng', value: result.clarityScore },
@@ -429,7 +425,6 @@ function ResultsPhase() {
         ))}
       </div>
 
-      {/* Pronunciation Issues */}
       <div className="card-positivus" style={{ marginBottom: 'var(--gv-space-xl)' }}>
         <div className="flex items-center gap-sm mb-lg">
           <AlertTriangle size={20} style={{ color: 'var(--gv-warning)' }} />
@@ -450,20 +445,17 @@ function ResultsPhase() {
               {getSeverityBadge(issue.severity)}
             </div>
           ))}
+          {result.pronunciationIssues.length === 0 && (
+             <div className="text-center text-muted">Tuyệt vời! Không phát hiện lỗi phát âm nghiêm trọng.</div>
+          )}
         </div>
       </div>
 
-      {/* Recommended Pathway */}
       <div className="card-dark">
         <h3 className="font-semibold mb-md">🎯 Lộ trình được đề xuất</h3>
         <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: 'var(--gv-space-lg)', lineHeight: 1.7 }}>
-          Dựa trên kết quả phân tích, chúng tôi đề xuất lộ trình <strong style={{ color: 'var(--gv-lime)' }}>GoodSound - Cải thiện phát âm L/N</strong> trong 35 ngày, tập trung vào:
+          Dựa trên kết quả phân tích, chúng tôi đã tạo lộ trình cá nhân hóa cho bạn.
         </p>
-        <div className="flex gap-sm" style={{ flexWrap: 'wrap', marginBottom: 'var(--gv-space-lg)' }}>
-          <span className="badge badge-primary">Phát âm L/N</span>
-          <span className="badge badge-primary">Phân biệt TR/CH</span>
-          <span className="badge badge-primary">Phân biệt S/X</span>
-        </div>
         <button className="btn btn-lime btn-lg" onClick={() => { window.location.href = '/pathway'; }}>
           Bắt đầu lộ trình luyện tập →
         </button>
@@ -474,8 +466,14 @@ function ResultsPhase() {
 
 export function AssessmentPage() {
   const user = useAuthStore(s => s.user);
-  const updateUser = useAuthStore(s => s.updateUser);
-  const { phase, setPhase, completeAssessment } = useAssessmentStore();
+  const { phase, sentences, isLoading, startAssessment, completeCurrentPhase, loadResult, result } = useAssessmentStore();
+
+  useEffect(() => {
+    // If completed previously and not currently taking it
+    if (user?.assessmentCompleted && phase === 'not_started') {
+      loadResult();
+    }
+  }, [user?.assessmentCompleted, phase, loadResult]);
 
   const steps = [
     { num: 1, label: 'Giai đoạn I', key: 'phase_1' },
@@ -494,7 +492,7 @@ export function AssessmentPage() {
           <CheckCircle size={48} style={{ color: 'var(--gv-success)', margin: '0 auto var(--gv-space-lg)' }} />
           <h2 style={{ marginBottom: 'var(--gv-space-md)' }}>Bạn đã hoàn thành GOODVIET Check</h2>
           <p className="text-secondary">Mỗi tài khoản chỉ được làm bài test 1 lần duy nhất.</p>
-          <button className="btn btn-primary mt-lg" onClick={() => setPhase('results')}>
+          <button className="btn btn-primary mt-lg" onClick={() => loadResult()}>
             Xem lại kết quả
           </button>
         </div>
@@ -530,40 +528,41 @@ export function AssessmentPage() {
       )}
 
       {(phase === 'not_started' || phase === 'intro') && (
-        <IntroPhase onStart={() => setPhase('phase_1')} />
+        <IntroPhase onStart={startAssessment} isLoading={isLoading} />
       )}
 
       {phase === 'phase_1' && (
         <SentenceRecording
-          sentences={phaseISentences}
+          sentences={sentences}
           title="Giai đoạn I — Kiểm tra phát âm cơ bản"
           subtitle="Đọc rõ ràng từng câu văn bên dưới và ghi âm"
-          onComplete={() => setPhase('phase_2')}
+          onComplete={completeCurrentPhase}
+          isLoading={isLoading}
         />
       )}
 
       {phase === 'phase_2' && (
         <SentenceRecording
-          sentences={phaseIISentences}
+          sentences={sentences}
           title="Giai đoạn II — Xác nhận lỗi phát âm"
           subtitle="Đọc lại các câu có lỗi phát hiện ở Giai đoạn I để xác nhận"
-          onComplete={() => setPhase('phase_3')}
+          onComplete={completeCurrentPhase}
+          isLoading={isLoading}
         />
       )}
 
       {phase === 'phase_3' && (
-        <StorytellingPhase onComplete={() => setPhase('processing')} />
+        <StorytellingPhase 
+          sentences={sentences}
+          onComplete={completeCurrentPhase}
+          isLoading={isLoading}
+        />
       )}
 
-      {phase === 'processing' && (
-        <ProcessingPhase onDone={() => {
-          completeAssessment();
-          updateUser({ assessmentCompleted: true, currentPathwayId: 'pathway-001' });
-          toast.success('Hoàn thành!', 'Kết quả GOODVIET Check đã sẵn sàng.');
-        }} />
-      )}
+      {phase === 'processing' && <ProcessingPhase />}
 
       {phase === 'results' && <ResultsPhase />}
     </div>
   );
 }
+

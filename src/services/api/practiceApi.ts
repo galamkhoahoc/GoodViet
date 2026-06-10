@@ -131,4 +131,14 @@ export const practiceApi = {
     );
     return response;
   },
+
+  /**
+   * Get user's practice history
+   */
+  async getHistory(): Promise<{ history: any[] }> {
+    const response = await apiClient.get<{ success: boolean; history: any[] }>(
+      '/api/practice/history'
+    );
+    return { history: response.history };
+  },
 };

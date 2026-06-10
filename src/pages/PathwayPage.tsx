@@ -1,37 +1,33 @@
-import { useState } from 'react';
-import { mockPathways } from '../data/mockPathways';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
+import { practiceApi, PracticeProgress, PracticePathway, DayContent, DayExercise } from '../services/api/practiceApi';
 import { AudioRecorder } from '../components/audio/AudioRecorder';
 import { indexedDBService } from '../services/storage/indexedDB';
 import { toast } from '../components/common/Toast';
 import { Route, Play, CheckCircle, Pause, Video, ChevronDown, ChevronUp } from 'lucide-react';
-import type { Exercise } from '../data/mockPathways';
 
-function DayExerciseCard({ exercise, onRecord }: { exercise: Exercise; onRecord: () => void }) {
+function DayExerciseCard({ exercise, onRecord }: { exercise: DayExercise; onRecord: () => void }) {
   const typeLabels: Record<string, string> = {
     pronunciation: '🗣️ Phát âm', breathing: '💨 Hơi thở',
     tongue_placement: '👅 Đặt lưỡi', fluency: '🌊 Trôi chảy',
   };
-  const diffColors: Record<string, string> = {
-    easy: 'var(--gv-success)', medium: 'var(--gv-warning)', hard: 'var(--gv-error)',
-  };
-  const diffLabels: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' };
 
   return (
     <div className="card" style={{ marginBottom: 'var(--gv-space-md)' }}>
       <div className="flex items-center justify-between mb-md">
         <span className="badge badge-primary">{typeLabels[exercise.type] || exercise.type}</span>
-        <span className="text-xs font-semibold" style={{ color: diffColors[exercise.difficulty] }}>● {diffLabels[exercise.difficulty]}</span>
       </div>
       <h4 className="font-semibold mb-sm">{exercise.title}</h4>
       <p className="text-sm text-secondary mb-md">{exercise.instructions}</p>
-      <div className="card-glow" style={{ padding: 'var(--gv-space-md)', marginBottom: 'var(--gv-space-md)', textAlign: 'center' }}>
-        <p style={{ fontSize: 'var(--gv-font-size-lg)', fontWeight: 500, lineHeight: 1.8 }}>
-          "{exercise.practiceText}"
-        </p>
-      </div>
+      {exercise.sentences && exercise.sentences.length > 0 && (
+        <div className="card-glow" style={{ padding: 'var(--gv-space-md)', marginBottom: 'var(--gv-space-md)', textAlign: 'center' }}>
+          <p style={{ fontSize: 'var(--gv-font-size-lg)', fontWeight: 500, lineHeight: 1.8 }}>
+            "{exercise.sentences[0]}"
+          </p>
+        </div>
+      )}
       <div className="flex items-center justify-between">
-        <span className="text-xs text-muted">Lặp lại {exercise.repetitions} lần · ~{exercise.estimatedDuration} phút</span>
+        <span className="text-xs text-muted">Lặp lại theo hướng dẫn</span>
         <button className="btn btn-lime btn-sm" onClick={onRecord}>
           🎙️ Ghi âm
         </button>
@@ -40,7 +36,7 @@ function DayExerciseCard({ exercise, onRecord }: { exercise: Exercise; onRecord:
   );
 }
 
-function RecordingModal({ exercise, onClose }: { exercise: Exercise; onClose: () => void }) {
+function RecordingModal({ exercise, week, day, onClose }: { exercise: DayExercise; week: number; day: number; onClose: () => void }) {
   const user = useAuthStore(s => s.user);
   const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -49,11 +45,11 @@ function RecordingModal({ exercise, onClose }: { exercise: Exercise; onClose: ()
     const url = URL.createObjectURL(blob);
     setRecordedUrl(url);
 
-    // Save to IndexedDB
     try {
       await indexedDBService.saveRecording(blob, {
         userId: user?.userId || 'anonymous',
         exerciseId: exercise.exerciseId,
+        phase: `practice_w${week}_d${day}`,
         duration,
         format: blob.type || 'audio/webm',
         timestamp: new Date().toISOString(),
@@ -76,9 +72,11 @@ function RecordingModal({ exercise, onClose }: { exercise: Exercise; onClose: ()
     }} onClick={onClose}>
       <div className="card-positivus animate-scale-in" style={{ maxWidth: 500, width: '90%', background: 'var(--gv-white)' }} onClick={e => e.stopPropagation()}>
         <h3 className="font-semibold mb-md">{exercise.title}</h3>
-        <div className="card-glow text-center mb-lg" style={{ padding: 'var(--gv-space-md)' }}>
-          <p style={{ fontSize: 'var(--gv-font-size-lg)', lineHeight: 1.8 }}>"{exercise.practiceText}"</p>
-        </div>
+        {exercise.sentences && exercise.sentences.length > 0 && (
+          <div className="card-glow text-center mb-lg" style={{ padding: 'var(--gv-space-md)' }}>
+            <p style={{ fontSize: 'var(--gv-font-size-lg)', lineHeight: 1.8 }}>"{exercise.sentences[0]}"</p>
+          </div>
+        )}
 
         {!saved ? (
           <>
@@ -110,24 +108,128 @@ function RecordingModal({ exercise, onClose }: { exercise: Exercise; onClose: ()
 }
 
 export function PathwayPage() {
-  const pathway = mockPathways[0];
-  const [selectedWeek, setSelectedWeek] = useState(0);
+  const user = useAuthStore(s => s.user);
+  const [progress, setProgress] = useState<any>(null);
+  const [pathway, setPathway] = useState<PracticePathway | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [pathwaysList, setPathwaysList] = useState<PracticePathway[]>([]);
+  
+  const [selectedWeek, setSelectedWeek] = useState(1);
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
-  const [recordingExercise, setRecordingExercise] = useState<Exercise | null>(null);
-  const [checkedIn, setCheckedIn] = useState<Set<number>>(new Set());
+  const [dayContent, setDayContent] = useState<DayContent | null>(null);
+  const [loadingDay, setLoadingDay] = useState(false);
+  
+  const [recordingExercise, setRecordingExercise] = useState<DayExercise | null>(null);
+  const [checkedInDays, setCheckedInDays] = useState<Set<number>>(new Set());
 
-  const completedDays = pathway.weeklyPlans.flatMap(w => w.days).filter(d => d.completed).length;
-  const totalDays = pathway.durationDays;
-  const progress = Math.round((completedDays / totalDays) * 100);
-  const currentWeek = pathway.weeklyPlans[selectedWeek];
+  useEffect(() => {
+    loadData();
+  }, []);
 
-  const handleCheckIn = (day: number) => {
-    setCheckedIn(prev => new Set(prev).add(day));
-    toast.success('Chấm công thành công!', `Ngày ${day} đã hoàn thành 🎉`);
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      // Attempt to load progress
+      try {
+        const prog = await practiceApi.getProgress();
+        setProgress(prog);
+        setPathway(prog.pathway);
+        setSelectedWeek(prog.currentWeek);
+      } catch (err: any) {
+        // If 404, load pathways list to let user start one
+        if (err.status === 404 || err.message?.includes('Chưa có')) {
+          const res = await practiceApi.getPathways();
+          setPathwaysList(res.pathways);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const handleStartPathway = async (id: string) => {
+    try {
+      await practiceApi.startPathway(id);
+      toast.success('Thành công', 'Đã bắt đầu lộ trình luyện tập');
+      loadData();
+    } catch (err: any) {
+      toast.error('Lỗi', err.message || 'Không thể bắt đầu lộ trình');
+    }
+  };
+
+  const handleExpandDay = async (week: number, day: number) => {
+    if (expandedDay === day) {
+      setExpandedDay(null);
+      return;
+    }
+    
+    setExpandedDay(day);
+    setLoadingDay(true);
+    try {
+      const data = await practiceApi.getDayExercises(week, day);
+      setDayContent(data);
+    } catch (err: any) {
+      toast.error('Lỗi', err.message || 'Không thể tải bài tập');
+      setExpandedDay(null);
+    } finally {
+      setLoadingDay(false);
+    }
+  };
+
+  const handleCheckIn = async (week: number, day: number, exercisesCount: number) => {
+    try {
+      const res = await practiceApi.checkin(week, day, exercisesCount);
+      setCheckedInDays(prev => new Set(prev).add(day));
+      toast.success('Chấm công thành công!', `Chuỗi hiện tại: ${res.newStreak} ngày 🎉`);
+      if (res.milestoneAchieved) {
+        toast.success('Thành tựu!', res.milestoneAchieved.message);
+      }
+      loadData(); // Reload progress
+    } catch (err: any) {
+      toast.error('Lỗi', err.message || 'Chấm công thất bại');
+    }
+  };
+
+  if (loading) return <div className="p-xl text-center">Đang tải dữ liệu...</div>;
+
+  if (!progress || !pathway) {
+    return (
+      <div style={{ padding: 'var(--md-sys-space-2xl)', maxWidth: 800, margin: '0 auto' }}>
+        <h1 className="page-title mb-xl">Chọn Lộ Trình Luyện Tập</h1>
+        {pathwaysList.length === 0 ? (
+          <p>Không có lộ trình nào khả dụng.</p>
+        ) : (
+          <div className="flex flex-col gap-md">
+            {pathwaysList.map(p => (
+              <div key={p._id} className="card-positivus">
+                <h3 className="font-semibold mb-sm">{p.name}</h3>
+                <p className="text-secondary mb-md">{p.description}</p>
+                <div className="flex gap-sm mb-md">
+                  <span className="badge badge-primary">{p.durationDays} ngày</span>
+                  <span className="badge badge-warning">Mức độ: {p.level}</span>
+                </div>
+                <button className="btn btn-lime" onClick={() => handleStartPathway(p._id)}>
+                  Bắt đầu lộ trình
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const completedDays = progress.completedSessions || 0;
+  const totalDays = pathway.durationDays || 35;
+  const progressPercent = progress.completionPercentage || 0;
+
+  // Render dummy days for UI (1 to 7)
+  const weekDays = Array.from({ length: 7 }, (_, i) => i + 1);
+
   return (
-    <div style={{ padding: 'var(--md-sys-space-2xl)' }}>
+    <div style={{ padding: 'var(--md-sys-space-2xl)', maxWidth: 800, margin: '0 auto' }}>
       {/* Page Header */}
       <div style={{ marginBottom: 'var(--md-sys-space-2xl)' }}>
         <h1 style={{
@@ -179,7 +281,7 @@ export function PathwayPage() {
             fontSize: 'var(--md-sys-typescale-label-large-size)',
             fontWeight: 500,
           }}>
-            {progress}% hoàn thành
+            {progressPercent}% hoàn thành
           </span>
         </div>
         <div style={{
@@ -191,7 +293,7 @@ export function PathwayPage() {
         }}>
           <div style={{
             height: '100%',
-            width: `${progress}%`,
+            width: `${progressPercent}%`,
             background: 'var(--md-sys-color-primary)',
             transition: 'width var(--md-motion-duration-medium2) var(--md-motion-easing-standard)',
             borderRadius: 'var(--md-sys-shape-corner-full)',
@@ -203,15 +305,8 @@ export function PathwayPage() {
           fontSize: 'var(--md-sys-typescale-body-small-size)',
           color: 'var(--md-sys-color-on-surface-variant)',
         }}>
-          <span>{completedDays} / {totalDays} ngày</span>
-          <span>
-            Mức độ: <span style={{
-              fontWeight: 500,
-              color: pathway.severityLevel === 'moderate' ? 'var(--md-sys-color-tertiary)' : 'var(--md-sys-color-secondary)',
-            }}>
-              {pathway.severityLevel === 'moderate' ? 'Trung bình' : pathway.severityLevel === 'mild' ? 'Nhẹ' : 'Nặng'}
-            </span>
-          </span>
+          <span>{completedDays} / {totalDays} ngày đã luyện tập</span>
+          <span>Chuỗi: {progress.currentStreak} ngày 🔥</span>
         </div>
       </div>
 
@@ -223,95 +318,106 @@ export function PathwayPage() {
         overflowX: 'auto',
         paddingBottom: 4,
       }}>
-        {pathway.weeklyPlans.map((week, i) => (
-          <button
-            key={i}
-            onClick={() => setSelectedWeek(i)}
-            style={{
-              padding: '10px 24px',
-              background: selectedWeek === i ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-surface-container)',
-              color: selectedWeek === i ? 'var(--md-sys-color-on-primary)' : 'var(--md-sys-color-on-surface)',
-              border: 'none',
-              borderRadius: 'var(--md-sys-shape-corner-full)',
-              fontSize: 'var(--md-sys-typescale-label-large-size)',
-              fontWeight: 500,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
-              boxShadow: selectedWeek === i ? 'var(--md-sys-elevation-1)' : 'none',
-            }}
-          >
-            Tuần {week.weekNumber}
-          </button>
-        ))}
-      </div>
-
-      {/* Weekly Video */}
-      <div className="card-positivus mb-lg" style={{ borderLeft: '4px solid var(--gv-lime)' }}>
-        <div className="flex items-center gap-md">
-          <div style={{
-            width: 56, height: 56, borderRadius: 'var(--gv-radius-md)',
-            background: 'var(--gv-lime)', border: '2px solid var(--gv-black)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Video size={24} color="#191A23" />
-          </div>
-          <div style={{ flex: 1 }}>
-            <div className="font-semibold">{currentWeek.videoTitle}</div>
-            <div className="text-sm text-muted">{currentWeek.videoDescription}</div>
-          </div>
-          <button className="btn btn-primary btn-sm"><Play size={14} /> Xem video</button>
-        </div>
+        {Array.from({ length: Math.ceil(totalDays / 7) }).map((_, i) => {
+          const w = i + 1;
+          const isLocked = w > progress.currentWeek;
+          return (
+            <button
+              key={w}
+              onClick={() => !isLocked && setSelectedWeek(w)}
+              style={{
+                padding: '10px 24px',
+                background: selectedWeek === w ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-surface-container)',
+                color: selectedWeek === w ? 'var(--md-sys-color-on-primary)' : 'var(--md-sys-color-on-surface)',
+                border: 'none',
+                borderRadius: 'var(--md-sys-shape-corner-full)',
+                fontSize: 'var(--md-sys-typescale-label-large-size)',
+                fontWeight: 500,
+                cursor: isLocked ? 'not-allowed' : 'pointer',
+                opacity: isLocked ? 0.5 : 1,
+                whiteSpace: 'nowrap',
+                transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
+                boxShadow: selectedWeek === w ? 'var(--md-sys-elevation-1)' : 'none',
+              }}
+            >
+              Tuần {w} {isLocked ? '🔒' : ''}
+            </button>
+          );
+        })}
       </div>
 
       {/* Daily Exercises */}
       <div className="flex flex-col gap-sm">
-        {currentWeek.days.map((day) => {
-          const isExpanded = expandedDay === day.day;
-          const isDone = day.completed || checkedIn.has(day.day);
+        {weekDays.map((day) => {
+          const isExpanded = expandedDay === day;
+          // Determine if done (if past week/day, it's done. Or if checked in.)
+          const isDone = (selectedWeek < progress.currentWeek) || 
+                         (selectedWeek === progress.currentWeek && day < progress.currentDay) ||
+                         checkedInDays.has(day);
+
+          const isLocked = (selectedWeek === progress.currentWeek && day > progress.currentDay);
 
           return (
-            <div key={day.day} className="card-positivus" style={{
-              borderLeft: `4px solid ${day.isRestDay ? 'var(--gv-border)' : isDone ? 'var(--gv-success)' : 'var(--gv-black)'}`,
-              opacity: day.isRestDay ? 0.6 : 1,
+            <div key={day} className="card-positivus" style={{
+              borderLeft: `4px solid ${isLocked ? 'var(--gv-border)' : isDone ? 'var(--gv-success)' : 'var(--gv-black)'}`,
+              opacity: isLocked ? 0.6 : 1,
               boxShadow: isDone ? '0 5px 0 0 var(--gv-success)' : undefined,
             }}>
               <div
                 className="flex items-center justify-between"
-                style={{ cursor: day.isRestDay ? 'default' : 'pointer' }}
-                onClick={() => !day.isRestDay && setExpandedDay(isExpanded ? null : day.day)}
+                style={{ cursor: isLocked ? 'not-allowed' : 'pointer' }}
+                onClick={() => !isLocked && handleExpandDay(selectedWeek, day)}
               >
                 <div className="flex items-center gap-md">
                   {isDone ? (
                     <CheckCircle size={20} color="var(--gv-success)" />
-                  ) : day.isRestDay ? (
+                  ) : isLocked ? (
                     <Pause size={20} color="var(--gv-text-muted)" />
                   ) : (
                     <Play size={20} />
                   )}
                   <div>
-                    <span className="font-semibold">Ngày {day.day}</span>
-                    {day.isRestDay && <span className="text-sm text-muted"> — Ngày nghỉ 🌿</span>}
-                    {isDone && !day.isRestDay && <span className="badge badge-success" style={{ marginLeft: 8 }}>Hoàn thành</span>}
+                    <span className="font-semibold">Ngày {day}</span>
+                    {isDone && <span className="badge badge-success" style={{ marginLeft: 8 }}>Hoàn thành</span>}
                   </div>
                 </div>
-                {!day.isRestDay && (
+                {!isLocked && (
                   <div className="flex items-center gap-sm">
-                    <span className="text-xs text-muted">{day.exercises.length} bài tập</span>
                     {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </div>
                 )}
               </div>
 
-              {isExpanded && !day.isRestDay && (
+              {isExpanded && (
                 <div style={{ marginTop: 'var(--gv-space-lg)' }}>
-                  {day.exercises.map(ex => (
-                    <DayExerciseCard key={ex.exerciseId} exercise={ex} onRecord={() => setRecordingExercise(ex)} />
-                  ))}
-                  {!isDone && (
-                    <button className="btn btn-success w-full mt-md" onClick={() => handleCheckIn(day.day)}>
-                      <CheckCircle size={16} /> Chấm công — Hoàn thành ngày {day.day}
-                    </button>
+                  {loadingDay ? (
+                    <div className="text-center p-md">Đang tải...</div>
+                  ) : dayContent ? (
+                    dayContent.isRestDay ? (
+                      <div className="text-center p-md text-secondary">Hôm nay là ngày nghỉ! Hãy thư giãn.</div>
+                    ) : (
+                      <>
+                        {dayContent.videoTutorial && (
+                          <div className="card-dark mb-md flex gap-md items-center">
+                            <Video size={24} color="var(--gv-lime)" />
+                            <div>
+                              <div className="font-semibold text-white">{dayContent.videoTutorial.title}</div>
+                              <div className="text-sm text-secondary">{dayContent.videoTutorial.description}</div>
+                            </div>
+                          </div>
+                        )}
+                        {dayContent.exercises.map(ex => (
+                          <DayExerciseCard key={ex.exerciseId} exercise={ex} onRecord={() => setRecordingExercise(ex)} />
+                        ))}
+                        {!isDone && (
+                          <button className="btn btn-success w-full mt-md" onClick={() => handleCheckIn(selectedWeek, day, dayContent.exercises.length)}>
+                            <CheckCircle size={16} /> Chấm công — Hoàn thành ngày {day}
+                          </button>
+                        )}
+                      </>
+                    )
+                  ) : (
+                    <div className="text-center p-md">Không tải được dữ liệu.</div>
                   )}
                 </div>
               )}
@@ -321,7 +427,12 @@ export function PathwayPage() {
       </div>
 
       {recordingExercise && (
-        <RecordingModal exercise={recordingExercise} onClose={() => setRecordingExercise(null)} />
+        <RecordingModal 
+          exercise={recordingExercise} 
+          week={selectedWeek}
+          day={expandedDay!}
+          onClose={() => setRecordingExercise(null)} 
+        />
       )}
     </div>
   );

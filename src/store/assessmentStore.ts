@@ -63,6 +63,10 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
     set({ isLoading: true });
     try {
       if (phase === 'phase_1' || phase === 'phase_2' || phase === 'phase_3') {
+        // Ensure all offline recordings are uploaded before completing phase
+        const { useSyncStore } = await import('../services/storage/syncManager');
+        await useSyncStore.getState().syncNow();
+
         const response: any = await assessmentApi.completePhase(assessmentId, phase);
         
         if (response.nextPhase) {

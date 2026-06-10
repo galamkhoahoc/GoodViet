@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { User, Mail, Phone, Calendar, Edit3, Save, Shield, Bell, Download, Trash2 } from 'lucide-react';
+import { User, Mail, Phone, Calendar, Edit3, Save, Shield, Bell, Download, Trash2, Clock, CheckCircle, Activity } from 'lucide-react';
+import { practiceApi } from '../services/api/practiceApi';
+import { toast } from '../components/common/Toast';
 
 export function ProfilePage() {
   const user = useAuthStore(s => s.user);
@@ -12,7 +14,28 @@ export function ProfilePage() {
     phone: user?.phone || '',
     speechDescription: user?.speechDescription || '',
   });
-  const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'privacy'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'history' | 'notifications' | 'privacy'>('profile');
+
+  const [history, setHistory] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'history') {
+      loadHistory();
+    }
+  }, [activeTab]);
+
+  const loadHistory = async () => {
+    try {
+      setLoadingHistory(true);
+      const res = await practiceApi.getHistory();
+      setHistory(res.history);
+    } catch (err: any) {
+      toast.error('Lỗi', err.message || 'Không thể tải lịch sử luyện tập');
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
 
   const handleSave = () => {
     updateUser({
@@ -26,6 +49,7 @@ export function ProfilePage() {
 
   const tabs = [
     { key: 'profile', label: 'Hồ sơ', icon: User },
+    { key: 'history', label: 'Lịch sử luyện tập', icon: Activity },
     { key: 'notifications', label: 'Thông báo', icon: Bell },
     { key: 'privacy', label: 'Bảo mật', icon: Shield },
   ];
@@ -61,6 +85,7 @@ export function ProfilePage() {
         display: 'flex',
         alignItems: 'center',
         gap: 'var(--md-sys-space-xl)',
+        flexWrap: 'wrap'
       }}>
         <div style={{
           width: 88,
@@ -76,7 +101,7 @@ export function ProfilePage() {
         }}>
           {user?.name?.charAt(0).toUpperCase() || 'U'}
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, minWidth: 200 }}>
           <h2 style={{
             fontSize: 'var(--md-sys-typescale-headline-small-size)',
             fontWeight: 700,
@@ -97,6 +122,7 @@ export function ProfilePage() {
             marginTop: 'var(--md-sys-space-md)',
             fontSize: 'var(--md-sys-typescale-body-small-size)',
             color: 'var(--md-sys-color-on-surface-variant)',
+            flexWrap: 'wrap'
           }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--md-sys-space-xs)' }}>
               <Calendar size={14} /> {user?.age} tuổi
@@ -141,6 +167,8 @@ export function ProfilePage() {
         display: 'flex',
         gap: 'var(--md-sys-space-md)',
         marginBottom: 'var(--md-sys-space-xl)',
+        overflowX: 'auto',
+        paddingBottom: 'var(--md-sys-space-xs)'
       }}>
         {tabs.map(tab => {
           const Icon = tab.icon;
@@ -162,6 +190,7 @@ export function ProfilePage() {
                 alignItems: 'center',
                 gap: 'var(--md-sys-space-sm)',
                 transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
+                whiteSpace: 'nowrap'
               }}
               onMouseEnter={(e) => {
                 if (!isActive) e.currentTarget.style.background = 'var(--md-sys-color-surface-container)';
@@ -178,7 +207,7 @@ export function ProfilePage() {
 
       {/* Profile Tab */}
       {activeTab === 'profile' && (
-        <div style={{
+        <div className="animate-fade-in-up" style={{
           background: 'var(--md-sys-color-surface-container-lowest)',
           borderRadius: 'var(--md-sys-shape-corner-extra-large)',
           padding: 'var(--md-sys-space-2xl)',
@@ -242,7 +271,7 @@ export function ProfilePage() {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
             gap: 'var(--md-sys-space-xl)',
             marginBottom: 'var(--md-sys-space-xl)',
           }}>
@@ -427,9 +456,67 @@ export function ProfilePage() {
         </div>
       )}
 
+      {/* History Tab */}
+      {activeTab === 'history' && (
+        <div className="animate-fade-in-up" style={{
+          background: 'var(--md-sys-color-surface-container-lowest)',
+          borderRadius: 'var(--md-sys-shape-corner-extra-large)',
+          padding: 'var(--md-sys-space-2xl)',
+          boxShadow: 'var(--md-sys-elevation-1)',
+        }}>
+          <h3 style={{
+            fontSize: 'var(--md-sys-typescale-title-large-size)',
+            fontWeight: 'var(--md-sys-typescale-title-large-weight)',
+            color: 'var(--md-sys-color-on-surface)',
+            marginBottom: 'var(--md-sys-space-xl)',
+          }}>
+            Lịch sử luyện tập
+          </h3>
+          
+          {loadingHistory ? (
+            <div className="p-xl text-center">Đang tải lịch sử...</div>
+          ) : history.length === 0 ? (
+            <div className="text-center p-2xl">
+              <div style={{ fontSize: '3rem', marginBottom: 'var(--md-sys-space-md)' }}>📈</div>
+              <h3 className="font-semibold mb-md">Chưa có dữ liệu luyện tập</h3>
+              <p className="text-secondary mb-lg">Hãy bắt đầu bài tập hàng ngày của bạn để theo dõi tiến độ tại đây.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-md">
+              {history.map((session: any) => (
+                <div key={session._id} className="card-positivus flex gap-xl items-center flex-wrap" style={{ padding: 'var(--gv-space-lg)' }}>
+                  <div style={{
+                    width: 48, height: 48, borderRadius: '50%', background: 'var(--gv-success-light)', color: 'var(--gv-success)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}>
+                    <CheckCircle size={24} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div className="font-semibold" style={{ fontSize: 'var(--gv-font-size-lg)' }}>
+                      Tuần {session.week} - Ngày {session.day}
+                    </div>
+                    <div className="text-secondary text-sm mt-xs">
+                      Hoàn thành {session.exercisesCompleted} bài tập
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-medium flex items-center gap-xs justify-end">
+                      <Clock size={14} /> {new Date(session.completedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    </div>
+                    <div className="text-xs text-muted mt-xs">
+                      {new Date(session.completedAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Notifications Tab */}
       {activeTab === 'notifications' && (
-        <div style={{
+        <div className="animate-fade-in-up" style={{
           background: 'var(--md-sys-color-surface-container-lowest)',
           borderRadius: 'var(--md-sys-shape-corner-extra-large)',
           padding: 'var(--md-sys-space-2xl)',
@@ -515,7 +602,7 @@ export function ProfilePage() {
 
       {/* Privacy Tab */}
       {activeTab === 'privacy' && (
-        <div style={{
+        <div className="animate-fade-in-up" style={{
           background: 'var(--md-sys-color-surface-container-lowest)',
           borderRadius: 'var(--md-sys-shape-corner-extra-large)',
           padding: 'var(--md-sys-space-2xl)',
