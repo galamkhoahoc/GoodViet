@@ -29,13 +29,15 @@ async function createDemoAccount() {
     console.log('✅ Connected to MongoDB');
     console.log('');
 
-    // Define User model
+    // Define User model (matching backend schema)
     const UserSchema = new mongoose.Schema({
       email: { type: String, required: true, unique: true },
-      password: { type: String, required: true },
+      passwordHash: { type: String, required: true },
       fullName: { type: String, required: true },
       phoneNumber: String,
       targetGoals: String,
+      verifiedEmail: { type: Boolean, default: false },
+      isActive: { type: Boolean, default: true },
       assessmentCompleted: { type: Boolean, default: false },
       currentPathwayId: mongoose.Schema.Types.ObjectId,
       createdAt: { type: Date, default: Date.now },
@@ -59,15 +61,21 @@ async function createDemoAccount() {
       console.log('');
     }
 
-    // Hash password
+    // Hash password (using bcrypt with 12 rounds like backend)
     console.log('🔐 Hashing password...');
-    const hashedPassword = await bcrypt.hash(DEMO_ACCOUNT.password, 10);
+    const passwordHash = await bcrypt.hash(DEMO_ACCOUNT.password, 12);
 
     // Create demo user
     console.log('👤 Creating demo user...');
     const demoUser = await User.create({
-      ...DEMO_ACCOUNT,
-      password: hashedPassword
+      email: DEMO_ACCOUNT.email,
+      passwordHash: passwordHash,
+      fullName: DEMO_ACCOUNT.fullName,
+      phoneNumber: DEMO_ACCOUNT.phoneNumber,
+      targetGoals: DEMO_ACCOUNT.targetGoals,
+      verifiedEmail: true,
+      isActive: true,
+      assessmentCompleted: false
     });
 
     console.log('✅ Demo account created successfully!');
