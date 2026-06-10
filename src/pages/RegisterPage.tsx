@@ -14,23 +14,45 @@ export function RegisterPage() {
     e.preventDefault();
     setError('');
 
-    if (!form.name || !form.email || !form.age || !form.password || !form.speechDescription) {
+    if (!form.name || !form.email || !form.password) {
       setError('Vui lòng điền đầy đủ các trường bắt buộc'); return;
     }
 
-    const age = parseInt(form.age);
-    if (age < 22 || age > 55) { setError('Tuổi phải từ 22 đến 55'); return; }
+    // Validate age if provided
+    if (form.age) {
+      const age = parseInt(form.age);
+      if (age < 18 || age > 100) { setError('Tuổi phải từ 18 đến 100'); return; }
+    }
+    
     if (form.password.length < 8) { setError('Mật khẩu phải có ít nhất 8 ký tự'); return; }
     if (form.password !== form.confirmPassword) { setError('Mật khẩu xác nhận không khớp'); return; }
 
-    const success = await registerFn({
-      fullName: form.name, email: form.email, age,
-      phone: form.phone || undefined,
-      speechDescription: form.speechDescription,
+    // Prepare payload - only send what backend expects
+    const payload: any = {
+      fullName: form.name,
+      email: form.email,
       password: form.password,
-    });
+    };
+    
+    // Add optional fields if provided
+    if (form.phone && form.phone.trim()) {
+      payload.phoneNumber = form.phone;
+    }
+    
+    if (form.age) {
+      payload.age = parseInt(form.age);
+    }
+    
+    // Store speechDescription in targetGoals field (backend accepts this)
+    if (form.speechDescription) {
+      payload.targetGoals = form.speechDescription;
+    }
 
-    if (!success) setError('Đăng ký thất bại (email có thể đã được sử dụng)');
+    console.log('Register payload:', payload); // DEBUG
+
+    const success = await registerFn(payload);
+
+    if (!success) setError('Đăng ký thất bại (email có thể đã được sử dụng hoặc dữ liệu không hợp lệ)');
   };
 
   return (
@@ -49,8 +71,8 @@ export function RegisterPage() {
               <input className="form-input" placeholder="Nguyễn Văn A" value={form.name} onChange={e => update('name', e.target.value)} />
             </div>
             <div className="form-group">
-              <label className="form-label">Tuổi (22-55) *</label>
-              <input type="number" className="form-input" placeholder="30" min={22} max={55} value={form.age} onChange={e => update('age', e.target.value)} />
+              <label className="form-label">Tuổi</label>
+              <input type="number" className="form-input" placeholder="25" min={18} max={100} value={form.age} onChange={e => update('age', e.target.value)} />
             </div>
           </div>
 
@@ -76,7 +98,7 @@ export function RegisterPage() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Mô tả khó khăn về giọng nói *</label>
+            <label className="form-label">Mô tả khó khăn về giọng nói</label>
             <textarea
               className="form-textarea" placeholder="Ví dụ: Tôi hay nhầm lẫn giữa L và N, nói hơi nhanh khi trình bày trước đám đông..."
               value={form.speechDescription} onChange={e => update('speechDescription', e.target.value)}

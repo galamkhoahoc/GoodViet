@@ -13,11 +13,16 @@ export class GeminiService {
   constructor() {
     if (env.GEMINI_API_KEY) {
       this.genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-      // Use gemma-4-26b-a4b-it for chat interactions
-      // Note: Gemma 4 supports thinking mode, but we disable it for direct responses
-      this.model = this.genAI.getGenerativeModel({ model: "gemma-4-26b-a4b-it" });
-      // Use gemini-1.5-flash for audio/pronunciation recognition
-      this.audioModel = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      // Try gemini-1.5-pro - more stable than flash
+      this.model = this.genAI.getGenerativeModel({ 
+        model: "gemini-1.5-pro",
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 500,
+        }
+      });
+      // Use same model for audio
+      this.audioModel = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
     } else {
       console.warn('GEMINI_API_KEY is not set. Gemini Service will run in mock mode.');
     }
@@ -28,18 +33,18 @@ export class GeminiService {
    */
   async generateChatResponse(message: string, history: any[] = []): Promise<string> {
     if (!this.model) {
+      console.log('[Gemini] Model not initialized, using mock response');
       return this.generateMockResponse(message);
     }
 
     try {
-      const systemPrompt = `You are a motivational speech therapy companion for GOODVIET, a Vietnamese speech therapy platform.
-Your personality is encouraging, patient, and knowledgeable.
-Important rules: 
-- Respond naturally and conversationally in Vietnamese
-- Avoid medical diagnoses
-- Stay within the speech therapy domain
-- Politely redirect off-topic questions
-- Keep responses concise and friendly`;
+      console.log('[Gemini] Generating response for message:', message);
+      
+      const systemPrompt = {
+        parts: [{ 
+          text: `Bạn là trợ lý hỗ trợ người dùng cải thiện giọng nói tiếng Việt trên nền tảng GOODVIET. Hãy động viên, kiên nhẫn và chuyên nghiệp. Luôn trả lời bằng tiếng Việt, ngắn gọn và thân thiện. Không đưa ra chẩn đoán y khoa.`
+        }]
+      };
 
       // Format history for Gemini API
       const formattedHistory = history.map(msg => ({
@@ -47,21 +52,26 @@ Important rules:
         parts: [{ text: msg.content }],
       }));
 
+      console.log('[Gemini] Starting chat with history length:', formattedHistory.length);
+
+      // Gemini 1.5 Flash supports systemInstruction
       const chat = this.model.startChat({
         history: formattedHistory,
-        generationConfig: {
-          maxOutputTokens: 500,
-          temperature: 0.7,
-        },
         systemInstruction: systemPrompt,
       });
 
-      // Send message without prepending system prompt (already set in systemInstruction)
+      console.log('[Gemini] Sending message to API...');
       const result = await chat.sendMessage(message);
       const response = await result.response;
-      return response.text();
-    } catch (error) {
-      console.error('Gemini API Error:', error);
+      const text = response.text();
+      
+      console.log('[Gemini] Response received, length:', text.length);
+      console.log('[Gemini] First 100 chars:', text.substring(0, 100));
+      
+      return text;
+    } catch (error: any) {
+      console.error('[Gemini] API Error:', error.message);
+      console.error('[Gemini] Error details:', error);
       // Fallback to mock response to prevent breaking the UI if API key lacks permissions or model 404s
       return this.generateMockResponse(message);
     }

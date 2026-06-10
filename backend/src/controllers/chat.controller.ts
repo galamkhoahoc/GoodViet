@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { ChatMessage } from '../models/ChatMessage';
 import { AppError } from '../middleware/error.middleware';
-import { geminiService } from '../services/gemini.service';
+import { aiService } from '../services/ai.service';
+import { normalizeVietnamese, normalizeHistory } from '../utils/vietnamese.utils';
 import validator from 'validator';
 
 /**
@@ -72,6 +73,10 @@ export class ChatController {
 
       // THÊM sanitization chống XSS
       content = validator.escape(content.trim());
+      
+      // Normalize Vietnamese text
+      // Requirements: 9.2, 9.6, 9.7
+      content = normalizeVietnamese(content);
 
       if (content.length > 2000) {
         throw new AppError(400, 'Tin nhắn quá dài (tối đa 2000 ký tự)');
@@ -85,16 +90,27 @@ export class ChatController {
       });
 
       // Fetch recent history for context (last 10 messages)
+      // Requirements: 11.1, 11.2, 11.3, 11.4, 11.7
       const recentHistory = await ChatMessage.find({ userId })
         .sort({ timestamp: -1 })
         .skip(1) // Skip the message we just inserted
-        .limit(10);
+        .limit(10) // Limit to 10 most recent messages
+        .lean(); // Add lean() for better performance
       
-      // Reverse to chronological order for Gemini
-      const formattedHistory = recentHistory.reverse();
+      // Reverse to chronological order and format for AI service
+      const formattedHistory = recentHistory
+        .reverse()
+        .map(msg => ({
+          role: msg.senderType === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        }));
+      
+      // Normalize history content
+      // Requirements: 9.2, 9.6, 9.7
+      const normalizedHistory = normalizeHistory(formattedHistory);
 
-      // Generate response from Gemini
-      const botResponseContent = await geminiService.generateChatResponse(content, formattedHistory);
+      // Generate response from AI service (Gemma4, Ollama, or Gemini)
+      const botResponseContent = await aiService.generateChatResponse(content, normalizedHistory);
 
       // Save bot message
       const botMessage = await ChatMessage.create({

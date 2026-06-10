@@ -79,11 +79,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   register: async (data): Promise<boolean> => {
     try {
       const { apiClient } = await import('../services/api/apiClient');
-      const response: any = await apiClient.post('/api/users/register', {
-        email: data.email,
-        password: data.password,
-        fullName: data.fullName || data.email?.split('@')[0]
-      });
+      
+      // Data is already prepared by RegisterPage, just pass it through
+      const response: any = await apiClient.post('/api/users/register', data);
       
       if (response && response.token && response.user) {
         localStorage.setItem(TOKEN_KEY, response.token);

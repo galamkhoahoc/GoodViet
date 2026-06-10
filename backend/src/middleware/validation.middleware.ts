@@ -64,6 +64,16 @@ export const validationSchemas = {
       .string()
       .regex(/^0\d{9}$/, 'Số điện thoại không hợp lệ')
       .optional(),
+    age: z
+      .number()
+      .int('Tuổi phải là số nguyên')
+      .min(18, 'Tuổi phải từ 18 trở lên')
+      .max(100, 'Tuổi không hợp lệ')
+      .optional(),
+    targetGoals: z
+      .string()
+      .transform(val => validator.escape(val))
+      .optional(),
   }),
 
   /**

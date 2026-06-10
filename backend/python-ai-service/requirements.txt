@@ -1,0 +1,22 @@
+# Core AI and ML dependencies
+transformers>=4.35.0
+torch>=2.1.0
+accelerate>=0.25.0
+
+# Web framework and HTTP
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# Environment configuration
+python-dotenv>=1.0.0
+
+# Audio processing (for multi-modal support)
+librosa>=0.10.0
+soundfile>=0.12.0
+
+# Utilities
+numpy>=1.24.0
+requests>=2.31.0
+
+# Testing
+pytest>=7.4.0

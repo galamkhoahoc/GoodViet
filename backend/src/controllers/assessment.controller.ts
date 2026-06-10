@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { Assessment } from '../models/Assessment';
 import { User } from '../models/User';
 import { AppError } from '../middleware/error.middleware';
+import { normalizeVietnamese } from '../utils/vietnamese.utils';
 
 /**
  * Assessment controller
@@ -170,7 +171,11 @@ export class AssessmentController {
             const mockAudio = Buffer.from('mock-audio-data');
             const expectedText = "Lúa nếp là lúa nếp làng";
             
-            const aiResult = await geminiService.analyzePronunciation(mockAudio, 'audio/mp3', expectedText);
+            // Normalize Vietnamese text before sending to AI
+            // Requirements: 9.4, 9.6, 9.7
+            const normalizedExpectedText = normalizeVietnamese(expectedText);
+            
+            const aiResult = await geminiService.analyzePronunciation(mockAudio, 'audio/mp3', normalizedExpectedText);
             
             const updatedAssessment = await Assessment.findById(id);
             if (updatedAssessment) {

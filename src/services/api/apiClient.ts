@@ -81,6 +81,7 @@ class ApiClient {
         let data: unknown;
         try {
           data = await response.json();
+          console.error('API Error Response:', data); // DEBUG: Log error response
         } catch {
           data = null;
         }

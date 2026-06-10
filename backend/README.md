@@ -40,7 +40,15 @@ JWT_SECRET=goodviet-super-secret-jwt-key-change-in-production-2024
 
 # CORS
 CORS_ORIGIN=http://localhost:5173
+
+# AI Service Configuration
+AI_SERVICE=gemma4  # Options: gemma4, ollama, gemini
+GEMMA4_HOST=http://localhost:5000
+GEMMA4_TIMEOUT=30000
+GEMINI_API_KEY=your-gemini-api-key
 ```
+
+See **AI Service Configuration** section below for details.
 
 ## Development
 
@@ -50,6 +58,139 @@ npm run dev
 ```
 
 Server will start on `http://localhost:3000`
+
+## AI Service Configuration
+
+GoodViet uses an AI Service Orchestrator that supports multiple AI backends with automatic fallback.
+
+### Supported AI Providers
+
+| Provider | Description | Use Case | Requirements |
+|----------|-------------|----------|--------------|
+| **Gemma 4** | Latest Google Gemma 4 models via Python bridge | Best quality, thinking mode, audio analysis | Python service running |
+| **Ollama** | Local Gemma 2B via Ollama | Good quality, fully local | Ollama installed |
+| **Gemini** | Google Gemini API | Fallback option | API key |
+
+### Configuration
+
+Set the `AI_SERVICE` environment variable:
+
+```env
+# Choose primary AI service
+AI_SERVICE=gemma4  # Options: gemma4, ollama, gemini
+
+# Leave empty for auto-detect (tries Gemma4 → Ollama → Gemini)
+# AI_SERVICE=
+```
+
+### Gemma 4 Setup (Recommended)
+
+Gemma 4 provides the best quality with thinking mode and multi-modal capabilities.
+
+**1. Navigate to Python service:**
+```bash
+cd backend/python-ai-service
+```
+
+**2. Install dependencies:**
+```bash
+python -m venv venv
+venv\Scripts\activate  # Windows
+source venv/bin/activate  # Linux/macOS
+pip install -r requirements.txt
+```
+
+**3. Configure environment:**
+```bash
+copy .env.example .env  # Windows
+cp .env.example .env    # Linux/macOS
+```
+
+**4. Start Python service:**
+```bash
+python app.py
+```
+
+Service will run on `http://localhost:5000`
+
+**5. Configure Node.js backend:**
+```env
+AI_SERVICE=gemma4
+GEMMA4_HOST=http://localhost:5000
+GEMMA4_TIMEOUT=30000
+```
+
+See [`python-ai-service/README.md`](./python-ai-service/README.md) for detailed setup instructions.
+
+### Ollama Setup (Alternative)
+
+For local inference without Python:
+
+**1. Install Ollama:**
+- Download from [ollama.ai](https://ollama.ai)
+
+**2. Pull Gemma model:**
+```bash
+ollama pull gemma:2b
+```
+
+**3. Configure backend:**
+```env
+AI_SERVICE=ollama
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=gemma:2b
+```
+
+### Gemini Setup (Fallback)
+
+For cloud-based inference:
+
+**1. Get API key:**
+- Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+
+**2. Configure backend:**
+```env
+AI_SERVICE=gemini
+GEMINI_API_KEY=your-api-key-here
+```
+
+### Fallback Chain
+
+The AI Service Orchestrator automatically falls back to other providers if the primary fails:
+
+1. **Gemma 4** (if configured) → 
+2. **Ollama** (if running) → 
+3. **Gemini** (if API key available)
+
+This ensures high availability even if one service is down.
+
+### Testing AI Service
+
+**Check AI service status:**
+```bash
+curl http://localhost:3000/api/ai/status
+```
+
+**Test chat endpoint:**
+```bash
+curl -X POST http://localhost:3000/api/chat/messages \
+  -H "Authorization: Bearer <your-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"content": "Xin chào!"}'
+```
+
+### Troubleshooting
+
+**Problem**: "Cannot connect to Gemma4 service"
+- **Solution**: Ensure Python service is running on port 5000
+- Check: `curl http://localhost:5000/health`
+
+**Problem**: "All AI services unavailable"
+- **Solution**: At least one AI service must be configured
+- Check logs for specific error messages
+
+**Problem**: Slow response times
+- **Solution**: Use Gemma 4 with GPU, or switch to Ollama/Gemini
 
 ## Build
 
