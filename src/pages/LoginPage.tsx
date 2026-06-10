@@ -12,46 +12,102 @@ export function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!email || !password) { setError('Vui lòng điền đầy đủ thông tin'); return; }
+    if (!email || !password) { 
+      setError('Vui lòng điền đầy đủ thông tin'); 
+      return; 
+    }
     const success = await login(email, password);
-    if (!success) setError('Email hoặc mật khẩu không đúng. Hãy đăng ký nếu chưa có tài khoản.');
+    if (!success) {
+      setError('Email hoặc mật khẩu không đúng. Hãy đăng ký nếu chưa có tài khoản.');
+    }
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-container">
       <div className="auth-card">
-        <div className="auth-logo">
-          <div className="sidebar-logo-icon" style={{ width: 56, height: 56, fontSize: '1.5rem', margin: '0 auto 12px' }}>G</div>
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{
+            width: 56,
+            height: 56,
+            background: 'var(--md-sys-color-primary)',
+            borderRadius: 'var(--md-sys-shape-corner-large)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.5rem',
+            fontWeight: 700,
+            color: 'var(--md-sys-color-on-primary)',
+            margin: '0 auto 12px'
+          }}>
+            G
+          </div>
           <h1>GOODVIET</h1>
-          <p>Nền tảng hỗ trợ giao tiếp lời nói tiếng Việt</p>
+          <p style={{ 
+            textAlign: 'center', 
+            color: 'var(--md-sys-color-on-surface-variant)', 
+            marginTop: '0.5rem' 
+          }}>
+            Nền tảng hỗ trợ giao tiếp lời nói tiếng Việt
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        {/* Form */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div className="form-group">
-            <label className="form-label">Email</label>
+            <label>Email</label>
             <input
-              type="email" className="form-input" placeholder="example@gmail.com"
-              value={email} onChange={e => setEmail(e.target.value)}
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Mật khẩu</label>
-            <input
-              type="password" className="form-input" placeholder="••••••••"
-              value={password} onChange={e => setPassword(e.target.value)}
+              type="email"
+              placeholder="example@gmail.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
             />
           </div>
 
-          {error && <div className="form-error" style={{ marginBottom: 16 }}>{error}</div>}
+          <div className="form-group">
+            <label>Mật khẩu</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+            />
+          </div>
 
-          <button type="submit" className="btn btn-primary btn-lg w-full">
+          {error && (
+            <div style={{ 
+              color: 'var(--md-sys-color-error)', 
+              fontSize: 'var(--md-sys-typescale-body-small-size)',
+              textAlign: 'center'
+            }}>
+              {error}
+            </div>
+          )}
+
+          <button type="submit" className="auth-button" style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem'
+          }}>
             <LogIn size={18} /> Đăng nhập
           </button>
         </form>
 
-        <div className="auth-footer">
+        {/* Footer */}
+        <div style={{ 
+          textAlign: 'center', 
+          marginTop: '1.5rem',
+          fontSize: 'var(--md-sys-typescale-body-small-size)',
+          color: 'var(--md-sys-color-on-surface-variant)'
+        }}>
           Chưa có tài khoản?{' '}
-          <Link to="/register">Đăng ký ngay</Link>
+          <Link to="/register" style={{ 
+            color: 'var(--md-sys-color-primary)', 
+            fontWeight: 600 
+          }}>
+            Đăng ký ngay
+          </Link>
         </div>
       </div>
     </div>

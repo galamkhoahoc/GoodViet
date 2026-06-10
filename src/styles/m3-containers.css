@@ -1,0 +1,206 @@
+/* ============= M3 SURFACE HIERARCHY ============= */
+/*
+ * Layout Structure (without modifying HTML):
+ * 
+ * Surface 0 (body): Background where navigation rail sits
+ * Surface 1: Visual wrapper containing chat list + content + sidebar
+ *            - Uses ::before pseudo-element on app-container
+ *            - Rounded corners: top-left 28px, bottom-left 28px
+ * Surface 2: Chat main + extensions sidebar
+ *            - Each component has its own background
+ *            - All 4 corners rounded 28px
+ * 
+ * Color Hierarchy:
+ * - Surface 0 = surface-dim (darkest, behind rail)
+ * - Surface 1 = surface-container-low (wrapper)
+ * - Surface 2 = surface-container-lowest (brightest, content area)
+ */
+
+/* ===== SURFACE 0: Body/Background (Darkest) ===== */
+body {
+    background: var(--md-sys-color-surface-dim) !important;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===== APP CONTAINER ===== */
+.app-container {
+    display: flex;
+    height: 100vh;
+    background: transparent !important;
+    position: relative;
+}
+
+/* ===== SURFACE 1: Pseudo-element wrapper ===== */
+/* Creates the Surface 1 layer visually without changing HTML */
+.app-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 96px; /* Width of collapsed navigation rail */
+    right: 0;
+    background: var(--md-sys-color-surface-container-low) !important;
+    border-radius: 28px 0 0 28px; /* Top-left and bottom-left corners only */
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* When navigation rail is expanded, adjust the wrapper position */
+.app-container:has(.navigation-rail.expanded)::before {
+    left: 256px; /* Expanded rail width */
+}
+
+/* ===== NAVIGATION RAIL - Transparent (Surface 0 shows through) ===== */
+.navigation-rail {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    position: relative;
+    z-index: 1;
+    padding: 12px;
+}
+
+/* ===== CONVERSATIONS PANEL - Transparent on Surface 1 ===== */
+.conversations-panel {
+    background: transparent !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 12px;
+    border-right: none !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== SURFACE 2: Main Content Area Container ===== */
+/* chat-main is now a transparent container for all tabs */
+.chat-main {
+    background: transparent !important;
+    border-radius: 28px !important;
+    margin: 12px !important;
+    overflow: hidden !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== CHAT TAB - Has the bright background ===== */
+#chatTabContent {
+    background: var(--md-sys-color-surface-container-lowest) !important;
+    border-radius: 28px !important;
+}
+
+/* Chat Header - matches chat tab */
+.chat-header {
+    background: var(--md-sys-color-surface-container-lowest) !important;
+    border-bottom: none !important;
+}
+
+/* Messages Area */
+.messages-area {
+    background: var(--md-sys-color-surface-container-lowest) !important;
+}
+
+/* ===== EXPLORE & SETTINGS TABS - Transparent ===== */
+#exploreTabContent,
+#settingsTabContent {
+    background: transparent !important;
+}
+
+/* ===== SURFACE 2: Extensions Sidebar ===== */
+.extensions-sidebar {
+    background: var(--md-sys-color-surface-container-lowest) !important;
+    border-radius: 28px !important;
+    margin: 12px !important;
+    border-left: none !important;
+    transform-origin: right center;
+    position: relative;
+    z-index: 1;
+}
+
+/* Closed state - bounce-out animation */
+.extensions-sidebar:not(.open) {
+    transform: scaleX(0.92) translateX(10px);
+    opacity: 0;
+    transition: 
+        width 350ms cubic-bezier(0.4, 0, 0.6, 1),
+        opacity 200ms ease-out,
+        transform 350ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Open state - bounce-in animation */
+.extensions-sidebar.open {
+    transform: scaleX(1) translateX(0);
+    opacity: 1;
+    transition: 
+        width 450ms cubic-bezier(0.22, 1.2, 0.36, 1),
+        opacity 300ms ease-in,
+        transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+/* Extensions Header */
+.ext-header {
+    background: transparent !important;
+    border-bottom: none !important;
+}
+
+/* ===== INPUT AREA ===== */
+.input-container {
+    background: var(--md-sys-color-surface-container-lowest) !important;
+    border-top: none !important;
+}
+
+.input-area {
+    background: var(--md-sys-color-surface-container-high) !important;
+}
+
+/* ===== CARDS - Surface Container High ===== */
+.stats-card,
+.ai-summary-card,
+.ext-content .stats-card {
+    background: var(--md-sys-color-surface-container-high) !important;
+}
+
+/* ===== SEARCH INPUT ===== */
+.search-input {
+    background: var(--md-sys-color-surface-container-highest) !important;
+}
+
+.search-input:focus {
+    background: var(--md-sys-color-surface-container-lowest) !important;
+}
+
+/* ===== MESSAGE BUBBLES ===== */
+.message.bot .message-bubble {
+    background: var(--md-sys-color-surface-container-high) !important;
+}
+
+.message.user .message-bubble {
+    background: var(--md-sys-color-primary) !important;
+}
+
+/* ===== CONVERSATION ITEMS ===== */
+.conversation-item:hover {
+    background: var(--md-sys-color-surface-container) !important;
+}
+
+.conversation-item.active {
+    background: var(--md-sys-color-secondary-container) !important;
+}
+
+/* ===== TAB PANELS ===== */
+.md-tab-panel,
+.tab-panel-content {
+    background: transparent !important;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state-icon {
+    background: var(--md-sys-color-primary-container) !important;
+}
+
+/* ===== MODAL ===== */
+.modal-content {
+    background: var(--md-sys-color-surface-container-lowest) !important;
+}

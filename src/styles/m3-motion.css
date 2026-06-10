@@ -1,0 +1,242 @@
+/* ============= M3 EXPRESSIVE MOTION ============= */
+/*
+ * Material Design 3 Expressive Motion System
+ * Adds subtle bounce effects for a playful, modern feel
+ * 
+ * Applied globally to common interactive elements
+ */
+
+/* ===== GLOBAL BOUNCE TRANSITIONS ===== */
+/* Buttons, links, and interactive elements */
+button,
+.btn,
+.icon-btn,
+.rail-item,
+.rail-fab,
+.conversation-item,
+.avatar-btn,
+.avatar-circle,
+.send-btn,
+.message-action-btn,
+.logout-btn,
+.logout-btn-modal,
+.rail-menu-btn {
+    transition: 
+        transform var(--md-motion-duration-short4) var(--md-motion-easing-expressive-soft),
+        background var(--md-motion-duration-short3) var(--md-motion-easing-standard),
+        box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard),
+        color var(--md-motion-duration-short3) var(--md-motion-easing-standard),
+        opacity var(--md-motion-duration-short3) var(--md-motion-easing-standard) !important;
+}
+
+/* ===== HOVER SCALE EFFECT ===== */
+button:hover:not(:disabled):not(.scroll-to-bottom-btn),
+.icon-btn:hover,
+.avatar-btn:hover,
+.avatar-circle:hover,
+.send-btn:hover:not(:disabled),
+.message-action-btn:hover,
+.logout-btn:hover,
+.logout-btn-modal:hover,
+.rail-menu-btn:hover {
+    transform: scale(1.03);
+}
+
+/* ===== ACTIVE/PRESS SCALE ===== */
+button:active:not(:disabled):not(.scroll-to-bottom-btn),
+.icon-btn:active,
+.avatar-btn:active,
+.avatar-circle:active,
+.send-btn:active:not(:disabled),
+.message-action-btn:active,
+.logout-btn:active,
+.logout-btn-modal:active,
+.rail-menu-btn:active {
+    transform: scale(0.97);
+}
+
+/* ===== CONVERSATION ITEMS ===== */
+.conversation-item {
+    transition: 
+        transform var(--md-motion-duration-short4) var(--md-motion-easing-expressive-soft),
+        background var(--md-motion-duration-short3) var(--md-motion-easing-standard) !important;
+}
+
+.conversation-item:hover {
+    transform: translateX(4px);
+}
+
+.conversation-item:active {
+    transform: translateX(2px) scale(0.99);
+}
+
+/* ===== INPUT FOCUS ANIMATION ===== */
+input,
+textarea,
+.search-input {
+    transition: 
+        box-shadow var(--md-motion-duration-medium1) var(--md-motion-easing-standard),
+        background var(--md-motion-duration-short3) var(--md-motion-easing-standard),
+        border-color var(--md-motion-duration-short3) var(--md-motion-easing-standard) !important;
+}
+
+/* ===== MESSAGE BUBBLES ===== */
+.message {
+    animation: messageSlideIn var(--md-motion-duration-medium2) var(--md-motion-easing-standard);
+}
+
+@keyframes messageSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+
+/* ===== MODAL ANIMATION ===== */
+.modal-content {
+    animation: modalBounceIn var(--md-motion-duration-medium4) var(--md-motion-easing-expressive);
+}
+
+@keyframes modalBounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.85) translateY(20px);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.02) translateY(-5px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ===== CARDS & STATS ===== */
+.stats-card,
+.ai-summary-card {
+    transition: 
+        transform var(--md-motion-duration-short4) var(--md-motion-easing-expressive-soft),
+        box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard);
+}
+
+.stats-card:hover,
+.ai-summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--md-sys-elevation-2);
+}
+
+/* ===== EMPTY STATE ANIMATION ===== */
+.empty-state {
+    animation: emptyStateFloat 3s ease-in-out infinite;
+}
+
+@keyframes emptyStateFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.empty-state-icon {
+    transition: transform var(--md-motion-duration-medium1) var(--md-motion-easing-expressive);
+}
+
+.empty-state:hover .empty-state-icon {
+    transform: scale(1.08) rotate(3deg);
+}
+
+/* ===== SUGGESTION CHIPS ===== */
+.suggestion-chip {
+    transition: 
+        transform var(--md-motion-duration-short4) var(--md-motion-easing-expressive-soft),
+        background var(--md-motion-duration-short3) var(--md-motion-easing-standard),
+        box-shadow var(--md-motion-duration-short3) var(--md-motion-easing-standard) !important;
+}
+
+.suggestion-chip:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--md-sys-elevation-2);
+}
+
+.suggestion-chip:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+/* ===== BADGE ANIMATION ===== */
+.rail-badge {
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* ===== LOADING STATES ===== */
+.loading-spinner,
+.typing-indicator {
+    animation: loadingBounce 1.2s var(--md-motion-easing-expressive-soft) infinite;
+}
+
+@keyframes loadingBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+/* ===== PAGE TRANSITIONS ===== */
+.chat-main,
+.conversations-panel {
+    transition: 
+        opacity var(--md-motion-duration-medium2) var(--md-motion-easing-standard-decelerate);
+}
+
+/* ===== SCROLL SHADOW ANIMATION ===== */
+.messages-area,
+.conversations-list {
+    scroll-behavior: smooth;
+}
+
+/* ===== RIPPLE-LIKE FOCUS EFFECT ===== */
+button:focus-visible,
+.icon-btn:focus-visible,
+input:focus-visible,
+.search-input:focus-visible {
+    outline: 2px solid var(--md-sys-color-primary);
+    outline-offset: 2px;
+    animation: focusPulse var(--md-motion-duration-medium1) var(--md-motion-easing-expressive-soft);
+}
+
+@keyframes focusPulse {
+    0% {
+        outline-offset: 0px;
+        opacity: 0.5;
+    }
+    100% {
+        outline-offset: 2px;
+        opacity: 1;
+    }
+}
+
+/* ===== NAVIGATION RAIL EXPANDED MODE FIX ===== */
+/* In expanded mode, the icon container is NOT needed as indicator */
+/* Use display: contents to remove the box but keep the icon visible */
+.navigation-rail.expanded .rail-item .rail-item-icon {
+    display: contents;
+}

@@ -31,113 +31,395 @@ export function ProfilePage() {
   ];
 
   return (
-    <div className="animate-fade-in-up">
-      <div className="page-header">
-        <h1 className="page-title"><span className="heading-highlight">Hồ sơ cá nhân</span></h1>
-        <p className="page-subtitle">Quản lý thông tin và cài đặt tài khoản</p>
+    <div style={{ padding: 'var(--md-sys-space-2xl)' }}>
+      {/* Page Header */}
+      <div style={{ marginBottom: 'var(--md-sys-space-2xl)' }}>
+        <h1 style={{
+          fontSize: 'var(--md-sys-typescale-headline-medium-size)',
+          fontWeight: 'var(--md-sys-typescale-headline-medium-weight)',
+          color: 'var(--md-sys-color-on-surface)',
+          marginBottom: 'var(--md-sys-space-xs)',
+        }}>
+          <span style={{ color: 'var(--md-sys-color-primary)' }}>Hồ sơ cá nhân</span>
+        </h1>
+        <p style={{
+          fontSize: 'var(--md-sys-typescale-body-large-size)',
+          color: 'var(--md-sys-color-on-surface-variant)',
+        }}>
+          Quản lý thông tin và cài đặt tài khoản
+        </p>
       </div>
 
-      {/* Profile Header */}
-      <div className="card-positivus mb-lg">
-        <div className="flex items-center gap-xl">
-          <div style={{
-            width: 80, height: 80, borderRadius: 'var(--gv-radius-full)',
-            background: 'var(--gv-lime)', border: '3px solid var(--gv-black)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 'var(--gv-font-size-3xl)', fontWeight: 700, color: 'var(--gv-black)',
+
+      {/* Profile Header Card */}
+      <div style={{
+        background: 'var(--md-sys-color-surface-container-lowest)',
+        borderRadius: 'var(--md-sys-shape-corner-extra-large)',
+        padding: 'var(--md-sys-space-2xl)',
+        marginBottom: 'var(--md-sys-space-xl)',
+        boxShadow: 'var(--md-sys-elevation-1)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 'var(--md-sys-space-xl)',
+      }}>
+        <div style={{
+          width: 88,
+          height: 88,
+          borderRadius: 'var(--md-sys-shape-corner-full)',
+          background: 'var(--md-sys-color-primary-container)',
+          color: 'var(--md-sys-color-on-primary-container)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 'var(--md-sys-typescale-headline-large-size)',
+          fontWeight: 700,
+        }}>
+          {user?.name?.charAt(0).toUpperCase() || 'U'}
+        </div>
+        <div style={{ flex: 1 }}>
+          <h2 style={{
+            fontSize: 'var(--md-sys-typescale-headline-small-size)',
+            fontWeight: 700,
+            color: 'var(--md-sys-color-on-surface)',
           }}>
-            {user?.name?.charAt(0) || 'U'}
+            {user?.name}
+          </h2>
+          <p style={{
+            fontSize: 'var(--md-sys-typescale-body-large-size)',
+            color: 'var(--md-sys-color-on-surface-variant)',
+            marginTop: 'var(--md-sys-space-xs)',
+          }}>
+            {user?.email}
+          </p>
+          <div style={{
+            display: 'flex',
+            gap: 'var(--md-sys-space-lg)',
+            marginTop: 'var(--md-sys-space-md)',
+            fontSize: 'var(--md-sys-typescale-body-small-size)',
+            color: 'var(--md-sys-color-on-surface-variant)',
+          }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--md-sys-space-xs)' }}>
+              <Calendar size={14} /> {user?.age} tuổi
+            </span>
+            {user?.phone && (
+              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--md-sys-space-xs)' }}>
+                <Phone size={14} /> {user.phone}
+              </span>
+            )}
+            <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--md-sys-space-xs)' }}>
+              <Mail size={14} /> {user?.email}
+            </span>
           </div>
-          <div style={{ flex: 1 }}>
-            <h2 style={{ fontSize: 'var(--gv-font-size-2xl)', fontWeight: 700 }}>{user?.name}</h2>
-            <p className="text-secondary mt-md">{user?.email}</p>
-            <div className="flex gap-lg mt-md text-sm text-muted">
-              <span className="flex items-center gap-xs"><Calendar size={14} /> {user?.age} tuổi</span>
-              {user?.phone && <span className="flex items-center gap-xs"><Phone size={14} /> {user.phone}</span>}
-              <span className="flex items-center gap-xs"><Mail size={14} /> {user?.email}</span>
-            </div>
+        </div>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 'var(--md-sys-space-xs)',
+          padding: 'var(--md-sys-space-lg)',
+          borderRadius: 'var(--md-sys-shape-corner-large)',
+          background: 'var(--md-sys-color-secondary-container)',
+        }}>
+          <div style={{
+            fontSize: 'var(--md-sys-typescale-headline-large-size)',
+            fontWeight: 700,
+            color: 'var(--md-sys-color-on-secondary-container)',
+          }}>
+            {user?.totalRecordings || 0}
           </div>
-          <div className="flex flex-col gap-sm text-center">
-            <div style={{ fontSize: 'var(--gv-font-size-3xl)', fontWeight: 700 }}>
-              {user?.totalRecordings || 0}
-            </div>
-            <div className="text-xs text-muted">Ghi âm</div>
+          <div style={{
+            fontSize: 'var(--md-sys-typescale-body-small-size)',
+            color: 'var(--md-sys-color-on-secondary-container)',
+          }}>
+            Ghi âm
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-sm mb-lg">
-        {tabs.map(tab => (
-          <button
-            key={tab.key}
-            className={`btn ${activeTab === tab.key ? 'btn-lime' : 'btn-secondary'}`}
-            onClick={() => setActiveTab(tab.key as typeof activeTab)}
-          >
-            <tab.icon size={16} /> {tab.label}
-          </button>
-        ))}
+      <div style={{
+        display: 'flex',
+        gap: 'var(--md-sys-space-md)',
+        marginBottom: 'var(--md-sys-space-xl)',
+      }}>
+        {tabs.map(tab => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key as typeof activeTab)}
+              style={{
+                padding: '10px 24px',
+                background: isActive ? 'var(--md-sys-color-secondary-container)' : 'transparent',
+                color: isActive ? 'var(--md-sys-color-on-secondary-container)' : 'var(--md-sys-color-on-surface)',
+                border: '1px solid var(--md-sys-color-outline)',
+                borderRadius: 'var(--md-sys-shape-corner-full)',
+                fontSize: 'var(--md-sys-typescale-label-large-size)',
+                fontWeight: 'var(--md-sys-typescale-label-large-weight)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--md-sys-space-sm)',
+                transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) e.currentTarget.style.background = 'var(--md-sys-color-surface-container)';
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              <Icon size={16} /> {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Profile Tab */}
       {activeTab === 'profile' && (
-        <div className="card-positivus">
-          <div className="flex items-center justify-between mb-lg">
-            <h3 className="font-semibold">Thông tin cá nhân</h3>
+        <div style={{
+          background: 'var(--md-sys-color-surface-container-lowest)',
+          borderRadius: 'var(--md-sys-shape-corner-extra-large)',
+          padding: 'var(--md-sys-space-2xl)',
+          boxShadow: 'var(--md-sys-elevation-1)',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 'var(--md-sys-space-xl)',
+          }}>
+            <h3 style={{
+              fontSize: 'var(--md-sys-typescale-title-large-size)',
+              fontWeight: 'var(--md-sys-typescale-title-large-weight)',
+              color: 'var(--md-sys-color-on-surface)',
+            }}>
+              Thông tin cá nhân
+            </h3>
             {!editing ? (
-              <button className="btn btn-secondary btn-sm" onClick={() => setEditing(true)}>
+              <button
+                onClick={() => setEditing(true)}
+                style={{
+                  padding: '8px 20px',
+                  background: 'var(--md-sys-color-secondary-container)',
+                  color: 'var(--md-sys-color-on-secondary-container)',
+                  border: 'none',
+                  borderRadius: 'var(--md-sys-shape-corner-full)',
+                  fontSize: 'var(--md-sys-typescale-label-large-size)',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--md-sys-space-xs)',
+                  transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
+                }}
+              >
                 <Edit3 size={14} /> Chỉnh sửa
               </button>
             ) : (
-              <button className="btn btn-success btn-sm" onClick={handleSave}>
+              <button
+                onClick={handleSave}
+                style={{
+                  padding: '8px 20px',
+                  background: 'var(--md-sys-color-primary)',
+                  color: 'var(--md-sys-color-on-primary)',
+                  border: 'none',
+                  borderRadius: 'var(--md-sys-shape-corner-full)',
+                  fontSize: 'var(--md-sys-typescale-label-large-size)',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--md-sys-space-xs)',
+                  transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
+                }}
+              >
                 <Save size={14} /> Lưu
               </button>
             )}
           </div>
 
-          <div className="grid-2">
-            <div className="form-group">
-              <label className="form-label">Họ và tên</label>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 'var(--md-sys-space-xl)',
+            marginBottom: 'var(--md-sys-space-xl)',
+          }}>
+            <div>
+              <label style={{
+                display: 'block',
+                marginBottom: 'var(--md-sys-space-sm)',
+                fontSize: 'var(--md-sys-typescale-body-small-size)',
+                fontWeight: 500,
+                color: 'var(--md-sys-color-on-surface-variant)',
+              }}>
+                Họ và tên
+              </label>
               {editing ? (
-                <input className="form-input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                <input
+                  value={form.name}
+                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    fontSize: 'var(--md-sys-typescale-body-large-size)',
+                    color: 'var(--md-sys-color-on-surface)',
+                    background: 'var(--md-sys-color-surface-container)',
+                    border: '1px solid var(--md-sys-color-outline-variant)',
+                    borderRadius: 'var(--md-sys-shape-corner-small)',
+                    outline: 'none',
+                  }}
+                />
               ) : (
-                <div className="form-input" style={{ background: 'var(--gv-light)', border: '2px solid transparent' }}>{user?.name}</div>
+                <div style={{
+                  padding: '12px 16px',
+                  fontSize: 'var(--md-sys-typescale-body-large-size)',
+                  color: 'var(--md-sys-color-on-surface-variant)',
+                  background: 'var(--md-sys-color-surface-container-high)',
+                  borderRadius: 'var(--md-sys-shape-corner-small)',
+                }}>
+                  {user?.name}
+                </div>
               )}
             </div>
-            <div className="form-group">
-              <label className="form-label">Tuổi</label>
+            <div>
+              <label style={{
+                display: 'block',
+                marginBottom: 'var(--md-sys-space-sm)',
+                fontSize: 'var(--md-sys-typescale-body-small-size)',
+                fontWeight: 500,
+                color: 'var(--md-sys-color-on-surface-variant)',
+              }}>
+                Tuổi
+              </label>
               {editing ? (
-                <input type="number" className="form-input" value={form.age} onChange={e => setForm(f => ({ ...f, age: e.target.value }))} />
+                <input
+                  type="number"
+                  value={form.age}
+                  onChange={e => setForm(f => ({ ...f, age: e.target.value }))}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    fontSize: 'var(--md-sys-typescale-body-large-size)',
+                    color: 'var(--md-sys-color-on-surface)',
+                    background: 'var(--md-sys-color-surface-container)',
+                    border: '1px solid var(--md-sys-color-outline-variant)',
+                    borderRadius: 'var(--md-sys-shape-corner-small)',
+                    outline: 'none',
+                  }}
+                />
               ) : (
-                <div className="form-input" style={{ background: 'var(--gv-light)', border: '2px solid transparent' }}>{user?.age}</div>
+                <div style={{
+                  padding: '12px 16px',
+                  fontSize: 'var(--md-sys-typescale-body-large-size)',
+                  color: 'var(--md-sys-color-on-surface-variant)',
+                  background: 'var(--md-sys-color-surface-container-high)',
+                  borderRadius: 'var(--md-sys-shape-corner-small)',
+                }}>
+                  {user?.age}
+                </div>
               )}
             </div>
-            <div className="form-group">
-              <label className="form-label">Email</label>
-              <div className="form-input" style={{ background: 'var(--gv-light)', border: '2px solid transparent', color: 'var(--gv-text-muted)' }}>
-                {user?.email} 🔒
+            <div>
+              <label style={{
+                display: 'block',
+                marginBottom: 'var(--md-sys-space-sm)',
+                fontSize: 'var(--md-sys-typescale-body-small-size)',
+                fontWeight: 500,
+                color: 'var(--md-sys-color-on-surface-variant)',
+              }}>
+                Email
+              </label>
+              <div style={{
+                padding: '12px 16px',
+                fontSize: 'var(--md-sys-typescale-body-large-size)',
+                color: 'var(--md-sys-color-on-surface-variant)',
+                background: 'var(--md-sys-color-surface-container-high)',
+                borderRadius: 'var(--md-sys-shape-corner-small)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--md-sys-space-xs)',
+              }}>
+                {user?.email} <span>🔒</span>
               </div>
             </div>
-            <div className="form-group">
-              <label className="form-label">Số điện thoại</label>
+            <div>
+              <label style={{
+                display: 'block',
+                marginBottom: 'var(--md-sys-space-sm)',
+                fontSize: 'var(--md-sys-typescale-body-small-size)',
+                fontWeight: 500,
+                color: 'var(--md-sys-color-on-surface-variant)',
+              }}>
+                Số điện thoại
+              </label>
               {editing ? (
-                <input className="form-input" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+                <input
+                  value={form.phone}
+                  onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    fontSize: 'var(--md-sys-typescale-body-large-size)',
+                    color: 'var(--md-sys-color-on-surface)',
+                    background: 'var(--md-sys-color-surface-container)',
+                    border: '1px solid var(--md-sys-color-outline-variant)',
+                    borderRadius: 'var(--md-sys-shape-corner-small)',
+                    outline: 'none',
+                  }}
+                />
               ) : (
-                <div className="form-input" style={{ background: 'var(--gv-light)', border: '2px solid transparent' }}>{user?.phone || '—'}</div>
+                <div style={{
+                  padding: '12px 16px',
+                  fontSize: 'var(--md-sys-typescale-body-large-size)',
+                  color: 'var(--md-sys-color-on-surface-variant)',
+                  background: 'var(--md-sys-color-surface-container-high)',
+                  borderRadius: 'var(--md-sys-shape-corner-small)',
+                }}>
+                  {user?.phone || '—'}
+                </div>
               )}
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Mô tả khó khăn giọng nói</label>
+          <div>
+            <label style={{
+              display: 'block',
+              marginBottom: 'var(--md-sys-space-sm)',
+              fontSize: 'var(--md-sys-typescale-body-small-size)',
+              fontWeight: 500,
+              color: 'var(--md-sys-color-on-surface-variant)',
+            }}>
+              Mô tả khó khăn giọng nói
+            </label>
             {editing ? (
               <textarea
-                className="form-textarea"
                 value={form.speechDescription}
                 onChange={e => setForm(f => ({ ...f, speechDescription: e.target.value }))}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  fontSize: 'var(--md-sys-typescale-body-large-size)',
+                  color: 'var(--md-sys-color-on-surface)',
+                  background: 'var(--md-sys-color-surface-container)',
+                  border: '1px solid var(--md-sys-color-outline-variant)',
+                  borderRadius: 'var(--md-sys-shape-corner-small)',
+                  outline: 'none',
+                  minHeight: 100,
+                  resize: 'vertical',
+                  fontFamily: 'var(--md-sys-typescale-font)',
+                }}
               />
             ) : (
-              <div className="form-input" style={{ background: 'var(--gv-light)', border: '2px solid transparent', minHeight: 60 }}>
+              <div style={{
+                padding: '12px 16px',
+                fontSize: 'var(--md-sys-typescale-body-large-size)',
+                color: 'var(--md-sys-color-on-surface-variant)',
+                background: 'var(--md-sys-color-surface-container-high)',
+                borderRadius: 'var(--md-sys-shape-corner-small)',
+                minHeight: 100,
+              }}>
                 {user?.speechDescription || '—'}
               </div>
             )}
@@ -147,35 +429,82 @@ export function ProfilePage() {
 
       {/* Notifications Tab */}
       {activeTab === 'notifications' && (
-        <div className="card-positivus">
-          <h3 className="font-semibold mb-lg">Tùy chọn thông báo</h3>
+        <div style={{
+          background: 'var(--md-sys-color-surface-container-lowest)',
+          borderRadius: 'var(--md-sys-shape-corner-extra-large)',
+          padding: 'var(--md-sys-space-2xl)',
+          boxShadow: 'var(--md-sys-elevation-1)',
+        }}>
+          <h3 style={{
+            fontSize: 'var(--md-sys-typescale-title-large-size)',
+            fontWeight: 'var(--md-sys-typescale-title-large-weight)',
+            color: 'var(--md-sys-color-on-surface)',
+            marginBottom: 'var(--md-sys-space-xl)',
+          }}>
+            Tùy chọn thông báo
+          </h3>
           {[
             { label: 'Nhắc nhở luyện tập hàng ngày', desc: 'Nhận thông báo nhắc luyện tập vào giờ đã đặt', enabled: true },
             { label: 'Thông báo cột mốc', desc: 'Nhận thông báo khi đạt cột mốc mới', enabled: true },
             { label: 'Video mới', desc: 'Nhận thông báo khi có video hướng dẫn mới', enabled: true },
             { label: 'Email tổng kết tuần', desc: 'Nhận email báo cáo tiến độ hàng tuần', enabled: false },
             { label: 'SMS nhắc nhở', desc: 'Nhận tin nhắn SMS nhắc luyện tập (tùy chọn)', enabled: false },
-          ].map((item, i) => (
-            <div key={i} className="flex items-center justify-between" style={{
-              padding: 'var(--gv-space-md) 0',
-              borderBottom: i < 4 ? '1px solid var(--gv-border)' : 'none',
-            }}>
+          ].map((item, i, arr) => (
+            <div
+              key={i}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: 'var(--md-sys-space-lg) 0',
+                borderBottom: i < arr.length - 1 ? '1px solid var(--md-sys-color-outline-variant)' : 'none',
+              }}
+            >
               <div>
-                <div className="font-semibold text-sm">{item.label}</div>
-                <div className="text-xs text-muted">{item.desc}</div>
+                <div style={{
+                  fontSize: 'var(--md-sys-typescale-body-medium-size)',
+                  fontWeight: 500,
+                  color: 'var(--md-sys-color-on-surface)',
+                  marginBottom: 'var(--md-sys-space-xs)',
+                }}>
+                  {item.label}
+                </div>
+                <div style={{
+                  fontSize: 'var(--md-sys-typescale-body-small-size)',
+                  color: 'var(--md-sys-color-on-surface-variant)',
+                }}>
+                  {item.desc}
+                </div>
               </div>
-              <label style={{ position: 'relative', width: 44, height: 24, cursor: 'pointer' }}>
-                <input type="checkbox" defaultChecked={item.enabled} style={{ opacity: 0, width: 0, height: 0 }} />
+              <label style={{
+                position: 'relative',
+                width: 52,
+                height: 32,
+                cursor: 'pointer',
+                display: 'block',
+              }}>
+                <input
+                  type="checkbox"
+                  defaultChecked={item.enabled}
+                  style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
+                />
                 <span style={{
-                  position: 'absolute', inset: 0, borderRadius: 'var(--gv-radius-full)',
-                  background: item.enabled ? 'var(--gv-black)' : 'var(--gv-border)',
-                  transition: 'background var(--gv-transition)',
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: 'var(--md-sys-shape-corner-full)',
+                  background: item.enabled ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-surface-variant)',
+                  transition: 'background var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
                 }}>
                   <span style={{
-                    position: 'absolute', top: 3, left: item.enabled ? 23 : 3,
-                    width: 18, height: 18, borderRadius: '50%',
-                    background: item.enabled ? 'var(--gv-lime)' : 'white',
-                    transition: 'left var(--gv-transition)',
+                    position: 'absolute',
+                    top: 4,
+                    left: item.enabled ? 24 : 4,
+                    width: 24,
+                    height: 24,
+                    borderRadius: '50%',
+                    background: 'var(--md-sys-color-surface-container-highest)',
+                    boxShadow: 'var(--md-sys-elevation-1)',
+                    transition: 'left var(--md-motion-duration-short4) var(--md-motion-easing-expressive)',
                   }} />
                 </span>
               </label>
@@ -186,32 +515,144 @@ export function ProfilePage() {
 
       {/* Privacy Tab */}
       {activeTab === 'privacy' && (
-        <div className="card-positivus">
-          <h3 className="font-semibold mb-lg">Bảo mật & Quyền riêng tư</h3>
+        <div style={{
+          background: 'var(--md-sys-color-surface-container-lowest)',
+          borderRadius: 'var(--md-sys-shape-corner-extra-large)',
+          padding: 'var(--md-sys-space-2xl)',
+          boxShadow: 'var(--md-sys-elevation-1)',
+        }}>
+          <h3 style={{
+            fontSize: 'var(--md-sys-typescale-title-large-size)',
+            fontWeight: 'var(--md-sys-typescale-title-large-weight)',
+            color: 'var(--md-sys-color-on-surface)',
+            marginBottom: 'var(--md-sys-space-xl)',
+          }}>
+            Bảo mật & Quyền riêng tư
+          </h3>
 
-          <div className="flex flex-col gap-lg">
-            <div className="flex items-center justify-between" style={{ padding: 'var(--gv-space-md)', background: 'var(--gv-light)', borderRadius: 'var(--gv-radius-md)', border: '1px solid var(--gv-border)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--md-sys-space-lg)' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: 'var(--md-sys-space-lg)',
+              background: 'var(--md-sys-color-surface-container)',
+              borderRadius: 'var(--md-sys-shape-corner-large)',
+            }}>
               <div>
-                <div className="font-semibold text-sm">Xác thực 2 bước (2FA)</div>
-                <div className="text-xs text-muted">Bảo vệ tài khoản với mã xác thực bổ sung</div>
+                <div style={{
+                  fontSize: 'var(--md-sys-typescale-body-medium-size)',
+                  fontWeight: 500,
+                  color: 'var(--md-sys-color-on-surface)',
+                  marginBottom: 'var(--md-sys-space-xs)',
+                }}>
+                  Xác thực 2 bước (2FA)
+                </div>
+                <div style={{
+                  fontSize: 'var(--md-sys-typescale-body-small-size)',
+                  color: 'var(--md-sys-color-on-surface-variant)',
+                }}>
+                  Bảo vệ tài khoản với mã xác thực bổ sung
+                </div>
               </div>
-              <button className="btn btn-secondary btn-sm"><Shield size={14} /> Thiết lập</button>
+              <button style={{
+                padding: '8px 20px',
+                background: 'var(--md-sys-color-secondary-container)',
+                color: 'var(--md-sys-color-on-secondary-container)',
+                border: 'none',
+                borderRadius: 'var(--md-sys-shape-corner-full)',
+                fontSize: 'var(--md-sys-typescale-label-large-size)',
+                fontWeight: 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--md-sys-space-xs)',
+              }}>
+                <Shield size={14} /> Thiết lập
+              </button>
             </div>
 
-            <div className="flex items-center justify-between" style={{ padding: 'var(--gv-space-md)', background: 'var(--gv-light)', borderRadius: 'var(--gv-radius-md)', border: '1px solid var(--gv-border)' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: 'var(--md-sys-space-lg)',
+              background: 'var(--md-sys-color-surface-container)',
+              borderRadius: 'var(--md-sys-shape-corner-large)',
+            }}>
               <div>
-                <div className="font-semibold text-sm">Tải dữ liệu cá nhân</div>
-                <div className="text-xs text-muted">Tải xuống toàn bộ dữ liệu hồ sơ và ghi âm của bạn</div>
+                <div style={{
+                  fontSize: 'var(--md-sys-typescale-body-medium-size)',
+                  fontWeight: 500,
+                  color: 'var(--md-sys-color-on-surface)',
+                  marginBottom: 'var(--md-sys-space-xs)',
+                }}>
+                  Tải dữ liệu cá nhân
+                </div>
+                <div style={{
+                  fontSize: 'var(--md-sys-typescale-body-small-size)',
+                  color: 'var(--md-sys-color-on-surface-variant)',
+                }}>
+                  Tải xuống toàn bộ dữ liệu hồ sơ và ghi âm của bạn
+                </div>
               </div>
-              <button className="btn btn-secondary btn-sm"><Download size={14} /> Tải về</button>
+              <button style={{
+                padding: '8px 20px',
+                background: 'var(--md-sys-color-secondary-container)',
+                color: 'var(--md-sys-color-on-secondary-container)',
+                border: 'none',
+                borderRadius: 'var(--md-sys-shape-corner-full)',
+                fontSize: 'var(--md-sys-typescale-label-large-size)',
+                fontWeight: 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--md-sys-space-xs)',
+              }}>
+                <Download size={14} /> Tải về
+              </button>
             </div>
 
-            <div className="flex items-center justify-between" style={{ padding: 'var(--gv-space-md)', background: 'var(--gv-error-soft)', borderRadius: 'var(--gv-radius-md)', border: '1px solid var(--gv-error)' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: 'var(--md-sys-space-lg)',
+              background: 'var(--md-sys-color-error-container)',
+              borderRadius: 'var(--md-sys-shape-corner-large)',
+              border: '1px solid var(--md-sys-color-error)',
+            }}>
               <div>
-                <div className="font-semibold text-sm" style={{ color: 'var(--gv-error)' }}>Xóa tài khoản</div>
-                <div className="text-xs text-muted">Xóa vĩnh viễn tất cả dữ liệu trong vòng 30 ngày</div>
+                <div style={{
+                  fontSize: 'var(--md-sys-typescale-body-medium-size)',
+                  fontWeight: 500,
+                  color: 'var(--md-sys-color-error)',
+                  marginBottom: 'var(--md-sys-space-xs)',
+                }}>
+                  Xóa tài khoản
+                </div>
+                <div style={{
+                  fontSize: 'var(--md-sys-typescale-body-small-size)',
+                  color: 'var(--md-sys-color-on-error-container)',
+                }}>
+                  Xóa vĩnh viễn tất cả dữ liệu trong vòng 30 ngày
+                </div>
               </div>
-              <button className="btn btn-danger btn-sm"><Trash2 size={14} /> Yêu cầu xóa</button>
+              <button style={{
+                padding: '8px 20px',
+                background: 'var(--md-sys-color-error)',
+                color: 'var(--md-sys-color-on-error)',
+                border: 'none',
+                borderRadius: 'var(--md-sys-shape-corner-full)',
+                fontSize: 'var(--md-sys-typescale-label-large-size)',
+                fontWeight: 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--md-sys-space-xs)',
+              }}>
+                <Trash2 size={14} /> Yêu cầu xóa
+              </button>
             </div>
           </div>
         </div>

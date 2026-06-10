@@ -1,17 +1,16 @@
 import { Outlet } from 'react-router-dom';
-import { Sidebar } from './Sidebar';
-import { Navbar } from './Navbar';
+import { NavigationRail } from './NavigationRail';
+import { useState } from 'react';
 
 export function Layout() {
+  const [activeTab, setActiveTab] = useState('dashboard');
+
   return (
-    <div className="app-layout">
-      <Sidebar />
-      <div className="app-main-area">
-        <Navbar />
-        <main className="app-content">
-          <Outlet />
-        </main>
-      </div>
+    <div className="app-container">
+      <NavigationRail activeTab={activeTab} onTabChange={setActiveTab} />
+      <main className="chat-main">
+        <Outlet />
+      </main>
     </div>
   );
 }

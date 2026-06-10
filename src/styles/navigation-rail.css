@@ -1,0 +1,534 @@
+/* ============= NAVIGATION RAIL (MD3 Spec) ============= */
+/*
+ * Material Design 3 Navigation Rail - Exact Specifications
+ * 
+ * COLLAPSED STATE:
+ * - Rail width: 80px (with 12px padding each side = 56px content area)
+ * - FAB: 56x56px, 16px border-radius
+ * - Nav item height: 56px (icon 32px + gap 4px + label ~16px)
+ * - Active indicator: 56x32px pill shape, behind icon only
+ * - Vertical gap between items: 4px
+ * 
+ * EXPANDED STATE:
+ * - Rail width: 220-360px
+ * - FAB becomes extended (icon + label)
+ * - Nav items horizontal (icon + label side by side)
+ * - Active indicator hugs content (M3 style)
+ *
+ * M3 EXPRESSIVE MOTION:
+ * - Emphasized easing with slight overshoot for playful feel
+ * - Duration: 400ms for emphasis, 200ms for standard
+ */
+
+/* M3 Expressive Motion Tokens */
+:root {
+    --md-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+    --md-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+    --md-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+    --md-motion-easing-expressive: cubic-bezier(0.34, 1.56, 0.64, 1); /* Bounce overshoot */
+    --md-motion-easing-expressive-soft: cubic-bezier(0.22, 1.2, 0.36, 1); /* Subtle bounce */
+    --md-motion-duration-short: 150ms;
+    --md-motion-duration-medium: 250ms;
+    --md-motion-duration-long: 400ms;
+}
+/* ===== RAIL CONTAINER ===== */
+.navigation-rail {
+    width: 96px;
+    background: var(--md-sys-color-surface-container-low);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 12px;
+    padding-bottom: 16px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 12px 0 12px 12px;
+    border-radius: 28px;
+    /* M3 Expressive: Bounce animation for expand/collapse */
+    transition: 
+        width var(--md-motion-duration-long) var(--md-motion-easing-expressive-soft),
+        border-radius var(--md-motion-duration-medium) var(--md-motion-easing-emphasized);
+    font-family: "Google Sans Flex", sans-serif;
+}
+
+.navigation-rail.expanded {
+    width: 256px;
+    align-items: flex-start;
+    padding-left: 12px;
+    padding-right: 12px;
+    border-radius: 28px;
+}
+
+/* ===== MENU BUTTON ===== */
+.rail-menu-btn {
+    width: 48px;
+    height: 48px;
+    min-height: 48px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--md-sys-color-on-surface-variant);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+    transition: background 0.15s ease;
+}
+
+.navigation-rail.expanded .rail-menu-btn {
+    align-self: flex-start;
+    margin-left: 4px;
+}
+
+.rail-menu-btn:hover {
+    background: var(--md-sys-color-surface-container-highest);
+}
+
+.rail-menu-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* ===== FAB (56x56) ===== */
+.rail-fab {
+    width: 56px;
+    height: 56px;
+    min-height: 56px;
+    border-radius: 16px;
+    background: var(--md-sys-color-tertiary-container);
+    color: var(--md-sys-color-on-tertiary-container);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    box-shadow: var(--md-sys-elevation-1);
+    /* M3 Expressive: Bounce animation */
+    transition: 
+        all var(--md-motion-duration-long) var(--md-motion-easing-expressive-soft),
+        transform var(--md-motion-duration-short) var(--md-motion-easing-expressive);
+    margin-bottom: 16px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.navigation-rail.expanded .rail-fab {
+    width: 100%;
+    height: 56px;
+    justify-content: center;
+    padding: 0 16px;
+}
+
+.rail-fab:hover {
+    box-shadow: var(--md-sys-elevation-2);
+    transform: scale(1.02); /* Subtle grow on hover */
+}
+
+.rail-fab:active {
+    box-shadow: var(--md-sys-elevation-1);
+    transform: scale(0.96); /* Press feedback */
+}
+
+.rail-fab svg {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.rail-fab-label {
+    display: none;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.navigation-rail.expanded .rail-fab-label {
+    display: block;
+}
+
+/* ===== RAIL ITEMS CONTAINER ===== */
+.rail-items {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 4px;
+    flex: 1;
+}
+
+.navigation-rail.expanded .rail-items {
+    align-items: stretch;
+}
+
+/* ===== RAIL ITEM (56px height) ===== */
+/* In COLLAPSED mode: only icon container has background indicator */
+/* In EXPANDED mode: the whole button has background indicator */
+.rail-item {
+    width: 56px;
+    min-height: 56px;
+    padding: 0;
+    background: transparent !important; /* Never show bg in collapsed */
+    color: var(--md-sys-color-on-surface-variant);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 4px;
+    gap: 4px;
+    position: relative;
+    flex-shrink: 0;
+    transition: color 0.15s ease;
+    outline: none;
+}
+
+/* Expanded: Indicator hugs content (M3 style) */
+.navigation-rail.expanded .rail-item {
+    width: auto; /* Hugs content instead of full width */
+    height: 56px;
+    min-height: 56px;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0 24px 0 16px;
+    gap: 12px;
+    border-radius: 28px;
+    background: transparent !important;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* ===== ICON CONTAINER WITH INDICATOR ===== */
+.rail-item-icon {
+    width: 56px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: 16px;
+    /* M3 Expressive: Bounce on hover/active */
+    transition: 
+        background var(--md-motion-duration-medium) var(--md-motion-easing-expressive-soft),
+        transform var(--md-motion-duration-short) var(--md-motion-easing-expressive);
+}
+
+/* Subtle scale on press for tactile feedback */
+.rail-item:active .rail-item-icon {
+    transform: scale(0.95);
+}
+
+/* In expanded mode, icon container is just the icon - NO background for any state */
+.navigation-rail.expanded .rail-item-icon,
+.navigation-rail.expanded .rail-item:hover .rail-item-icon,
+.navigation-rail.expanded .rail-item:active .rail-item-icon,
+.navigation-rail.expanded .rail-item:focus-visible .rail-item-icon,
+.navigation-rail.expanded .rail-item.active .rail-item-icon,
+.navigation-rail.expanded .rail-item.active:hover .rail-item-icon {
+    width: 24px;
+    height: 24px;
+    background: transparent !important;
+}
+
+/* ============================================ */
+/* ===== STATES: INACTIVE DESTINATION ========= */
+/* ============================================ */
+
+/* 5. Inactive - Enabled (default) */
+.rail-item:not(.active) {
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.rail-item:not(.active) .rail-item-icon {
+    background: transparent;
+}
+
+.rail-item:not(.active):hover .rail-item-icon {
+    background: var(--md-sys-color-surface-container-high);
+}
+
+/* Expanded: no icon bg */
+.navigation-rail.expanded .rail-item:not(.active):hover .rail-item-icon {
+    background: transparent !important;
+}
+
+.navigation-rail.expanded .rail-item:not(.active):hover {
+    background: var(--md-sys-color-surface-container-high) !important;
+}
+
+.rail-item:not(.active):focus-visible .rail-item-icon {
+    background: var(--md-sys-color-surface-container-highest);
+    outline: 2px solid var(--md-sys-color-secondary);
+    outline-offset: 2px;
+}
+
+/* Expanded: no icon bg */
+.navigation-rail.expanded .rail-item:not(.active):focus-visible .rail-item-icon {
+    background: transparent !important;
+}
+
+.navigation-rail.expanded .rail-item:not(.active):focus-visible {
+    background: var(--md-sys-color-surface-container-highest) !important;
+    outline: 2px solid var(--md-sys-color-secondary);
+    outline-offset: 2px;
+}
+
+.rail-item:not(.active):active .rail-item-icon {
+    background: var(--md-sys-color-surface-container-highest);
+}
+
+/* Expanded: no icon bg */
+.navigation-rail.expanded .rail-item:not(.active):active .rail-item-icon {
+    background: transparent !important;
+}
+
+.navigation-rail.expanded .rail-item:not(.active):active {
+    background: var(--md-sys-color-surface-container-highest) !important;
+}
+
+/* ============================================ */
+/* ===== STATES: ACTIVE DESTINATION =========== */
+/* ============================================ */
+
+/* 1. Active - Enabled */
+.rail-item.active {
+    color: var(--md-sys-color-on-secondary-container);
+}
+
+.rail-item.active .rail-item-icon {
+    background: var(--md-sys-color-secondary-container);
+}
+
+/* Expanded: no icon bg */
+.navigation-rail.expanded .rail-item.active .rail-item-icon {
+    background: transparent !important;
+}
+
+.navigation-rail.expanded .rail-item.active {
+    background: var(--md-sys-color-secondary-container) !important;
+    color: var(--md-sys-color-on-secondary-container);
+}
+
+/* 2. Active - Hovered (slightly darker) */
+.rail-item.active:hover .rail-item-icon {
+    background: var(--md-sys-color-secondary);
+    color: var(--md-sys-color-on-secondary);
+}
+
+/* Expanded: no icon bg */
+.navigation-rail.expanded .rail-item.active:hover .rail-item-icon {
+    background: transparent !important;
+}
+
+.navigation-rail.expanded .rail-item.active:hover {
+    background: var(--md-sys-color-secondary) !important;
+    color: var(--md-sys-color-on-secondary);
+}
+
+/* 3. Active - Focused */
+.rail-item.active:focus-visible .rail-item-icon {
+    background: var(--md-sys-color-secondary);
+    outline: 2px solid var(--md-sys-color-outline);
+    outline-offset: 2px;
+}
+
+/* Expanded: no icon bg */
+.navigation-rail.expanded .rail-item.active:focus-visible .rail-item-icon {
+    background: transparent !important;
+}
+
+.navigation-rail.expanded .rail-item.active:focus-visible {
+    background: var(--md-sys-color-secondary) !important;
+    outline: 2px solid var(--md-sys-color-outline);
+    outline-offset: 2px;
+}
+
+/* 4. Active - Pressed */
+.rail-item.active:active .rail-item-icon {
+    background: var(--md-sys-color-secondary);
+}
+
+/* Expanded: no icon bg */
+.navigation-rail.expanded .rail-item.active:active .rail-item-icon {
+    background: transparent !important;
+}
+
+.navigation-rail.expanded .rail-item.active:active {
+    background: var(--md-sys-color-secondary) !important;
+}
+
+/* Icon */
+.rail-item svg {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+/* Label */
+.rail-item-label {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 16px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 72px;
+}
+
+.navigation-rail.expanded .rail-item-label {
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    max-width: none;
+}
+
+/* ===== BADGE ===== */
+.rail-badge {
+    position: absolute;
+    top: 0;
+    right: 4px;
+    min-width: 6px;
+    height: 6px;
+    background: var(--md-sys-color-error);
+    border-radius: 50%;
+    z-index: 2;
+}
+
+.rail-badge.large {
+    min-width: 16px;
+    height: 16px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--md-sys-color-on-error);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+}
+
+.navigation-rail.expanded .rail-badge {
+    position: static;
+    margin-left: auto;
+}
+
+/* ===== USER PROFILE ===== */
+.user-profile {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    width: 100%;
+}
+
+.navigation-rail.expanded .user-profile {
+    flex-direction: row;
+    padding: 12px 16px;
+    gap: 12px;
+}
+
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: box-shadow 0.15s ease;
+}
+
+.avatar-circle:hover {
+    box-shadow: var(--md-sys-elevation-1);
+}
+
+.profile-details {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.navigation-rail.expanded .profile-details {
+    display: flex;
+}
+
+.profile-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--md-sys-color-on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profile-email {
+    font-size: 12px;
+    color: var(--md-sys-color-on-surface-variant);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.logout-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--md-sys-color-on-surface-variant);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.logout-btn:hover {
+    background: var(--md-sys-color-error-container);
+    color: var(--md-sys-color-on-error-container);
+}
+
+.logout-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* ===== FINAL OVERRIDE: No icon background in expanded mode ===== */
+/* This rule must be at the END of the file to ensure highest priority */
+.navigation-rail.expanded .rail-item .rail-item-icon {
+    background: transparent !important;
+    border-radius: 0 !important;
+}
+
+/* ===== NUCLEAR OPTION: FORCE TRANSPARENCY ===== */
+/* Use high specificity to ensure this wins over everything else */
+html body .navigation-rail.expanded .rail-item .rail-item-icon,
+html body .navigation-rail.expanded .rail-item:hover .rail-item-icon,
+html body .navigation-rail.expanded .rail-item:active .rail-item-icon,
+html body .navigation-rail.expanded .rail-item.active .rail-item-icon,
+html body .navigation-rail.expanded .rail-item.active:hover .rail-item-icon {
+    background: transparent !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    /* Determine positioning */
+    display: flex !important;
+}
