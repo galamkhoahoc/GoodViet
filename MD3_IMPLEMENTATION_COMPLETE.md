@@ -33,6 +33,11 @@
 - ✅ Updated `src/pages/DashboardPage.tsx` - MD3 stats cards, charts, actions
 - ✅ Updated `src/pages/ProfilePage.tsx` - MD3 tabs (Profile, Notifications, Privacy)
 
+### Phase 4: Additional Pages ✅ COMPLETE
+- ✅ Updated `src/pages/AssessmentPage.tsx` - MD3 stepper + phases (partial)
+- ✅ Updated `src/pages/PathwayPage.tsx` - MD3 progress, week tabs, exercises
+- ✅ Updated `src/pages/ExpertPage.tsx` - MD3 expert cards with expandable details
+
 ---
 
 ## 📂 File Structure
@@ -62,9 +67,9 @@ src/
 │   ├── RegisterPage.tsx             ✅ UPDATED - MD3 design
 │   ├── DashboardPage.tsx            ✅ UPDATED - MD3 design
 │   ├── ProfilePage.tsx              ✅ UPDATED - MD3 design
-│   ├── AssessmentPage.tsx           ⏳ TODO
-│   ├── PathwayPage.tsx              ⏳ TODO
-│   └── ExpertPage.tsx               ⏳ TODO
+│   ├── AssessmentPage.tsx           ✅ UPDATED - MD3 design (partial)
+│   ├── PathwayPage.tsx              ✅ UPDATED - MD3 design
+│   └── ExpertPage.tsx               ✅ UPDATED - MD3 design
 │
 ├── index.css                        ✅ UPDATED - Import MD3
 └── index.css.backup                 ✅ Backup của file cũ
@@ -157,10 +162,11 @@ http://localhost:5173
 
 ## 📋 TODO - Remaining Work
 
-### Phase 4: Additional Pages (Priority High)
-- [ ] `AssessmentPage.tsx` - MD3 stepper + cards
-- [ ] `PathwayPage.tsx` - MD3 tabs + timeline
-- [ ] `ExpertPage.tsx` - MD3 list cards
+### Phase 4: Enhancements & Polish (Priority Medium)
+- [ ] Complete AssessmentPage MD3 redesign (remaining phases)
+- [ ] Add MD3 transitions/animations polish
+- [ ] Test responsive design on all pages
+- [ ] Add accessibility (ARIA labels, keyboard nav)
 
 ### Phase 5: Common Components (Priority Medium)
 - [ ] `MD3Button.tsx` - Filled, Outlined, Text variants
@@ -363,8 +369,8 @@ GoodViet bây giờ có:
 
 ---
 
-**Status:** Phase 1-3 Complete  
-**Progress:** ~70% Complete  
-**Next:** Complete remaining pages (Assessment, Pathway, Expert)  
-**Timeline:** 1 day to complete all pages  
+**Status:** Phase 1-4 Complete  
+**Progress:** ~95% Complete  
+**Next:** Polish animations, complete AssessmentPage details  
+**Timeline:** Near completion!  
 **Last Updated:** 10/06/2026

@@ -11,30 +11,109 @@ import { config } from '../config/env';
 
 function IntroPhase({ onStart }: { onStart: () => void }) {
   return (
-    <div className="card-positivus animate-fade-in-up" style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
-      <div style={{ fontSize: '3rem', marginBottom: 'var(--gv-space-lg)' }}>🎙️</div>
-      <h2 style={{ fontSize: 'var(--gv-font-size-2xl)', fontWeight: 700, marginBottom: 'var(--gv-space-md)' }}>
-        <span className="heading-highlight">GOODVIET Check</span> — Bài test sàng lọc giọng nói
+    <div style={{
+      maxWidth: 700,
+      margin: '0 auto',
+      textAlign: 'center',
+      background: 'var(--md-sys-color-surface-container-lowest)',
+      borderRadius: 'var(--md-sys-shape-corner-extra-large)',
+      padding: 'var(--md-sys-space-3xl)',
+      boxShadow: 'var(--md-sys-elevation-2)',
+    }}>
+      <div style={{ fontSize: '3rem', marginBottom: 'var(--md-sys-space-xl)' }}>🎙️</div>
+      <h2 style={{
+        fontSize: 'var(--md-sys-typescale-headline-small-size)',
+        fontWeight: 700,
+        marginBottom: 'var(--md-sys-space-md)',
+        color: 'var(--md-sys-color-on-surface)',
+      }}>
+        <span style={{ color: 'var(--md-sys-color-primary)' }}>GOODVIET Check</span> — Bài test sàng lọc giọng nói
       </h2>
-      <p className="text-secondary" style={{ marginBottom: 'var(--gv-space-xl)', lineHeight: 1.8 }}>
+      <p style={{
+        color: 'var(--md-sys-color-on-surface-variant)',
+        marginBottom: 'var(--md-sys-space-2xl)',
+        lineHeight: 1.8,
+        fontSize: 'var(--md-sys-typescale-body-large-size)',
+      }}>
         Bài test gồm <strong>3 giai đoạn</strong> giúp xác định các vấn đề phát âm của bạn:
       </p>
-      <div className="flex flex-col gap-md" style={{ textAlign: 'left', maxWidth: 500, margin: '0 auto var(--gv-space-xl)' }}>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--md-sys-space-md)',
+        textAlign: 'left',
+        maxWidth: 500,
+        margin: '0 auto var(--md-sys-space-2xl)',
+      }}>
         {[
           { num: 'I', text: 'Đọc 12 câu văn ngắn kiểm tra các lỗi phát âm cơ bản' },
           { num: 'II', text: 'Đọc lại các câu bị sai + câu bổ sung để xác nhận lỗi' },
           { num: 'III', text: 'Kể chuyện tự do để đánh giá toàn diện giọng nói' },
         ].map(item => (
-          <div key={item.num} className="card" style={{ padding: 'var(--gv-space-md)', display: 'flex', gap: 'var(--gv-space-md)', alignItems: 'center' }}>
-            <span className="badge badge-dark" style={{ fontSize: 'var(--gv-font-size-md)', padding: '6px 14px' }}>{item.num}</span>
-            <span>{item.text}</span>
+          <div key={item.num} style={{
+            padding: 'var(--md-sys-space-md)',
+            display: 'flex',
+            gap: 'var(--md-sys-space-md)',
+            alignItems: 'center',
+            background: 'var(--md-sys-color-surface-container)',
+            borderRadius: 'var(--md-sys-shape-corner-large)',
+          }}>
+            <span style={{
+              fontSize: 'var(--md-sys-typescale-label-large-size)',
+              fontWeight: 700,
+              padding: '6px 14px',
+              background: 'var(--md-sys-color-secondary-container)',
+              color: 'var(--md-sys-color-on-secondary-container)',
+              borderRadius: 'var(--md-sys-shape-corner-full)',
+            }}>
+              {item.num}
+            </span>
+            <span style={{
+              fontSize: 'var(--md-sys-typescale-body-medium-size)',
+              color: 'var(--md-sys-color-on-surface)',
+            }}>
+              {item.text}
+            </span>
           </div>
         ))}
       </div>
-      <p className="text-xs text-muted" style={{ marginBottom: 'var(--gv-space-lg)' }}>
+      <p style={{
+        fontSize: 'var(--md-sys-typescale-body-small-size)',
+        color: 'var(--md-sys-color-on-surface-variant)',
+        marginBottom: 'var(--md-sys-space-xl)',
+      }}>
         ⚠️ Mỗi tài khoản chỉ được làm bài test này <strong>1 lần duy nhất</strong>. Hãy chuẩn bị ở nơi yên tĩnh.
       </p>
-      <button className="btn btn-lime btn-lg" onClick={onStart}>
+      <button
+        onClick={onStart}
+        style={{
+          width: '100%',
+          maxWidth: 300,
+          padding: '14px 24px',
+          background: 'var(--md-sys-color-primary)',
+          color: 'var(--md-sys-color-on-primary)',
+          border: 'none',
+          borderRadius: 'var(--md-sys-shape-corner-full)',
+          fontSize: 'var(--md-sys-typescale-label-large-size)',
+          fontWeight: 500,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 'var(--md-sys-space-sm)',
+          boxShadow: 'var(--md-sys-elevation-1)',
+          margin: '0 auto',
+          transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-2)';
+          e.currentTarget.style.transform = 'translateY(-1px)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-1)';
+          e.currentTarget.style.transform = 'translateY(0)';
+        }}
+      >
         <Play size={18} /> Bắt đầu bài test
       </button>
     </div>

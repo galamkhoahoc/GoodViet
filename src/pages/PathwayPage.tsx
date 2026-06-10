@@ -127,34 +127,119 @@ export function PathwayPage() {
   };
 
   return (
-    <div className="animate-fade-in-up">
-      <div className="page-header">
-        <h1 className="page-title"><Route size={28} style={{ display: 'inline', verticalAlign: 'middle' }} /> <span className="heading-highlight">{pathway.name}</span></h1>
-        <p className="page-subtitle">{pathway.description}</p>
+    <div style={{ padding: 'var(--md-sys-space-2xl)' }}>
+      {/* Page Header */}
+      <div style={{ marginBottom: 'var(--md-sys-space-2xl)' }}>
+        <h1 style={{
+          fontSize: 'var(--md-sys-typescale-headline-medium-size)',
+          fontWeight: 700,
+          color: 'var(--md-sys-color-on-surface)',
+          marginBottom: 'var(--md-sys-space-xs)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--md-sys-space-md)',
+        }}>
+          <Route size={28} color="var(--md-sys-color-primary)" />
+          <span style={{ color: 'var(--md-sys-color-primary)' }}>{pathway.name}</span>
+        </h1>
+        <p style={{
+          fontSize: 'var(--md-sys-typescale-body-large-size)',
+          color: 'var(--md-sys-color-on-surface-variant)',
+        }}>
+          {pathway.description}
+        </p>
       </div>
 
       {/* Progress Overview */}
-      <div className="card-positivus mb-lg">
-        <div className="flex items-center justify-between mb-md">
-          <span className="font-semibold">Tiến độ lộ trình</span>
-          <span className="badge badge-dark">{progress}% hoàn thành</span>
+      <div style={{
+        background: 'var(--md-sys-color-surface-container-lowest)',
+        borderRadius: 'var(--md-sys-shape-corner-extra-large)',
+        padding: 'var(--md-sys-space-xl)',
+        marginBottom: 'var(--md-sys-space-xl)',
+        boxShadow: 'var(--md-sys-elevation-1)',
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 'var(--md-sys-space-md)',
+        }}>
+          <span style={{
+            fontSize: 'var(--md-sys-typescale-title-medium-size)',
+            fontWeight: 500,
+            color: 'var(--md-sys-color-on-surface)',
+          }}>
+            Tiến độ lộ trình
+          </span>
+          <span style={{
+            padding: '6px 16px',
+            background: 'var(--md-sys-color-secondary-container)',
+            color: 'var(--md-sys-color-on-secondary-container)',
+            borderRadius: 'var(--md-sys-shape-corner-full)',
+            fontSize: 'var(--md-sys-typescale-label-large-size)',
+            fontWeight: 500,
+          }}>
+            {progress}% hoàn thành
+          </span>
         </div>
-        <div className="progress-bar mb-md">
-          <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
+        <div style={{
+          height: 8,
+          background: 'var(--md-sys-color-surface-container-high)',
+          borderRadius: 'var(--md-sys-shape-corner-full)',
+          overflow: 'hidden',
+          marginBottom: 'var(--md-sys-space-md)',
+        }}>
+          <div style={{
+            height: '100%',
+            width: `${progress}%`,
+            background: 'var(--md-sys-color-primary)',
+            transition: 'width var(--md-motion-duration-medium2) var(--md-motion-easing-standard)',
+            borderRadius: 'var(--md-sys-shape-corner-full)',
+          }} />
         </div>
-        <div className="flex justify-between text-sm text-muted">
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          fontSize: 'var(--md-sys-typescale-body-small-size)',
+          color: 'var(--md-sys-color-on-surface-variant)',
+        }}>
           <span>{completedDays} / {totalDays} ngày</span>
-          <span>Mức độ: <span className="font-semibold" style={{ color: 'var(--gv-warning)' }}>{pathway.severityLevel === 'moderate' ? 'Trung bình' : pathway.severityLevel === 'mild' ? 'Nhẹ' : 'Nặng'}</span></span>
+          <span>
+            Mức độ: <span style={{
+              fontWeight: 500,
+              color: pathway.severityLevel === 'moderate' ? 'var(--md-sys-color-tertiary)' : 'var(--md-sys-color-secondary)',
+            }}>
+              {pathway.severityLevel === 'moderate' ? 'Trung bình' : pathway.severityLevel === 'mild' ? 'Nhẹ' : 'Nặng'}
+            </span>
+          </span>
         </div>
       </div>
 
       {/* Week Tabs */}
-      <div className="flex gap-sm mb-lg" style={{ overflowX: 'auto', paddingBottom: 4 }}>
+      <div style={{
+        display: 'flex',
+        gap: 'var(--md-sys-space-md)',
+        marginBottom: 'var(--md-sys-space-xl)',
+        overflowX: 'auto',
+        paddingBottom: 4,
+      }}>
         {pathway.weeklyPlans.map((week, i) => (
           <button
             key={i}
-            className={`btn ${selectedWeek === i ? 'btn-lime' : 'btn-secondary'}`}
             onClick={() => setSelectedWeek(i)}
+            style={{
+              padding: '10px 24px',
+              background: selectedWeek === i ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-surface-container)',
+              color: selectedWeek === i ? 'var(--md-sys-color-on-primary)' : 'var(--md-sys-color-on-surface)',
+              border: 'none',
+              borderRadius: 'var(--md-sys-shape-corner-full)',
+              fontSize: 'var(--md-sys-typescale-label-large-size)',
+              fontWeight: 500,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
+              boxShadow: selectedWeek === i ? 'var(--md-sys-elevation-1)' : 'none',
+            }}
           >
             Tuần {week.weekNumber}
           </button>
