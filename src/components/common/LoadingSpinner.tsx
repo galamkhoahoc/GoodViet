@@ -4,45 +4,54 @@ interface LoadingSpinnerProps {
   fullPage?: boolean;
 }
 
-export function LoadingSpinner({ size = 'md', label, fullPage = false }: LoadingSpinnerProps) {
-  const sizeMap = { sm: 24, md: 40, lg: 64 };
-  const px = sizeMap[size];
+export function LoadingSpinner({ size = 'md', label, fullPage }: LoadingSpinnerProps) {
+  const sizeMap = { sm: 24, md: 40, lg: 60 };
+  const spinnerSize = sizeMap[size];
 
   const spinner = (
-    <div
-      role="status"
-      aria-label={label || 'Đang tải...'}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 'var(--gv-space-md, 12px)',
-        padding: fullPage ? 'var(--gv-space-2xl, 48px)' : undefined,
-        minHeight: fullPage ? '60vh' : undefined,
-      }}
-    >
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 'var(--gv-space-md)',
+    }}>
       <div
+        className="processing-spinner"
         style={{
-          width: px,
-          height: px,
-          border: `3px solid var(--gv-border, #E0E1E6)`,
-          borderTopColor: 'var(--gv-black, #191A23)',
-          borderRadius: '50%',
-          animation: 'spin 0.7s linear infinite',
+          width: spinnerSize,
+          height: spinnerSize,
+          border: `${Math.max(2, spinnerSize / 15)}px solid var(--gv-border)`,
+          borderTopColor: 'var(--gv-primary)',
         }}
       />
       {label && (
-        <span style={{
-          fontSize: size === 'sm' ? 'var(--gv-font-size-xs, 12px)' : 'var(--gv-font-size-sm, 14px)',
-          color: 'var(--gv-text-muted, #6B6C7A)',
+        <div style={{
+          fontSize: 'var(--gv-font-size-sm)',
+          color: 'var(--gv-text-secondary)',
           fontWeight: 500,
         }}>
           {label}
-        </span>
+        </div>
       )}
     </div>
   );
+
+  if (fullPage) {
+    return (
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(255, 255, 255, 0.9)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+      }}>
+        {spinner}
+      </div>
+    );
+  }
 
   return spinner;
 }

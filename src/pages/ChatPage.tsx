@@ -41,16 +41,16 @@ export function ChatPage() {
         {/* Chat Header */}
         <div style={{
           padding: 'var(--gv-space-md) var(--gv-space-lg)',
-          borderBottom: '2px solid var(--gv-border)',
+          borderBottom: '1px solid var(--gv-border)',
           display: 'flex', alignItems: 'center', gap: 'var(--gv-space-md)',
-          background: 'var(--gv-white)',
+          background: 'var(--gv-bg-surface)',
         }}>
           <div style={{
             width: 40, height: 40, borderRadius: 'var(--gv-radius-full)',
-            background: 'var(--gv-lime)', border: '2px solid var(--gv-black)',
+            background: 'var(--gv-primary)', 
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <Bot size={20} color="#191A23" />
+            <Bot size={20} color="white" />
           </div>
           <div>
             <div className="font-semibold">GOODVIET Bot</div>
@@ -66,10 +66,10 @@ export function ChatPage() {
                 {msg.senderType === 'bot' && (
                   <div style={{
                     width: 28, height: 28, borderRadius: 'var(--gv-radius-full)', flexShrink: 0,
-                    background: 'var(--gv-lime)', border: '1.5px solid var(--gv-black)',
+                    background: 'var(--gv-primary)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
-                    <Bot size={14} color="#191A23" />
+                    <Bot size={14} color="white" />
                   </div>
                 )}
                 <div className={`chat-bubble ${msg.senderType}`}>
@@ -79,7 +79,7 @@ export function ChatPage() {
                 {msg.senderType === 'user' && (
                   <div style={{
                     width: 28, height: 28, borderRadius: 'var(--gv-radius-full)', flexShrink: 0,
-                    background: 'var(--gv-black)',
+                    background: 'var(--gv-primary)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     <User size={14} color="white" />
@@ -93,10 +93,10 @@ export function ChatPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{
                 width: 28, height: 28, borderRadius: 'var(--gv-radius-full)',
-                background: 'var(--gv-lime)', border: '1.5px solid var(--gv-black)',
+                background: 'var(--gv-primary)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <Bot size={14} color="#191A23" />
+                <Bot size={14} color="white" />
               </div>
               <div className="chat-bubble bot" style={{ padding: '12px 20px' }}>
                 <div style={{ display: 'flex', gap: 4 }}>

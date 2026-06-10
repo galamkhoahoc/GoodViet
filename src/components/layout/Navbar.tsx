@@ -31,14 +31,14 @@ export function Navbar() {
         {showDropdown && (
           <div style={{
             position: 'absolute', top: '100%', right: 0, width: '360px',
-            background: 'var(--gv-white)', border: '2px solid var(--gv-black)',
-            borderRadius: 'var(--gv-radius-lg)', boxShadow: 'var(--gv-shadow-card)',
+            background: 'var(--gv-bg-surface)', border: '1px solid var(--gv-border)',
+            borderRadius: 'var(--gv-radius-lg)', boxShadow: 'var(--gv-shadow-lg)',
             zIndex: 200, maxHeight: '400px', overflow: 'auto',
-            animation: 'fadeInDown 0.2s ease',
+            animation: 'fadeInDown 0.2s ease', marginTop: '8px',
           }}>
             <div style={{
               padding: 'var(--gv-space-md) var(--gv-space-lg)',
-              borderBottom: '2px solid var(--gv-border)',
+              borderBottom: '1px solid var(--gv-border)',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
               <span style={{ fontWeight: 700 }}>Thông báo</span>
@@ -61,11 +61,17 @@ export function Navbar() {
                     padding: 'var(--gv-space-md) var(--gv-space-lg)',
                     borderBottom: '1px solid var(--gv-border)',
                     cursor: 'pointer',
-                    background: n.read ? 'transparent' : 'var(--gv-lime-soft)',
+                    background: n.read ? 'transparent' : 'var(--gv-primary-soft)',
                     transition: 'background var(--gv-transition-fast)',
                   }}
+                  onMouseEnter={(e) => {
+                    if (n.read) e.currentTarget.style.background = 'var(--gv-bg-hover)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (n.read) e.currentTarget.style.background = 'transparent';
+                  }}
                 >
-                  <div style={{ fontWeight: n.read ? 400 : 700, fontSize: 'var(--gv-font-size-sm)' }}>
+                  <div style={{ fontWeight: n.read ? 400 : 600, fontSize: 'var(--gv-font-size-sm)' }}>
                     {n.title}
                   </div>
                   <div style={{ fontSize: 'var(--gv-font-size-xs)', color: 'var(--gv-text-muted)', marginTop: '4px' }}>

@@ -19,10 +19,10 @@ export function DashboardPage() {
   const navigate = useNavigate();
 
   const stats = [
-    { icon: Mic, label: 'Tổng ghi âm', value: user?.totalRecordings || 0, color: '#191A23', bg: '#B9FF66' },
-    { icon: Clock, label: 'Thời gian luyện', value: `${user?.totalPracticeTime || 0}p`, color: '#191A23', bg: '#F3F3F3' },
-    { icon: Flame, label: 'Streak hiện tại', value: `${user?.currentStreak || 0} ngày`, color: '#E74C3C', bg: 'rgba(231,76,60,0.08)' },
-    { icon: Calendar, label: 'Streak dài nhất', value: `${user?.longestStreak || 0} ngày`, color: '#3AC267', bg: 'rgba(58,194,103,0.08)' },
+    { icon: Mic, label: 'Tổng ghi âm', value: user?.totalRecordings || 0, color: '#4F46E5', bg: 'rgba(79, 70, 229, 0.1)' },
+    { icon: Clock, label: 'Thời gian luyện', value: `${user?.totalPracticeTime || 0}p`, color: '#818CF8', bg: 'rgba(129, 140, 248, 0.1)' },
+    { icon: Flame, label: 'Streak hiện tại', value: `${user?.currentStreak || 0} ngày`, color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)' },
+    { icon: Calendar, label: 'Streak dài nhất', value: `${user?.longestStreak || 0} ngày`, color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)' },
   ];
 
   const milestones = [
@@ -65,14 +65,14 @@ export function DashboardPage() {
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={weeklyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E0E1E6" />
-              <XAxis dataKey="week" stroke="#6B6C7A" fontSize={12} />
-              <YAxis stroke="#6B6C7A" fontSize={12} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis dataKey="week" stroke="#6B7280" fontSize={12} />
+              <YAxis stroke="#6B7280" fontSize={12} />
               <Tooltip
-                contentStyle={{ background: '#FFF', border: '2px solid #191A23', borderRadius: 14 }}
-                labelStyle={{ color: '#191A23', fontWeight: 600 }}
+                contentStyle={{ background: '#FFF', border: '1px solid #E5E7EB', borderRadius: 12, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+                labelStyle={{ color: '#1F2937', fontWeight: 600 }}
               />
-              <Line type="monotone" dataKey="score" stroke="#191A23" strokeWidth={3} dot={{ fill: '#B9FF66', stroke: '#191A23', strokeWidth: 2, r: 6 }} />
+              <Line type="monotone" dataKey="score" stroke="#4F46E5" strokeWidth={3} dot={{ fill: '#818CF8', stroke: '#4F46E5', strokeWidth: 2, r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -84,14 +84,14 @@ export function DashboardPage() {
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={dailyPractice}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E0E1E6" />
-              <XAxis dataKey="day" stroke="#6B6C7A" fontSize={12} />
-              <YAxis stroke="#6B6C7A" fontSize={12} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis dataKey="day" stroke="#6B7280" fontSize={12} />
+              <YAxis stroke="#6B7280" fontSize={12} />
               <Tooltip
-                contentStyle={{ background: '#FFF', border: '2px solid #191A23', borderRadius: 14 }}
-                labelStyle={{ color: '#191A23', fontWeight: 600 }}
+                contentStyle={{ background: '#FFF', border: '1px solid #E5E7EB', borderRadius: 12, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+                labelStyle={{ color: '#1F2937', fontWeight: 600 }}
               />
-              <Bar dataKey="minutes" fill="#B9FF66" stroke="#191A23" strokeWidth={1} radius={[8, 8, 0, 0]} />
+              <Bar dataKey="minutes" fill="#818CF8" stroke="#4F46E5" strokeWidth={1} radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -107,14 +107,14 @@ export function DashboardPage() {
           </div>
           <div className="flex flex-col gap-sm">
             {!user?.assessmentCompleted && (
-              <button className="btn btn-lime w-full" onClick={() => navigate('/assessment')}>
+              <button className="btn btn-secondary w-full" onClick={() => navigate('/assessment')}>
                 <BookOpen size={16} /> Bắt đầu GOODVIET Check
               </button>
             )}
             <button className="btn btn-primary w-full" onClick={() => navigate('/pathway')}>
               <RouteIcon size={16} /> Tiếp tục luyện tập
             </button>
-            <button className="btn btn-secondary w-full" onClick={() => navigate('/chat')}>
+            <button className="btn btn-ghost w-full" onClick={() => navigate('/chat')}>
               <Mic size={16} /> Chat với GOODVIET Bot
             </button>
           </div>
@@ -130,18 +130,18 @@ export function DashboardPage() {
             {milestones.map((m, i) => (
               <div key={i} className="flex items-center gap-md" style={{
                 padding: '10px 14px', borderRadius: 'var(--gv-radius-md)',
-                background: m.done ? 'var(--gv-lime-soft)' : 'var(--gv-light)',
-                border: m.done ? '1px solid var(--gv-lime-dark)' : '1px solid transparent',
-                opacity: m.done ? 1 : 0.5,
+                background: m.done ? 'var(--gv-primary-soft)' : 'var(--gv-light)',
+                border: m.done ? '1px solid var(--gv-primary-light)' : '1px solid transparent',
+                opacity: m.done ? 1 : 0.6,
               }}>
                 <span style={{ fontSize: '1.2rem' }}>{m.icon}</span>
                 <span className="text-sm" style={{
-                  color: m.done ? 'var(--gv-black)' : 'var(--gv-text-muted)',
+                  color: m.done ? 'var(--gv-primary)' : 'var(--gv-text-muted)',
                   fontWeight: m.done ? 600 : 400,
                 }}>
                   {m.title}
                 </span>
-                {m.done && <span style={{ marginLeft: 'auto', fontWeight: 700 }}>✓</span>}
+                {m.done && <span style={{ marginLeft: 'auto', fontWeight: 700, color: 'var(--gv-success)' }}>✓</span>}
               </div>
             ))}
           </div>
