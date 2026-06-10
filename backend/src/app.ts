@@ -69,6 +69,29 @@ export function createApp(): Application {
     });
   });
 
+  // Root endpoint - API information
+  app.get('/', (req, res) => {
+    res.status(200).json({
+      name: 'GoodViet API',
+      version: '1.0.0',
+      description: 'Backend API for GoodViet - Vietnamese Speech Therapy Platform',
+      status: 'running',
+      environment: env.NODE_ENV,
+      endpoints: {
+        health: '/health',
+        auth: '/api/users/register, /api/users/login',
+        chat: '/api/chat/messages',
+        audio: '/api/audio/upload',
+        assessments: '/api/assessments/start',
+        practice: '/api/practice/sessions',
+        experts: '/api/experts',
+        notifications: '/api/notifications'
+      },
+      documentation: 'https://github.com/your-repo/goodviet',
+      frontend: 'https://glkh-good-viet.vercel.app'
+    });
+  });
+
   // API routes
   app.use('/api/users', authRoutes);
   app.use('/api/users', userRoutes);
