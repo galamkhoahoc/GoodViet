@@ -1,0 +1,28 @@
+/* ============================================================
+   GOODVIET - Material Design 3 Styles Entry Point
+   Import all MD3 style modules
+   ============================================================ */
+
+/* Design Tokens (Colors, Typography, Shape, Motion) */
+@import './md3-tokens.css';
+
+/* Component Styles */
+@import './md3-components.css';
+
+/* Surface Hierarchy */
+@import './m3-containers.css';
+
+/* Expressive Motion & Animations */
+@import './m3-motion.css';
+
+/* Navigation Rail */
+@import './navigation-rail.css';
+
+/* Custom Shapes */
+@import './shapes.css';
+
+/* Modal & Dialogs */
+@import './modal.css';
+
+/* Tabs System */
+@import './tabs.css';

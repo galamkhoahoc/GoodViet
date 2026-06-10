@@ -31,103 +31,99 @@ export function ChatPage() {
   };
 
   return (
-    <div className="animate-fade-in">
-      <div className="page-header">
-        <h1 className="page-title">💬 <span className="heading-highlight">GOODVIET Companion</span></h1>
-        <p className="page-subtitle">Chatbot đồng hành, động viên và hỗ trợ bạn mỗi ngày</p>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%' }}>
+      {/* Chat Header */}
+      <div className="chat-header">
+        <div className="chat-header-title">
+          <h2>💬 GOODVIET Companion</h2>
+          <span className="chat-header-subtitle">Chatbot đồng hành, động viên và hỗ trợ bạn mỗi ngày</span>
+        </div>
       </div>
 
-      <div className="chat-container">
-        {/* Chat Header */}
-        <div style={{
-          padding: 'var(--gv-space-md) var(--gv-space-lg)',
-          borderBottom: '1px solid var(--gv-border)',
-          display: 'flex', alignItems: 'center', gap: 'var(--gv-space-md)',
-          background: 'var(--gv-bg-surface)',
-        }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: 'var(--gv-radius-full)',
-            background: 'var(--gv-primary)', 
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Bot size={20} color="white" />
-          </div>
-          <div>
-            <div className="font-semibold">GOODVIET Bot</div>
-            <div className="text-xs" style={{ color: 'var(--gv-success)' }}>● Đang hoạt động</div>
-          </div>
-        </div>
-
-        {/* Messages */}
-        <div className="chat-messages">
-          {messages.map(msg => (
-            <div key={msg.messageId} style={{ display: 'flex', flexDirection: 'column', alignItems: msg.senderType === 'user' ? 'flex-end' : 'flex-start' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, maxWidth: '70%' }}>
-                {msg.senderType === 'bot' && (
-                  <div style={{
-                    width: 28, height: 28, borderRadius: 'var(--gv-radius-full)', flexShrink: 0,
-                    background: 'var(--gv-primary)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <Bot size={14} color="white" />
-                  </div>
-                )}
-                <div className={`chat-bubble ${msg.senderType}`}>
-                  <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
-                  <div className="chat-bubble-time">{formatTime(msg.timestamp)}</div>
-                </div>
-                {msg.senderType === 'user' && (
-                  <div style={{
-                    width: 28, height: 28, borderRadius: 'var(--gv-radius-full)', flexShrink: 0,
-                    background: 'var(--gv-primary)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <User size={14} color="white" />
-                  </div>
-                )}
-              </div>
+      {/* Messages Area */}
+      <div className="messages-area">
+        {messages.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-state-icon">
+              <Bot size={40} />
             </div>
-          ))}
-
-          {isTyping && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{
-                width: 28, height: 28, borderRadius: 'var(--gv-radius-full)',
-                background: 'var(--gv-primary)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Bot size={14} color="white" />
+            <h2>Xin chào!</h2>
+            <p>Hãy bắt đầu cuộc trò chuyện với GOODVIET Bot</p>
+          </div>
+        ) : (
+          <>
+            {messages.map(msg => (
+              <div key={msg.messageId} className={`message ${msg.senderType}`}>
+                <div className="message-bubble">
+                  {msg.content}
+                  <div className="message-time" style={{ marginTop: '4px', fontSize: '11px', opacity: 0.7 }}>
+                    {formatTime(msg.timestamp)}
+                  </div>
+                </div>
               </div>
-              <div className="chat-bubble bot" style={{ padding: '12px 20px' }}>
-                <div style={{ display: 'flex', gap: 4 }}>
+            ))}
+
+            {isTyping && (
+              <div className="message bot">
+                <div className="message-bubble" style={{ display: 'flex', gap: '4px', padding: '12px 20px' }}>
                   {[0, 1, 2].map(i => (
                     <div key={i} style={{
-                      width: 8, height: 8, borderRadius: '50%', background: 'var(--gv-text-muted)',
-                      animation: `wave-bar 1s ease-in-out ${i * 0.2}s infinite`,
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: 'var(--md-sys-color-on-surface-variant)',
+                      animation: `pulse ${1 + i * 0.2}s ease-in-out infinite`,
                     }} />
                   ))}
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div ref={messagesEndRef} />
-        </div>
+            <div ref={messagesEndRef} />
+          </>
+        )}
+      </div>
 
-        {/* Input */}
-        <div className="chat-input-area">
-          <input
-            className="chat-input"
-            placeholder="Nhập tin nhắn..."
+      {/* Input Area */}
+      <div className="input-container">
+        <div className="input-area">
+          <textarea
+            placeholder="Nhập tin nhắn của bạn..."
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+            rows={1}
+            style={{
+              flex: 1,
+              padding: '12px 0',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              fontFamily: 'inherit'
+            }}
           />
-          <button className="btn btn-primary btn-icon" onClick={handleSend} disabled={!input.trim()}>
-            <Send size={18} />
+          <button className="send-btn" onClick={handleSend} disabled={!input.trim()}>
+            <Send size={20} />
           </button>
         </div>
+        <p style={{
+          fontSize: '12px',
+          color: 'var(--md-sys-color-on-surface-variant)',
+          textAlign: 'center',
+          marginTop: '8px',
+          opacity: 0.7
+        }}>
+          Thông tin chỉ mang tính hỗ trợ cảm xúc, không thay thế chẩn đoán hoặc điều trị y khoa.
+        </p>
       </div>
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.2); }
+        }
+      `}</style>
     </div>
   );
 }

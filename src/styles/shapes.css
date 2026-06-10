@@ -1,0 +1,192 @@
+/* ============= SHAPE GALLERY CSS ============= */
+/* Utility classes for diverse geometric and organic shapes */
+
+/* --- 1. Basic Rounded Shapes --- */
+.shape-circle { border-radius: 50%; }
+.shape-square { border-radius: 20px; } /* Rounded square */
+.shape-pill { border-radius: 9999px; }
+.shape-oval { border-radius: 40% / 50%; }
+.shape-arch { 
+    /* Arch/Tombstone shape - rounded top, rounded corners bottom */
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 5 85 L 5 45 A 45 45 0 0 1 95 45 L 95 85 Q 95 100, 80 100 L 20 100 Q 5 100, 5 85 Z' fill='black'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 5 85 L 5 45 A 45 45 0 0 1 95 45 L 95 85 Q 95 100, 80 100 L 20 100 Q 5 100, 5 85 Z' fill='black'/%3E%3C/svg%3E");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    border-radius: 0;
+}
+.shape-semicircle { border-radius: 50% 50% 5% 5% / 80% 80% 5% 5%; }
+.shape-bun { border-radius: 30% 30% 30% 30% / 40% 40% 40% 40%; } /* Generic Bun/Blob */
+.shape-puffy { border-radius: 20px; } /* Fallback, Puffy needs complex clip */
+
+/* --- 2. Geometric / Angled Shapes (Clip Path) --- */
+.shape-triangle { 
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%); 
+    padding-top: 30px; /* Adjust for peak */
+}
+.shape-slanted { 
+    clip-path: polygon(20% 0%, 100% 0%, 80% 100%, 0% 100%); 
+}
+.shape-diamond { 
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); 
+}
+.shape-pentagon { 
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); 
+}
+.shape-arrow { 
+    clip-path: polygon(50% 0%, 100% 70%, 75% 100%, 25% 100%, 0% 70%); /* Adjusted arrow-headish blob */
+    border-radius: 20px;
+}
+.shape-fan { 
+    border-radius: 10px 100% 10px 10px; 
+}
+.shape-clamshell { 
+    border-radius: 40% 40% 20% 20%; 
+    clip-path: polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%);
+}
+.shape-gem { 
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); 
+}
+
+/* --- 3. Starbursts & Sun Shapes --- */
+.shape-sunny { 
+    /* 8-point rounded star approximation */
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    border-radius: 0;
+}
+.shape-very-sunny { 
+    /* 12-point star approximation */
+    clip-path: polygon(50% 0%, 63% 28%, 93% 20%, 76% 45%, 98% 66%, 69% 75%, 67% 100%, 41% 83%, 16% 94%, 23% 66%, 0% 50%, 28% 39%);
+}
+.shape-burst { 
+    /* Sharp burst */
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); 
+}
+.shape-soft-burst { 
+    clip-path: circle(50% at 50% 50%); /* Placeholder for soft burst, hard in CSS without SVG */
+    border-radius: 20px;
+    border: 2px dashed rgba(255,255,255,0.2); 
+}
+.shape-boom { 
+    clip-path: polygon(50% 0%, 57% 30%, 85% 15%, 70% 40%, 100% 50%, 70% 60%, 85% 85%, 57% 70%, 50% 100%, 43% 70%, 15% 85%, 30% 60%, 0% 50%, 30% 40%, 15% 15%, 43% 30%);
+}
+.shape-soft-boom { 
+    /* Smoother boom - flower like */
+    border-radius: 30px; 
+}
+
+/* --- 4. Cookies & Clovers (Scalloped edges) --- */
+/* Refined for smooth usage */
+
+.shape-cookie-4 { 
+    /* User provided custom 4-sided cookie shape using mask-image */
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0 25.5 A 25.5 25.5 0 0 1 25.5 0 C 37.75 0, 37.75 6, 50 6 S 62.25 0, 74.5 0 A 25.5 25.5 0 0 1 100 25.5 C 100 37.75, 94 37.75, 94 50 S 100 62.25, 100 74.5 A 25.5 25.5 0 0 1 74.5 100 C 62.25 100, 62.25 94, 50 94 S 37.75 100, 25.5 100 A 25.5 25.5 0 0 1 0 74.5 C 0 62.25, 6 62.25, 6 50 S 0 37.75, 0 25.5 Z' fill='black'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0 25.5 A 25.5 25.5 0 0 1 25.5 0 C 37.75 0, 37.75 6, 50 6 S 62.25 0, 74.5 0 A 25.5 25.5 0 0 1 100 25.5 C 100 37.75, 94 37.75, 94 50 S 100 62.25, 100 74.5 A 25.5 25.5 0 0 1 74.5 100 C 62.25 100, 62.25 94, 50 94 S 37.75 100, 25.5 100 A 25.5 25.5 0 0 1 0 74.5 C 0 62.25, 6 62.25, 6 50 S 0 37.75, 0 25.5 Z' fill='black'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    border-radius: 0; /* Override any border radius */
+}
+
+.shape-cookie-7 {
+    /* 7-sided cookie shape using SVG mask */
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 50.00 0.00 C 60.00 0.00, 63.22 6.42, 69.52 9.46 C 75.83 12.49, 82.86 11.01, 89.09 18.83 C 95.33 26.64, 92.31 33.16, 93.87 39.99 C 95.43 46.81, 100.97 51.38, 98.75 61.13 C 96.52 70.88, 89.55 72.58, 85.18 78.06 C 80.82 83.53, 80.70 90.71, 71.69 95.05 C 62.68 99.39, 57.00 95.00, 50.00 95.00 C 43.00 95.00, 37.32 99.39, 28.31 95.05 C 19.30 90.71, 19.18 83.53, 14.82 78.06 C 10.45 72.58, 3.48 70.88, 1.25 61.13 C -0.97 51.38, 4.57 46.81, 6.13 39.99 C 7.69 33.16, 4.67 26.64, 10.91 18.83 C 17.14 11.01, 24.17 12.49, 30.48 9.46 C 36.78 6.42, 40.00 0.00, 50.00 0.00 Z' fill='black'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 50.00 0.00 C 60.00 0.00, 63.22 6.42, 69.52 9.46 C 75.83 12.49, 82.86 11.01, 89.09 18.83 C 95.33 26.64, 92.31 33.16, 93.87 39.99 C 95.43 46.81, 100.97 51.38, 98.75 61.13 C 96.52 70.88, 89.55 72.58, 85.18 78.06 C 80.82 83.53, 80.70 90.71, 71.69 95.05 C 62.68 99.39, 57.00 95.00, 50.00 95.00 C 43.00 95.00, 37.32 99.39, 28.31 95.05 C 19.30 90.71, 19.18 83.53, 14.82 78.06 C 10.45 72.58, 3.48 70.88, 1.25 61.13 C -0.97 51.38, 4.57 46.81, 6.13 39.99 C 7.69 33.16, 4.67 26.64, 10.91 18.83 C 17.14 11.01, 24.17 12.49, 30.48 9.46 C 36.78 6.42, 40.00 0.00, 50.00 0.00 Z' fill='black'/%3E%3C/svg%3E");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    border-radius: 0;
+}
+
+.shape-pill-mask {
+    /* Pill shape using SVG mask - rotated 45 degrees, scaled to fill */
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 50 5 L 50 5 A 38 38 0 0 1 88 43 L 88 57 A 38 38 0 0 1 50 95 L 50 95 A 38 38 0 0 1 12 57 L 12 43 A 38 38 0 0 1 50 5 Z' fill='black' transform='rotate(45 50 50)'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 50 5 L 50 5 A 38 38 0 0 1 88 43 L 88 57 A 38 38 0 0 1 50 95 L 50 95 A 38 38 0 0 1 12 57 L 12 43 A 38 38 0 0 1 50 5 Z' fill='black' transform='rotate(45 50 50)'/%3E%3C/svg%3E");
+    -webkit-mask-size: 110% 110%;
+    mask-size: 110% 110%;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    border-radius: 0;
+}
+
+.shape-cookie-12 {
+    /* 12-sided cookie shape using SVG mask */
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 50.00 0.00 C 57.00 0.00, 57.17 4.30, 61.91 5.57 C 66.64 6.84, 68.94 3.20, 75.00 6.70 C 81.06 10.20, 79.06 14.01, 82.53 17.47 C 85.99 20.94, 89.80 18.94, 93.30 25.00 C 96.80 31.06, 93.16 33.36, 94.43 38.09 C 95.70 42.83, 100.00 43.00, 100.00 50.00 C 100.00 57.00, 95.70 57.17, 94.43 61.91 C 93.16 66.64, 96.80 68.94, 93.30 75.00 C 89.80 81.06, 85.99 79.06, 82.53 82.53 C 79.06 85.99, 81.06 89.80, 75.00 93.30 C 68.94 96.80, 66.64 93.16, 61.91 94.43 C 57.17 95.70, 57.00 100.00, 50.00 100.00 C 43.00 100.00, 42.83 95.70, 38.09 94.43 C 33.36 93.16, 31.06 96.80, 25.00 93.30 C 18.94 89.80, 20.94 85.99, 17.47 82.53 C 14.01 79.06, 10.20 81.06, 6.70 75.00 C 3.20 68.94, 6.84 66.64, 5.57 61.91 C 4.30 57.17, 0.00 57.00, 0.00 50.00 C -0.00 43.00, 4.30 42.83, 5.57 38.09 C 6.84 33.36, 3.20 31.06, 6.70 25.00 C 10.20 18.94, 14.01 20.94, 17.47 17.47 C 20.94 14.01, 18.94 10.20, 25.00 6.70 C 31.06 3.20, 33.36 6.84, 38.09 5.57 C 42.83 4.30, 43.00 0.00, 50.00 0.00 Z' fill='black'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 50.00 0.00 C 57.00 0.00, 57.17 4.30, 61.91 5.57 C 66.64 6.84, 68.94 3.20, 75.00 6.70 C 81.06 10.20, 79.06 14.01, 82.53 17.47 C 85.99 20.94, 89.80 18.94, 93.30 25.00 C 96.80 31.06, 93.16 33.36, 94.43 38.09 C 95.70 42.83, 100.00 43.00, 100.00 50.00 C 100.00 57.00, 95.70 57.17, 94.43 61.91 C 93.16 66.64, 96.80 68.94, 93.30 75.00 C 89.80 81.06, 85.99 79.06, 82.53 82.53 C 79.06 85.99, 81.06 89.80, 75.00 93.30 C 68.94 96.80, 66.64 93.16, 61.91 94.43 C 57.17 95.70, 57.00 100.00, 50.00 100.00 C 43.00 100.00, 42.83 95.70, 38.09 94.43 C 33.36 93.16, 31.06 96.80, 25.00 93.30 C 18.94 89.80, 20.94 85.99, 17.47 82.53 C 14.01 79.06, 10.20 81.06, 6.70 75.00 C 3.20 68.94, 6.84 66.64, 5.57 61.91 C 4.30 57.17, 0.00 57.00, 0.00 50.00 C -0.00 43.00, 4.30 42.83, 5.57 38.09 C 6.84 33.36, 3.20 31.06, 6.70 25.00 C 10.20 18.94, 14.01 20.94, 17.47 17.47 C 20.94 14.01, 18.94 10.20, 25.00 6.70 C 31.06 3.20, 33.36 6.84, 38.09 5.57 C 42.83 4.30, 43.00 0.00, 50.00 0.00 Z' fill='black'/%3E%3C/svg%3E");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    border-radius: 0;
+}
+
+.shape-cookie-6 {
+    clip-path: polygon(50% 0%, 85% 15%, 100% 50%, 85% 85%, 50% 100%, 15% 85%, 0% 50%, 15% 15%);
+}
+.shape-clover-4 {
+    /* Organic 4-leaf clover approximation */
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; 
+}
+.shape-clover-8 {
+    border-radius: 50px;
+    border: 4px solid rgba(255,255,255,0.1);
+}
+
+/* --- 5. Objects --- */
+.shape-heart {
+    clip-path: path('M140 20C73 20 20 74 20 140c0 135 136 170 228 303 88-132 229-173 229-303 0-66-54-120-120-120-48 0-90 28-109 69-19-41-60-69-108-69z');
+    /* Note: path coordinates need to be normalized or use SVG. 
+       Using standard polygon heart for better scaling support across browsers without fixed viewbox */
+    clip-path: polygon(50% 90%, 100% 35%, 80% 0%, 50% 25%, 20% 0%, 0% 35%);
+}
+.shape-ghost {
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 83% 85%, 66% 100%, 50% 85%, 33% 100%, 17% 85%, 0% 100%);
+    border-radius: 40px 40px 0 0;
+}
+.shape-flower {
+    clip-path: polygon(50% 0%, 60% 30%, 90% 20%, 75% 50%, 90% 80%, 60% 70%, 50% 100%, 40% 70%, 10% 80%, 25% 50%, 10% 20%, 40% 30%);
+}
+
+/* --- 6. Pixelated --- */
+.shape-pixel-circle {
+    box-shadow: 4px 0 0 -2px, -4px 0 0 -2px, 0 4px 0 -2px, 0 -4px 0 -2px; /* Limited pixel effect in CSS */
+    border-radius: 4px;
+    clip-path: polygon(
+        20% 0%, 80% 0%, 
+        100% 20%, 100% 80%, 
+        80% 100%, 20% 100%, 
+        0% 80%, 0% 20%
+    );
+}
+.shape-pixel-triangle {
+    clip-path: polygon(
+        10% 0%, 20% 0%, 20% 10%, 30% 10%, 30% 20%, 40% 20%, 40% 30%, 50% 30%, 50% 40%, 60% 40%, 60% 50%, 70% 50%, 70% 60%, 80% 60%, 80% 70%, 90% 70%, 90% 80%, 100% 80%, 100% 100%, 
+        0% 100%, 0% 90%, 10% 90%
+    );
+    height: 90%; /* Adjust aspect */
+}
+
+/* --- 7. Extra Organics reference from image --- */
+.shape-blob-1 { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+.shape-blob-2 { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+.shape-blob-3 { border-radius: 50% 20% 50% 50% / 50% 50% 20% 50%; } /* Teardrop-ish */
+
+/* Generic Resets for shapes */
+.hero-stat { 
+    aspect-ratio: 1/1; 
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+/* Adjustments for clip-path shapes that cut off content */
+[class*="shape-triangle"], [class*="shape-diamond"], [class*="shape-star"], [class*="shape-heart"] {
+    padding: 30px 10px 10px 10px !important;
+}

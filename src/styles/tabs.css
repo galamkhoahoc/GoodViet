@@ -1,0 +1,362 @@
+/* ============= M3 TABS - EXACT SPECIFICATIONS ============= */
+/*
+ * Material Design 3 Tabs Specification (Strict Measurements)
+ * 
+ * CONTAINER:
+ * - Height (label only): 48dp
+ * - Height (icon + label): 64dp
+ * - Divider height: 1dp (inside container, at bottom)
+ * 
+ * TABS:
+ * - Equal width sections (flex: 1)
+ * - Labels vertically centered
+ * - Icon size: 24dp
+ * - Padding between icon and text: 8dp
+ * - Padding between text and badge: 4dp
+ * 
+ * ACTIVE INDICATOR:
+ * - Primary: 3dp height, inset 2dp each side, fully rounded, min 24dp
+ * - Secondary: 2dp height, full width
+ * - Shape: 3px, 3px, 0, 0 (rounded top)
+ * 
+ * BADGE:
+ * - Small: 6dp dot
+ * - Large (single digit): 16dp circle
+ * - Large (multiple): 16dp height, auto width
+ * - Overlap on stacked icon: 6dp
+ */
+
+/* ===== TAB CONTAINER ===== */
+.md-tabs {
+    display: flex;
+    align-items: stretch;
+    height: 48px;
+    background: transparent;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    position: relative;
+}
+
+/* Divider - 1dp, at bottom of tabs */
+.md-tabs::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--md-sys-color-outline-variant);
+}
+
+.md-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+/* Container height with icon: 64dp */
+.md-tabs.with-icons {
+    height: 64px;
+}
+
+/* ===== INDIVIDUAL TAB ===== */
+.md-tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 16px;
+    min-width: 0;
+    height: 100%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+    color: var(--md-sys-color-on-surface-variant);
+    flex: 1;
+    white-space: nowrap;
+    z-index: 1;
+    /* M3 Expressive Motion - Bounce animation */
+    transition: 
+        color 0.2s ease,
+        transform 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.md-tab:hover {
+    color: var(--md-sys-color-on-surface);
+    transform: scale(1.03); /* Subtle grow on hover */
+}
+
+.md-tab:active {
+    transform: scale(0.95); /* Press feedback - bounce back */
+}
+
+.md-tab:focus-visible {
+    outline: none;
+}
+
+/* ===== ACTIVE STATE ===== */
+.md-tab.active {
+    color: var(--md-sys-color-primary);
+}
+
+/* ===== SECONDARY TAB ACTIVE INDICATOR ===== */
+.md-tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: transparent;
+    border-radius: 3px 3px 0 0;
+    transition: background 0.2s ease;
+}
+
+.md-tab.active::after {
+    background: var(--md-sys-color-primary);
+}
+
+/* ===== PRIMARY TAB ACTIVE INDICATOR ===== */
+/* Indicator matches label width, not tab width */
+.md-tabs.primary .md-tab::after {
+    display: none;
+}
+
+.md-tabs.primary .md-tab-label {
+    position: relative;
+}
+
+.md-tabs.primary .md-tab-label::after {
+    content: '';
+    position: absolute;
+    bottom: -14px;
+    left: -2px;
+    right: -2px;
+    height: 3px;
+    min-width: 24px;
+    background: transparent;
+    border-radius: 9999px;
+    transition: background 0.2s ease;
+}
+
+.md-tabs.primary .md-tab.active .md-tab-label::after {
+    background: var(--md-sys-color-primary);
+}
+
+/* ===== TAB WITH ICON ===== */
+.md-tab-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.md-tab-icon svg,
+.md-tab-icon .material-symbols-outlined {
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+}
+
+/* ===== TAB LABEL ===== */
+.md-tab-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ===== TAB BADGE ===== */
+.md-tab-badge {
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    background: var(--md-sys-color-error);
+    color: var(--md-sys-color-on-error);
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
+}
+
+.md-tab-badge.small {
+    width: 6px;
+    height: 6px;
+    min-width: 6px;
+    padding: 0;
+}
+
+.md-tab.stacked .md-tab-badge {
+    position: absolute;
+    top: 8px;
+    right: calc(50% - 18px);
+}
+
+/* ===== STACKED ICON + LABEL ===== */
+.md-tabs.stacked {
+    height: 64px;
+}
+
+.md-tabs.stacked .md-tab {
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 16px;
+}
+
+/* ===== SCROLLABLE TABS ===== */
+.md-tabs-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.md-tabs-scroll-btn {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 32px;
+    background: linear-gradient(to right, var(--md-sys-color-surface-container-lowest), transparent);
+    border: none;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.md-tabs-scroll-btn.left {
+    left: 0;
+}
+
+.md-tabs-scroll-btn.right {
+    right: 0;
+    background: linear-gradient(to left, var(--md-sys-color-surface-container-lowest), transparent);
+}
+
+.md-tabs-container.scrollable .md-tabs-scroll-btn {
+    display: flex;
+}
+
+/* ===== TAB PANEL CONTENT ===== */
+.md-tab-panel {
+    display: none;
+    flex: 1;
+    overflow: hidden;
+}
+
+.md-tab-panel.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== CHAT TABS SPECIFIC ===== */
+.chat-tabs-header {
+    background: transparent;
+}
+
+.chat-tabs-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ===== TAB PANEL CONTENT STYLING ===== */
+.tab-panel-content {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.tab-panel-content .stats-card {
+    background: var(--md-sys-color-surface-container-high);
+    padding: 16px;
+    border-radius: 16px;
+}
+
+.tab-panel-content .stats-card h4 {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--md-sys-color-on-surface);
+    margin-bottom: 12px;
+}
+
+.tab-panel-content .stats-info {
+    font-size: 14px;
+    color: var(--md-sys-color-on-surface-variant);
+    margin: 8px 0;
+}
+
+/* AI Summary Card */
+.ai-summary-card {
+    background: var(--md-sys-color-surface-container-high);
+    padding: 20px;
+    border-radius: 16px;
+}
+
+.ai-summary-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.ai-summary-header h4 {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--md-sys-color-on-surface);
+    margin: 0;
+}
+
+.ai-summary-header .material-symbols-outlined {
+    color: var(--md-sys-color-primary);
+    font-size: 28px;
+}
+
+#aiSummaryContent {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--md-sys-color-on-surface-variant);
+    margin-bottom: 16px;
+}
+
+.generate-summary-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.generate-summary-btn:hover:not(:disabled) {
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+}
+
+.generate-summary-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.generate-summary-btn .material-symbols-outlined {
+    font-size: 20px;
+}

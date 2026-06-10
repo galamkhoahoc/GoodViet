@@ -19,10 +19,10 @@ export function DashboardPage() {
   const navigate = useNavigate();
 
   const stats = [
-    { icon: Mic, label: 'Tổng ghi âm', value: user?.totalRecordings || 0, color: '#4F46E5', bg: 'rgba(79, 70, 229, 0.1)' },
-    { icon: Clock, label: 'Thời gian luyện', value: `${user?.totalPracticeTime || 0}p`, color: '#818CF8', bg: 'rgba(129, 140, 248, 0.1)' },
-    { icon: Flame, label: 'Streak hiện tại', value: `${user?.currentStreak || 0} ngày`, color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)' },
-    { icon: Calendar, label: 'Streak dài nhất', value: `${user?.longestStreak || 0} ngày`, color: '#10B981', bg: 'rgba(16, 185, 129, 0.1)' },
+    { icon: Mic, label: 'Tổng ghi âm', value: user?.totalRecordings || 0 },
+    { icon: Clock, label: 'Thời gian luyện', value: `${user?.totalPracticeTime || 0}p` },
+    { icon: Flame, label: 'Streak hiện tại', value: `${user?.currentStreak || 0} ngày` },
+    { icon: Calendar, label: 'Streak dài nhất', value: `${user?.longestStreak || 0} ngày` },
   ];
 
   const milestones = [
@@ -35,113 +35,340 @@ export function DashboardPage() {
   ];
 
   return (
-    <div className="animate-fade-in-up">
-      <div className="page-header">
-        <h1 className="page-title">
-          Xin chào, <span className="heading-highlight">{user?.name?.split(' ').pop() || 'bạn'}</span>! 👋
+    <div style={{ padding: 'var(--md-sys-space-2xl)' }}>
+      {/* Page Header */}
+      <div style={{ marginBottom: 'var(--md-sys-space-2xl)' }}>
+        <h1 style={{
+          fontSize: 'var(--md-sys-typescale-headline-medium-size)',
+          fontWeight: 'var(--md-sys-typescale-headline-medium-weight)',
+          color: 'var(--md-sys-color-on-surface)',
+          marginBottom: 'var(--md-sys-space-xs)',
+        }}>
+          Xin chào, <span style={{ color: 'var(--md-sys-color-primary)' }}>{user?.name?.split(' ').pop() || 'bạn'}</span>! 👋
         </h1>
-        <p className="page-subtitle">Theo dõi tiến bộ và tiếp tục hành trình cải thiện giọng nói</p>
+        <p style={{
+          fontSize: 'var(--md-sys-typescale-body-large-size)',
+          color: 'var(--md-sys-color-on-surface-variant)',
+        }}>
+          Theo dõi tiến bộ và tiếp tục hành trình cải thiện giọng nói
+        </p>
       </div>
 
+
       {/* Stats Grid */}
-      <div className="stats-grid" style={{ marginBottom: 'var(--gv-space-xl)' }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: 'var(--md-sys-space-lg)',
+        marginBottom: 'var(--md-sys-space-2xl)',
+      }}>
         {stats.map((s, i) => (
-          <div className="stat-card" key={i}>
-            <div className="stat-card-icon" style={{ background: s.bg, color: s.color }}>
-              <s.icon size={22} />
+          <div
+            key={i}
+            style={{
+              background: 'var(--md-sys-color-surface-container-low)',
+              borderRadius: 'var(--md-sys-shape-corner-large)',
+              padding: 'var(--md-sys-space-xl)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 'var(--md-sys-space-md)',
+              transition: 'all var(--md-motion-duration-medium2) var(--md-motion-easing-standard)',
+              cursor: 'default',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--md-sys-color-surface-container)';
+              e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--md-sys-color-surface-container-low)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
+            <div style={{
+              width: 48,
+              height: 48,
+              borderRadius: 'var(--md-sys-shape-corner-medium)',
+              background: 'var(--md-sys-color-primary-container)',
+              color: 'var(--md-sys-color-on-primary-container)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <s.icon size={24} />
             </div>
-            <div className="stat-card-value">{s.value}</div>
-            <div className="stat-card-label">{s.label}</div>
+            <div style={{
+              fontSize: 'var(--md-sys-typescale-headline-small-size)',
+              fontWeight: 700,
+              color: 'var(--md-sys-color-on-surface)',
+            }}>
+              {s.value}
+            </div>
+            <div style={{
+              fontSize: 'var(--md-sys-typescale-body-small-size)',
+              color: 'var(--md-sys-color-on-surface-variant)',
+            }}>
+              {s.label}
+            </div>
           </div>
         ))}
       </div>
 
       {/* Charts */}
-      <div className="grid-2" style={{ marginBottom: 'var(--gv-space-xl)' }}>
-        <div className="card-positivus">
-          <div className="flex items-center gap-sm mb-lg">
-            <TrendingUp size={20} />
-            <span className="font-semibold">Điểm cải thiện theo tuần</span>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: 'var(--md-sys-space-xl)',
+        marginBottom: 'var(--md-sys-space-2xl)',
+      }}>
+        <div style={{
+          background: 'var(--md-sys-color-surface-container-lowest)',
+          borderRadius: 'var(--md-sys-shape-corner-extra-large)',
+          padding: 'var(--md-sys-space-xl)',
+          boxShadow: 'var(--md-sys-elevation-1)',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--md-sys-space-sm)',
+            marginBottom: 'var(--md-sys-space-xl)',
+          }}>
+            <TrendingUp size={20} color="var(--md-sys-color-primary)" />
+            <span style={{
+              fontSize: 'var(--md-sys-typescale-title-medium-size)',
+              fontWeight: 'var(--md-sys-typescale-title-medium-weight)',
+              color: 'var(--md-sys-color-on-surface)',
+            }}>
+              Điểm cải thiện theo tuần
+            </span>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={weeklyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis dataKey="week" stroke="#6B7280" fontSize={12} />
-              <YAxis stroke="#6B7280" fontSize={12} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--md-sys-color-outline-variant)" />
+              <XAxis dataKey="week" stroke="var(--md-sys-color-on-surface-variant)" fontSize={12} />
+              <YAxis stroke="var(--md-sys-color-on-surface-variant)" fontSize={12} />
               <Tooltip
-                contentStyle={{ background: '#FFF', border: '1px solid #E5E7EB', borderRadius: 12, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
-                labelStyle={{ color: '#1F2937', fontWeight: 600 }}
+                contentStyle={{
+                  background: 'var(--md-sys-color-surface-container-highest)',
+                  border: '1px solid var(--md-sys-color-outline-variant)',
+                  borderRadius: 'var(--md-sys-shape-corner-medium)',
+                  boxShadow: 'var(--md-sys-elevation-2)',
+                }}
               />
-              <Line type="monotone" dataKey="score" stroke="#4F46E5" strokeWidth={3} dot={{ fill: '#818CF8', stroke: '#4F46E5', strokeWidth: 2, r: 6 }} />
+              <Line
+                type="monotone"
+                dataKey="score"
+                stroke="var(--md-sys-color-primary)"
+                strokeWidth={3}
+                dot={{ fill: 'var(--md-sys-color-primary-container)', stroke: 'var(--md-sys-color-primary)', strokeWidth: 2, r: 6 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="card-positivus">
-          <div className="flex items-center gap-sm mb-lg">
-            <Clock size={20} />
-            <span className="font-semibold">Thời gian luyện tập (phút/ngày)</span>
+        <div style={{
+          background: 'var(--md-sys-color-surface-container-lowest)',
+          borderRadius: 'var(--md-sys-shape-corner-extra-large)',
+          padding: 'var(--md-sys-space-xl)',
+          boxShadow: 'var(--md-sys-elevation-1)',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--md-sys-space-sm)',
+            marginBottom: 'var(--md-sys-space-xl)',
+          }}>
+            <Clock size={20} color="var(--md-sys-color-secondary)" />
+            <span style={{
+              fontSize: 'var(--md-sys-typescale-title-medium-size)',
+              fontWeight: 'var(--md-sys-typescale-title-medium-weight)',
+              color: 'var(--md-sys-color-on-surface)',
+            }}>
+              Thời gian luyện tập (phút/ngày)
+            </span>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={dailyPractice}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis dataKey="day" stroke="#6B7280" fontSize={12} />
-              <YAxis stroke="#6B7280" fontSize={12} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--md-sys-color-outline-variant)" />
+              <XAxis dataKey="day" stroke="var(--md-sys-color-on-surface-variant)" fontSize={12} />
+              <YAxis stroke="var(--md-sys-color-on-surface-variant)" fontSize={12} />
               <Tooltip
-                contentStyle={{ background: '#FFF', border: '1px solid #E5E7EB', borderRadius: 12, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
-                labelStyle={{ color: '#1F2937', fontWeight: 600 }}
+                contentStyle={{
+                  background: 'var(--md-sys-color-surface-container-highest)',
+                  border: '1px solid var(--md-sys-color-outline-variant)',
+                  borderRadius: 'var(--md-sys-shape-corner-medium)',
+                  boxShadow: 'var(--md-sys-elevation-2)',
+                }}
               />
-              <Bar dataKey="minutes" fill="#818CF8" stroke="#4F46E5" strokeWidth={1} radius={[8, 8, 0, 0]} />
+              <Bar
+                dataKey="minutes"
+                fill="var(--md-sys-color-secondary-container)"
+                stroke="var(--md-sys-color-secondary)"
+                strokeWidth={1}
+                radius={[8, 8, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Bottom Row */}
-      <div className="grid-2">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+        gap: 'var(--md-sys-space-xl)',
+      }}>
         {/* Quick Actions */}
-        <div className="card-positivus">
-          <div className="flex items-center gap-sm mb-lg">
-            <Target size={20} />
-            <span className="font-semibold">Hành động nhanh</span>
+        <div style={{
+          background: 'var(--md-sys-color-surface-container-lowest)',
+          borderRadius: 'var(--md-sys-shape-corner-extra-large)',
+          padding: 'var(--md-sys-space-xl)',
+          boxShadow: 'var(--md-sys-elevation-1)',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--md-sys-space-sm)',
+            marginBottom: 'var(--md-sys-space-xl)',
+          }}>
+            <Target size={20} color="var(--md-sys-color-tertiary)" />
+            <span style={{
+              fontSize: 'var(--md-sys-typescale-title-medium-size)',
+              fontWeight: 'var(--md-sys-typescale-title-medium-weight)',
+              color: 'var(--md-sys-color-on-surface)',
+            }}>
+              Hành động nhanh
+            </span>
           </div>
-          <div className="flex flex-col gap-sm">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--md-sys-space-md)' }}>
             {!user?.assessmentCompleted && (
-              <button className="btn btn-secondary w-full" onClick={() => navigate('/assessment')}>
+              <button
+                onClick={() => navigate('/assessment')}
+                style={{
+                  width: '100%',
+                  padding: '12px 24px',
+                  background: 'var(--md-sys-color-secondary-container)',
+                  color: 'var(--md-sys-color-on-secondary-container)',
+                  border: 'none',
+                  borderRadius: 'var(--md-sys-shape-corner-full)',
+                  fontSize: 'var(--md-sys-typescale-label-large-size)',
+                  fontWeight: 'var(--md-sys-typescale-label-large-weight)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 'var(--md-sys-space-sm)',
+                  transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-1)'}
+                onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
+              >
                 <BookOpen size={16} /> Bắt đầu GOODVIET Check
               </button>
             )}
-            <button className="btn btn-primary w-full" onClick={() => navigate('/pathway')}>
+            <button
+              onClick={() => navigate('/pathway')}
+              style={{
+                width: '100%',
+                padding: '12px 24px',
+                background: 'var(--md-sys-color-primary)',
+                color: 'var(--md-sys-color-on-primary)',
+                border: 'none',
+                borderRadius: 'var(--md-sys-shape-corner-full)',
+                fontSize: 'var(--md-sys-typescale-label-large-size)',
+                fontWeight: 'var(--md-sys-typescale-label-large-weight)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 'var(--md-sys-space-sm)',
+                transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
+                boxShadow: 'var(--md-sys-elevation-1)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-2)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-1)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
               <RouteIcon size={16} /> Tiếp tục luyện tập
             </button>
-            <button className="btn btn-ghost w-full" onClick={() => navigate('/chat')}>
+            <button
+              onClick={() => navigate('/chat')}
+              style={{
+                width: '100%',
+                padding: '12px 24px',
+                background: 'transparent',
+                color: 'var(--md-sys-color-primary)',
+                border: '1px solid var(--md-sys-color-outline)',
+                borderRadius: 'var(--md-sys-shape-corner-full)',
+                fontSize: 'var(--md-sys-typescale-label-large-size)',
+                fontWeight: 'var(--md-sys-typescale-label-large-weight)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 'var(--md-sys-space-sm)',
+                transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--md-sys-color-surface-container)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+            >
               <Mic size={16} /> Chat với GOODVIET Bot
             </button>
           </div>
         </div>
 
         {/* Milestones */}
-        <div className="card-positivus">
-          <div className="flex items-center gap-sm mb-lg">
-            <Award size={20} />
-            <span className="font-semibold">Cột mốc đạt được</span>
+        <div style={{
+          background: 'var(--md-sys-color-surface-container-lowest)',
+          borderRadius: 'var(--md-sys-shape-corner-extra-large)',
+          padding: 'var(--md-sys-space-xl)',
+          boxShadow: 'var(--md-sys-elevation-1)',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--md-sys-space-sm)',
+            marginBottom: 'var(--md-sys-space-xl)',
+          }}>
+            <Award size={20} color="var(--md-sys-color-tertiary)" />
+            <span style={{
+              fontSize: 'var(--md-sys-typescale-title-medium-size)',
+              fontWeight: 'var(--md-sys-typescale-title-medium-weight)',
+              color: 'var(--md-sys-color-on-surface)',
+            }}>
+              Cột mốc đạt được
+            </span>
           </div>
-          <div className="flex flex-col gap-sm">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--md-sys-space-sm)' }}>
             {milestones.map((m, i) => (
-              <div key={i} className="flex items-center gap-md" style={{
-                padding: '10px 14px', borderRadius: 'var(--gv-radius-md)',
-                background: m.done ? 'var(--gv-primary-soft)' : 'var(--gv-light)',
-                border: m.done ? '1px solid var(--gv-primary-light)' : '1px solid transparent',
-                opacity: m.done ? 1 : 0.6,
-              }}>
+              <div
+                key={i}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--md-sys-space-md)',
+                  padding: '12px 16px',
+                  borderRadius: 'var(--md-sys-shape-corner-medium)',
+                  background: m.done ? 'var(--md-sys-color-primary-container)' : 'var(--md-sys-color-surface-container)',
+                  border: m.done ? '1px solid var(--md-sys-color-primary)' : '1px solid transparent',
+                  opacity: m.done ? 1 : 0.7,
+                  transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
+                }}
+              >
                 <span style={{ fontSize: '1.2rem' }}>{m.icon}</span>
-                <span className="text-sm" style={{
-                  color: m.done ? 'var(--gv-primary)' : 'var(--gv-text-muted)',
-                  fontWeight: m.done ? 600 : 400,
+                <span style={{
+                  fontSize: 'var(--md-sys-typescale-body-medium-size)',
+                  color: m.done ? 'var(--md-sys-color-on-primary-container)' : 'var(--md-sys-color-on-surface-variant)',
+                  fontWeight: m.done ? 500 : 400,
+                  flex: 1,
                 }}>
                   {m.title}
                 </span>
-                {m.done && <span style={{ marginLeft: 'auto', fontWeight: 700, color: 'var(--gv-success)' }}>✓</span>}
+                {m.done && <span style={{ fontWeight: 700, color: 'var(--md-sys-color-primary)' }}>✓</span>}
               </div>
             ))}
           </div>
