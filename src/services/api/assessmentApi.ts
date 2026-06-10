@@ -106,6 +106,6 @@ export const assessmentApi = {
    */
   async completePhase(assessmentId: string, phase: string): Promise<{ nextPhase?: string; completed: boolean }> {
     const response = await apiClient.post(`/api/assessments/${assessmentId}/complete-phase`, { phase });
-    return response;
+    return response as { nextPhase?: string; completed: boolean };
   },
 };

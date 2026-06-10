@@ -1,12 +1,11 @@
 import { create } from 'zustand';
 import type { User } from '../data/mockUsers';
-import { defaultUser } from '../data/mockUsers';
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => boolean;
-  register: (data: Partial<User> & { password: string }) => boolean;
+  login: (email: string, password: string) => Promise<boolean>;
+  register: (data: Partial<User> & { password: string }) => Promise<boolean>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
   loadFromStorage: () => Promise<void>;
