@@ -197,6 +197,7 @@ body {
     flex-direction: column;
     background: transparent;
     min-width: 0;
+    overflow-y: auto;
 }
 
 .chat-header {
