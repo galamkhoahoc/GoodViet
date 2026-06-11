@@ -157,3 +157,57 @@
 .text-sm { font-size: 14px; }
 .page-title { font-size: var(--md-sys-typescale-headline-medium-size); font-weight: 700; color: var(--md-sys-color-on-background); }
 .heading-highlight { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); padding: 2px 8px; border-radius: 4px; }
+
+/* Assessment Steps Styles */
+.assessment-steps {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+.assessment-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.assessment-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--md-sys-color-surface-variant);
+    color: var(--md-sys-color-on-surface-variant);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+.assessment-step.active .assessment-step-num {
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+}
+.assessment-step.completed .assessment-step-num {
+    background: var(--md-sys-color-tertiary);
+    color: var(--md-sys-color-on-tertiary);
+}
+.assessment-step-label {
+    font-size: 14px;
+    color: var(--md-sys-color-on-surface-variant);
+    transition: all 0.3s ease;
+}
+.assessment-step.active .assessment-step-label {
+    color: var(--md-sys-color-on-surface);
+    font-weight: 600;
+}
+.assessment-step-line {
+    width: 40px;
+    height: 2px;
+    background: var(--md-sys-color-outline-variant);
+    margin: 0 12px;
+    transition: all 0.3s ease;
+}
+.assessment-step-line.completed {
+    background: var(--md-sys-color-tertiary);
+}
