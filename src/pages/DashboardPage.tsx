@@ -2,6 +2,7 @@ import { useAuthStore } from '../store/authStore';
 import { useChatStore } from '../store/chatStore';
 import { useEffect } from 'react';
 import { Flower } from 'lucide-react';
+import { ExpressiveChart } from '../components/dashboard/ExpressiveChart';
 
 export function DashboardPage() {
   const user = useAuthStore(s => s.user);
@@ -191,6 +192,21 @@ export function DashboardPage() {
         </div>
         
       </div>
+
+      {/* Expressive Chart Section */}
+      <div style={{ marginTop: '40px' }}>
+        <h2 style={{
+          fontSize: 'var(--md-sys-typescale-headline-small-size)',
+          fontWeight: 600,
+          color: 'var(--md-sys-color-on-surface)',
+          marginBottom: '24px',
+          marginLeft: '8px'
+        }}>
+          Thống kê luyện tập tuần này
+        </h2>
+        <ExpressiveChart />
+      </div>
+
     </div>
   );
 }
