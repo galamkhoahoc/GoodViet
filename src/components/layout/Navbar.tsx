@@ -12,7 +12,7 @@ export function Navbar() {
   return (
     <header className="app-navbar">
       <div>
-        <span style={{ fontSize: 'var(--gv-font-size-sm)', color: 'var(--gv-text-muted)' }}>
+        <span style={{ fontSize: 'var(--md-sys-typescale-body-small-size)', color: 'var(--md-sys-color-on-surface-muted)' }}>
           {new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </span>
       </div>
@@ -31,14 +31,14 @@ export function Navbar() {
         {showDropdown && (
           <div style={{
             position: 'absolute', top: '100%', right: 0, width: '360px',
-            background: 'var(--gv-bg-surface)', border: '1px solid var(--gv-border)',
-            borderRadius: 'var(--gv-radius-lg)', boxShadow: 'var(--gv-shadow-lg)',
+            background: 'var(--md-sys-color-surface-container)', border: '1px solid var(--md-sys-color-outline)',
+            borderRadius: 'var(--md-sys-shape-corner-large)', boxShadow: 'var(--md-sys-elevation-3)',
             zIndex: 200, maxHeight: '400px', overflow: 'auto',
             animation: 'fadeInDown 0.2s ease', marginTop: '8px',
           }}>
             <div style={{
-              padding: 'var(--gv-space-md) var(--gv-space-lg)',
-              borderBottom: '1px solid var(--gv-border)',
+              padding: 'var(--md-sys-space-md) var(--md-sys-space-lg)',
+              borderBottom: '1px solid var(--md-sys-color-outline)',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
               <span style={{ fontWeight: 700 }}>Thông báo</span>
@@ -49,7 +49,7 @@ export function Navbar() {
               )}
             </div>
             {notifications.length === 0 ? (
-              <div style={{ padding: 'var(--gv-space-xl)', textAlign: 'center', color: 'var(--gv-text-muted)' }}>
+              <div style={{ padding: 'var(--md-sys-space-xl)', textAlign: 'center', color: 'var(--md-sys-color-on-surface-muted)' }}>
                 Không có thông báo mới
               </div>
             ) : (
@@ -58,23 +58,23 @@ export function Navbar() {
                   key={n.id}
                   onClick={() => { markAsRead(n.id); }}
                   style={{
-                    padding: 'var(--gv-space-md) var(--gv-space-lg)',
-                    borderBottom: '1px solid var(--gv-border)',
+                    padding: 'var(--md-sys-space-md) var(--md-sys-space-lg)',
+                    borderBottom: '1px solid var(--md-sys-color-outline)',
                     cursor: 'pointer',
-                    background: n.read ? 'transparent' : 'var(--gv-primary-soft)',
-                    transition: 'background var(--gv-transition-fast)',
+                    background: n.read ? 'transparent' : 'var(--md-sys-color-secondary-container)',
+                    transition: 'background 0.2s ease',
                   }}
                   onMouseEnter={(e) => {
-                    if (n.read) e.currentTarget.style.background = 'var(--gv-bg-hover)';
+                    if (n.read) e.currentTarget.style.background = 'var(--md-sys-color-surface-container-high)';
                   }}
                   onMouseLeave={(e) => {
                     if (n.read) e.currentTarget.style.background = 'transparent';
                   }}
                 >
-                  <div style={{ fontWeight: n.read ? 400 : 600, fontSize: 'var(--gv-font-size-sm)' }}>
+                  <div style={{ fontWeight: n.read ? 400 : 600, fontSize: 'var(--md-sys-typescale-body-small-size)' }}>
                     {n.title}
                   </div>
-                  <div style={{ fontSize: 'var(--gv-font-size-xs)', color: 'var(--gv-text-muted)', marginTop: '4px' }}>
+                  <div style={{ fontSize: 'var(--md-sys-typescale-label-small-size)', color: 'var(--md-sys-color-on-surface-muted)', marginTop: '4px' }}>
                     {n.message}
                   </div>
                 </div>

@@ -175,7 +175,7 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading }
   return (
     <div className="animate-fade-in-up" style={{ maxWidth: 700, margin: '0 auto' }}>
       <div className="text-center mb-lg">
-        <h2 style={{ fontSize: 'var(--gv-font-size-2xl)', fontWeight: 700 }}>{title}</h2>
+        <h2 style={{ fontSize: 'var(--md-sys-typescale-headline-small-size)', fontWeight: 700 }}>{title}</h2>
         <p className="text-secondary mt-md">{subtitle}</p>
       </div>
 
@@ -188,14 +188,14 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading }
         <div className="progress-bar-fill" style={{ width: `${(recordings.size / sentences.length) * 100}%` }} />
       </div>
 
-      <div className="card-positivus" style={{ textAlign: 'center', marginBottom: 'var(--gv-space-xl)' }}>
-        <p style={{ fontSize: 'var(--gv-font-size-xl)', fontWeight: 600, lineHeight: 1.8, padding: 'var(--gv-space-md)' }}>
+      <div className="card-positivus" style={{ textAlign: 'center', marginBottom: 'var(--md-sys-space-xl)' }}>
+        <p style={{ fontSize: 'var(--md-sys-typescale-title-medium-size)', fontWeight: 600, lineHeight: 1.8, padding: 'var(--md-sys-space-md)' }}>
           "{sentences[currentIdx].text}"
         </p>
         {isRecorded && (
-          <div style={{ marginTop: 'var(--gv-space-md)' }}>
+          <div style={{ marginTop: 'var(--md-sys-space-md)' }}>
             <span className="badge badge-success"><CheckCircle size={12} /> Đã ghi âm</span>
-            <div style={{ marginTop: 'var(--gv-space-sm)' }}>
+            <div style={{ marginTop: 'var(--md-sys-space-sm)' }}>
               <AudioPlayer src={recordings.get(currentIdx)?.url || null} compact label={`Câu ${currentIdx + 1}`} />
             </div>
           </div>
@@ -224,7 +224,7 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading }
       </div>
 
       {!allDone && currentIdx === sentences.length - 1 && (
-        <p className="text-xs text-muted text-center mt-md" style={{ color: 'var(--gv-warning)' }}>
+        <p className="text-xs text-muted text-center mt-md" style={{ color: 'var(--md-sys-color-tertiary)' }}>
           <AlertTriangle size={12} style={{ verticalAlign: 'middle' }} /> Bạn cần ghi âm tất cả {sentences.length} câu trước khi hoàn thành.
         </p>
       )}
@@ -278,7 +278,7 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: an
   return (
     <div className="animate-fade-in-up" style={{ maxWidth: 700, margin: '0 auto' }}>
       <div className="text-center mb-lg">
-        <h2 style={{ fontSize: 'var(--gv-font-size-2xl)', fontWeight: 700 }}>
+        <h2 style={{ fontSize: 'var(--md-sys-typescale-headline-small-size)', fontWeight: 700 }}>
           Giai đoạn III — Kể chuyện tự do
         </h2>
         <p className="text-secondary mt-md">
@@ -286,8 +286,8 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: an
         </p>
       </div>
 
-      <div className="card-positivus text-center mb-lg" style={{ padding: 'var(--gv-space-xl)' }}>
-        <p style={{ fontSize: 'var(--gv-font-size-lg)', fontStyle: 'italic', lineHeight: 1.8 }}>
+      <div className="card-positivus text-center mb-lg" style={{ padding: 'var(--md-sys-space-xl)' }}>
+        <p style={{ fontSize: 'var(--md-sys-typescale-title-small-size)', fontStyle: 'italic', lineHeight: 1.8 }}>
           "{mainPrompt}"
         </p>
       </div>
@@ -300,7 +300,7 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: an
       />
 
       {recorded && audioUrl && (
-        <div style={{ marginTop: 'var(--gv-space-lg)' }}>
+        <div style={{ marginTop: 'var(--md-sys-space-lg)' }}>
           <AudioPlayer src={audioUrl} label="Bài kể chuyện của bạn" />
         </div>
       )}
@@ -357,12 +357,12 @@ function ProcessingPhase() {
   return (
     <div className="processing-container animate-scale-in">
       <div className="processing-spinner" />
-      <h2 style={{ fontSize: 'var(--gv-font-size-2xl)', fontWeight: 700 }}>Hệ thống đang phân tích</h2>
+      <h2 style={{ fontSize: 'var(--md-sys-typescale-headline-small-size)', fontWeight: 700 }}>Hệ thống đang phân tích</h2>
       <p className="text-secondary mt-md">Vui lòng đợi kết quả sàng lọc khoảng 2-3 phút...</p>
-      <div className="progress-bar" style={{ width: 300, marginTop: 'var(--gv-space-md)' }}>
+      <div className="progress-bar" style={{ width: 300, marginTop: 'var(--md-sys-space-md)' }}>
         <div className="progress-bar-fill" style={{ width: '100%', animation: 'progress 2s infinite' }} />
       </div>
-      <p className="text-xs text-muted" style={{ marginTop: 'var(--gv-space-md)' }}>
+      <p className="text-xs text-muted" style={{ marginTop: 'var(--md-sys-space-md)' }}>
         Dữ liệu đang được đánh giá bởi cả hệ thống AI và đội ngũ Chuyên gia GOODVIET.
       </p>
     </div>
@@ -382,9 +382,9 @@ function ResultsPhase() {
   if (!result) return <div className="text-center p-xl">Đang tải kết quả...</div>;
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'var(--gv-success)';
-    if (score >= 60) return 'var(--gv-warning)';
-    return 'var(--gv-error)';
+    if (score >= 80) return 'var(--md-sys-color-primary)';
+    if (score >= 60) return 'var(--md-sys-color-tertiary)';
+    return 'var(--md-sys-color-error)';
   };
 
   const getSeverityBadge = (s: string) => {
@@ -399,19 +399,19 @@ function ResultsPhase() {
   return (
     <div className="animate-fade-in-up" style={{ maxWidth: 800, margin: '0 auto' }}>
       <div className="text-center mb-lg">
-        <div style={{ fontSize: '3rem', marginBottom: 'var(--gv-space-md)' }}>📊</div>
-        <h2 style={{ fontSize: 'var(--gv-font-size-2xl)', fontWeight: 700 }}>Kết quả <span className="heading-highlight">GOODVIET Check</span></h2>
+        <div style={{ fontSize: '3rem', marginBottom: 'var(--md-sys-space-md)' }}>📊</div>
+        <h2 style={{ fontSize: 'var(--md-sys-typescale-headline-small-size)', fontWeight: 700 }}>Kết quả <span className="heading-highlight">GOODVIET Check</span></h2>
         <p className="text-secondary mt-md">Kết quả phân tích từ AI</p>
       </div>
 
-      <div className="card-positivus text-center" style={{ marginBottom: 'var(--gv-space-xl)', padding: 'var(--gv-space-2xl)' }}>
+      <div className="card-positivus text-center" style={{ marginBottom: 'var(--md-sys-space-xl)', padding: 'var(--md-sys-space-2xl)' }}>
         <div style={{ fontSize: '4rem', fontWeight: 700, color: getScoreColor(result.overallScore) }}>
           {result.overallScore}
         </div>
         <div className="text-secondary">Điểm tổng thể / 100</div>
       </div>
 
-      <div className="stats-grid" style={{ marginBottom: 'var(--gv-space-xl)' }}>
+      <div className="stats-grid" style={{ marginBottom: 'var(--md-sys-space-xl)' }}>
         {[
           { label: 'Phát âm rõ ràng', value: result.clarityScore },
           { label: 'Độ trôi chảy', value: result.fluencyScore },
@@ -420,23 +420,23 @@ function ResultsPhase() {
         ].map((s, i) => (
           <div className="stat-card" key={i}>
             <div className="stat-card-label">{s.label}</div>
-            <div className="stat-card-value" style={{ fontSize: 'var(--gv-font-size-2xl)' }}>{s.value}</div>
+            <div className="stat-card-value" style={{ fontSize: 'var(--md-sys-typescale-headline-small-size)' }}>{s.value}</div>
           </div>
         ))}
       </div>
 
-      <div className="card-positivus" style={{ marginBottom: 'var(--gv-space-xl)' }}>
+      <div className="card-positivus" style={{ marginBottom: 'var(--md-sys-space-xl)' }}>
         <div className="flex items-center gap-sm mb-lg">
-          <AlertTriangle size={20} style={{ color: 'var(--gv-warning)' }} />
+          <AlertTriangle size={20} style={{ color: 'var(--md-sys-color-tertiary)' }} />
           <span className="font-semibold">Các vấn đề phát âm phát hiện</span>
         </div>
         <div className="flex flex-col gap-md">
           {result.pronunciationIssues.map((issue, i) => (
             <div key={i} className="flex items-center justify-between" style={{
-              padding: 'var(--gv-space-md)',
-              background: 'var(--gv-light)',
-              borderRadius: 'var(--gv-radius-md)',
-              border: '1px solid var(--gv-border)',
+              padding: 'var(--md-sys-space-md)',
+              background: 'var(--md-sys-color-surface-container)',
+              borderRadius: 'var(--md-sys-shape-corner-medium)',
+              border: '1px solid var(--md-sys-color-outline)',
             }}>
               <div>
                 <div className="font-semibold">Phụ âm {issue.phoneme.toUpperCase()}</div>
@@ -453,7 +453,7 @@ function ResultsPhase() {
 
       <div className="card-dark">
         <h3 className="font-semibold mb-md">🎯 Lộ trình được đề xuất</h3>
-        <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: 'var(--gv-space-lg)', lineHeight: 1.7 }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: 'var(--md-sys-space-lg)', lineHeight: 1.7 }}>
           Dựa trên kết quả phân tích, chúng tôi đã tạo lộ trình cá nhân hóa cho bạn.
         </p>
         <button className="btn btn-lime btn-lg" onClick={() => { window.location.href = '/pathway'; }}>
@@ -488,9 +488,9 @@ export function AssessmentPage() {
   if (user?.assessmentCompleted && phase !== 'results') {
     return (
       <div className="animate-fade-in-up" style={{ maxWidth: 600, margin: '0 auto' }}>
-        <div className="card-positivus text-center" style={{ padding: 'var(--gv-space-2xl)' }}>
-          <CheckCircle size={48} style={{ color: 'var(--gv-success)', margin: '0 auto var(--gv-space-lg)' }} />
-          <h2 style={{ marginBottom: 'var(--gv-space-md)' }}>Bạn đã hoàn thành GOODVIET Check</h2>
+        <div className="card-positivus text-center" style={{ padding: 'var(--md-sys-space-2xl)' }}>
+          <CheckCircle size={48} style={{ color: 'var(--md-sys-color-primary)', margin: '0 auto var(--md-sys-space-lg)' }} />
+          <h2 style={{ marginBottom: 'var(--md-sys-space-md)' }}>Bạn đã hoàn thành GOODVIET Check</h2>
           <p className="text-secondary">Mỗi tài khoản chỉ được làm bài test 1 lần duy nhất.</p>
           <button className="btn btn-primary mt-lg" onClick={() => loadResult()}>
             Xem lại kết quả
@@ -510,7 +510,7 @@ export function AssessmentPage() {
       {phase !== 'not_started' && phase !== 'intro' && (
         <div className="assessment-steps">
           {steps.map((step, i) => (
-            <div key={step.key} style={{ display: 'flex', alignItems: 'center', gap: 'var(--gv-space-md)' }}>
+            <div key={step.key} style={{ display: 'flex', alignItems: 'center', gap: 'var(--md-sys-space-md)' }}>
               <div className={`assessment-step ${
                 step.key === phase ? 'active' : currentPhaseIdx > i ? 'completed' : ''
               }`}>

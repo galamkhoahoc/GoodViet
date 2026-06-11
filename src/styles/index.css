@@ -27,5 +27,3 @@
 /* Tabs System */
 @import './tabs.css';
 
-/* Legacy Utility Classes (mapped to MD3 tokens) */
-@import './md3-legacy-utils.css';

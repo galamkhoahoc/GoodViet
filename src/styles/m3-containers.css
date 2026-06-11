@@ -75,17 +75,26 @@ body {
 }
 
 /* ===== SURFACE 2: Main Content Area Container ===== */
-/* chat-main is now the distinct white card floating inside the wrapper */
+/* chat-main is the flexible container for the page */
 .chat-main {
-    background: var(--md-sys-color-surface-container-lowest) !important;
-    border-radius: 28px !important;
-    margin: 16px !important; /* Margin on all sides to float it */
+    background: transparent !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
     position: relative;
     z-index: 1;
     display: flex;
     flex-direction: column;
+}
+
+/* Specific card wrapper for the chat messages to float it */
+.chat-content-card {
+    background: var(--md-sys-color-surface-container-lowest) !important;
+    border-radius: 28px !important;
+    margin: 16px 16px 16px 0 !important;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 /* ===== CHAT TAB - Has the bright background ===== */

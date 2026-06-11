@@ -14,21 +14,21 @@ export function LoadingSpinner({ size = 'md', label, fullPage }: LoadingSpinnerP
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 'var(--gv-space-md)',
+      gap: 'var(--md-sys-space-md)',
     }}>
       <div
         className="processing-spinner"
         style={{
           width: spinnerSize,
           height: spinnerSize,
-          border: `${Math.max(2, spinnerSize / 15)}px solid var(--gv-border)`,
-          borderTopColor: 'var(--gv-primary)',
+          border: `${Math.max(2, spinnerSize / 15)}px solid var(--md-sys-color-outline)`,
+          borderTopColor: 'var(--md-sys-color-primary)',
         }}
       />
       {label && (
         <div style={{
-          fontSize: 'var(--gv-font-size-sm)',
-          color: 'var(--gv-text-secondary)',
+          fontSize: 'var(--md-sys-typescale-body-small-size)',
+          color: 'var(--md-sys-color-on-surface-secondary)',
           fontWeight: 500,
         }}>
           {label}

@@ -484,15 +484,15 @@ export function ProfilePage() {
           ) : (
             <div className="flex flex-col gap-md">
               {history.map((session: any) => (
-                <div key={session._id} className="card-positivus flex gap-xl items-center flex-wrap" style={{ padding: 'var(--gv-space-lg)' }}>
+                <div key={session._id} className="card-positivus flex gap-xl items-center flex-wrap" style={{ padding: 'var(--md-sys-space-lg)' }}>
                   <div style={{
-                    width: 48, height: 48, borderRadius: '50%', background: 'var(--gv-success-light)', color: 'var(--gv-success)',
+                    width: 48, height: 48, borderRadius: '50%', background: 'var(--md-sys-color-primary-light)', color: 'var(--md-sys-color-primary)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center'
                   }}>
                     <CheckCircle size={24} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div className="font-semibold" style={{ fontSize: 'var(--gv-font-size-lg)' }}>
+                    <div className="font-semibold" style={{ fontSize: 'var(--md-sys-typescale-title-small-size)' }}>
                       Tuần {session.week} - Ngày {session.day}
                     </div>
                     <div className="text-secondary text-sm mt-xs">

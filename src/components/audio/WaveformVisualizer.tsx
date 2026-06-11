@@ -14,7 +14,7 @@ export function WaveformVisualizer({
   isActive,
   width = 200,
   height = 48,
-  barColor = '#B9FF66',
+  barColor = 'var(--md-sys-color-primary)',
   barCount = 24,
 }: WaveformVisualizerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -90,7 +90,7 @@ export function WaveformVisualizer({
               width: Math.max(2, width / barCount - 2),
               height: 3,
               borderRadius: 2,
-              background: 'var(--gv-border, #E0E1E6)',
+              background: 'var(--md-sys-color-outline, #E0E1E6)',
             }}
           />
         ))}

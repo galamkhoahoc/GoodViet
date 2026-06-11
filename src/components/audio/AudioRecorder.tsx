@@ -47,15 +47,15 @@ export function AudioRecorder({
     return (
       <div className="recorder" style={{ textAlign: 'center' }}>
         <div style={{
-          padding: 'var(--gv-space-lg)',
-          background: 'var(--gv-error-soft, rgba(231,76,60,0.08))',
-          borderRadius: 'var(--gv-radius-md)',
-          border: '1px solid var(--gv-error, #E74C3C)',
-          marginBottom: 'var(--gv-space-md)',
+          padding: 'var(--md-sys-space-lg)',
+          background: 'var(--md-sys-color-error-soft, rgba(231,76,60,0.08))',
+          borderRadius: 'var(--md-sys-shape-corner-medium)',
+          border: '1px solid var(--md-sys-color-error, var(--md-sys-color-error))',
+          marginBottom: 'var(--md-sys-space-md)',
         }}>
-          <AlertCircle size={32} style={{ color: 'var(--gv-error)', marginBottom: 8 }} />
+          <AlertCircle size={32} style={{ color: 'var(--md-sys-color-error)', marginBottom: 8 }} />
           <p style={{ fontWeight: 600, marginBottom: 4 }}>Không thể truy cập microphone</p>
-          <p style={{ fontSize: 'var(--gv-font-size-sm)', color: 'var(--gv-text-muted)' }}>
+          <p style={{ fontSize: 'var(--md-sys-typescale-body-small-size)', color: 'var(--md-sys-color-on-surface-muted)' }}>
             Vui lòng cho phép truy cập microphone trong cài đặt trình duyệt, sau đó tải lại trang.
           </p>
         </div>
@@ -72,19 +72,19 @@ export function AudioRecorder({
       {error && !isRecording && (
         <div style={{
           padding: '8px 12px',
-          background: 'var(--gv-error-soft, rgba(231,76,60,0.08))',
-          borderRadius: 'var(--gv-radius-md)',
-          border: '1px solid var(--gv-error, #E74C3C)',
-          marginBottom: 'var(--gv-space-md)',
-          fontSize: 'var(--gv-font-size-sm)',
-          color: 'var(--gv-error, #E74C3C)',
+          background: 'var(--md-sys-color-error-soft, rgba(231,76,60,0.08))',
+          borderRadius: 'var(--md-sys-shape-corner-medium)',
+          border: '1px solid var(--md-sys-color-error, var(--md-sys-color-error))',
+          marginBottom: 'var(--md-sys-space-md)',
+          fontSize: 'var(--md-sys-typescale-body-small-size)',
+          color: 'var(--md-sys-color-error, var(--md-sys-color-error))',
         }}>
           {error}
         </div>
       )}
 
       {/* Recording controls */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--gv-space-md)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--md-sys-space-md)' }}>
         <button
           className={`recorder-btn ${isRecording ? 'recording' : ''}`}
           onClick={isRecording ? stopRecording : startRecording}
@@ -93,19 +93,19 @@ export function AudioRecorder({
             width: compact ? 56 : 72,
             height: compact ? 56 : 72,
             borderRadius: '50%',
-            border: `3px solid ${isRecording ? 'var(--gv-error, #E74C3C)' : 'var(--gv-black, #191A23)'}`,
-            background: isRecording ? 'rgba(231,76,60,0.08)' : 'var(--gv-lime, #B9FF66)',
+            border: `3px solid ${isRecording ? 'var(--md-sys-color-error, var(--md-sys-color-error))' : 'var(--md-sys-color-on-surface, #191A23)'}`,
+            background: isRecording ? 'rgba(231,76,60,0.08)' : 'var(--md-sys-color-primary, var(--md-sys-color-primary))',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
-            boxShadow: isRecording ? '0 0 0 6px rgba(231,76,60,0.15)' : '0 4px 0 0 var(--gv-black, #191A23)',
+            boxShadow: isRecording ? '0 0 0 6px rgba(231,76,60,0.15)' : '0 4px 0 0 var(--md-sys-color-on-surface, #191A23)',
             animation: isRecording ? 'pulse-recording 1.5s ease-in-out infinite' : 'none',
           }}
         >
           {isRecording
-            ? <Square size={compact ? 22 : 28} color="#E74C3C" />
+            ? <Square size={compact ? 22 : 28} color="var(--md-sys-color-error)" />
             : <Mic size={compact ? 22 : 28} color="#191A23" />
           }
         </button>
@@ -113,14 +113,14 @@ export function AudioRecorder({
         {/* Timer */}
         <div style={{
           fontFamily: 'monospace',
-          fontSize: compact ? 'var(--gv-font-size-lg)' : 'var(--gv-font-size-xl)',
+          fontSize: compact ? 'var(--md-sys-typescale-title-small-size)' : 'var(--md-sys-typescale-title-medium-size)',
           fontWeight: 700,
-          color: isRecording ? 'var(--gv-error, #E74C3C)' : 'var(--gv-black)',
+          color: isRecording ? 'var(--md-sys-color-error, var(--md-sys-color-error))' : 'var(--md-sys-color-on-surface)',
           fontVariantNumeric: 'tabular-nums',
         }}>
           {formatTime(duration)}
           {maxDuration < Infinity && (
-            <span style={{ fontSize: 'var(--gv-font-size-sm)', color: 'var(--gv-text-muted)', fontWeight: 400, marginLeft: 4 }}>
+            <span style={{ fontSize: 'var(--md-sys-typescale-body-small-size)', color: 'var(--md-sys-color-on-surface-muted)', fontWeight: 400, marginLeft: 4 }}>
               / {formatTime(maxDuration)}
             </span>
           )}
@@ -133,15 +133,15 @@ export function AudioRecorder({
             isActive={isRecording}
             width={compact ? 160 : 240}
             height={compact ? 36 : 48}
-            barColor="var(--gv-lime, #B9FF66)"
+            barColor="var(--md-sys-color-primary, var(--md-sys-color-primary))"
             barCount={compact ? 16 : 24}
           />
         )}
 
         {/* Status text */}
         <p style={{
-          fontSize: 'var(--gv-font-size-sm)',
-          color: 'var(--gv-text-muted)',
+          fontSize: 'var(--md-sys-typescale-body-small-size)',
+          color: 'var(--md-sys-color-on-surface-muted)',
           margin: 0,
         }}>
           {isRecording
@@ -156,7 +156,7 @@ export function AudioRecorder({
           <button
             className="btn btn-ghost btn-sm"
             onClick={cancelRecording}
-            style={{ color: 'var(--gv-text-muted)' }}
+            style={{ color: 'var(--md-sys-color-on-surface-muted)' }}
           >
             Hủy ghi âm
           </button>
@@ -165,14 +165,14 @@ export function AudioRecorder({
 
       {/* Playback after recording */}
       {showPlayback && audioUrl && !isRecording && (
-        <div style={{ marginTop: 'var(--gv-space-lg)' }}>
+        <div style={{ marginTop: 'var(--md-sys-space-lg)' }}>
           <AudioPlayer src={audioUrl} label="Bản ghi âm của bạn" compact={compact} />
           <button
             className="btn btn-ghost btn-sm"
             onClick={() => {
               resetRecording();
             }}
-            style={{ marginTop: 'var(--gv-space-sm)' }}
+            style={{ marginTop: 'var(--md-sys-space-sm)' }}
           >
             <RotateCcw size={14} /> Ghi lại
           </button>

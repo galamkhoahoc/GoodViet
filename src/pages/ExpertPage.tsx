@@ -310,11 +310,11 @@ export function ExpertPage() {
             <div className="flex flex-col gap-lg">
               {connections.map((conn: any) => (
                 <div key={conn.id} className="card-positivus flex gap-xl items-center flex-wrap">
-                  <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--gv-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--md-sys-color-surface-container)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     {conn.expert?.profileImageUrl ? <img src={conn.expert.profileImageUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Users size={24} />}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div className="font-semibold" style={{ fontSize: 'var(--gv-font-size-lg)' }}>{conn.expert?.fullName || 'Chuyên gia'}</div>
+                    <div className="font-semibold" style={{ fontSize: 'var(--md-sys-typescale-title-small-size)' }}>{conn.expert?.fullName || 'Chuyên gia'}</div>
                     <div className="text-secondary text-sm mb-sm">{conn.expert?.specializations?.join(', ')}</div>
                     <div className="flex items-center gap-sm mt-xs">
                       <StarRating rating={Math.round(conn.expert?.averageRating || 5)} />
@@ -368,11 +368,11 @@ export function ExpertPage() {
                     <div style={{ 
                       minWidth: 100, 
                       textAlign: 'center', 
-                      padding: 'var(--gv-space-md)', 
+                      padding: 'var(--md-sys-space-md)', 
                       background: 'rgba(255,255,255,0.1)', 
-                      borderRadius: 'var(--gv-radius-md)' 
+                      borderRadius: 'var(--md-sys-shape-corner-medium)' 
                     }}>
-                      <div style={{ fontSize: 'var(--gv-font-size-2xl)', fontWeight: 700, color: 'var(--gv-lime)' }}>
+                      <div style={{ fontSize: 'var(--md-sys-typescale-headline-small-size)', fontWeight: 700, color: 'var(--md-sys-color-primary)' }}>
                         {date.getDate().toString().padStart(2, '0')}
                       </div>
                       <div className="text-sm font-medium">Tháng {date.getMonth() + 1}</div>
@@ -424,10 +424,10 @@ export function ExpertPage() {
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
         }} onClick={() => !requestSent && setShowRequest(false)}>
-          <div className="card-positivus animate-scale-in" style={{ maxWidth: 500, width: '90%', background: 'var(--gv-white)' }} onClick={e => e.stopPropagation()}>
+          <div className="card-positivus animate-scale-in" style={{ maxWidth: 500, width: '90%', background: 'var(--md-sys-color-surface-container-lowest)' }} onClick={e => e.stopPropagation()}>
             {requestSent ? (
-              <div className="text-center" style={{ padding: 'var(--gv-space-xl)' }}>
-                <CheckCircle size={48} color="var(--gv-success)" style={{ margin: '0 auto var(--gv-space-lg)' }} />
+              <div className="text-center" style={{ padding: 'var(--md-sys-space-xl)' }}>
+                <CheckCircle size={48} color="var(--md-sys-color-primary)" style={{ margin: '0 auto var(--md-sys-space-lg)' }} />
                 <h3 className="font-semibold mb-md">Yêu cầu đã được gửi!</h3>
                 <p className="text-secondary">Chuyên gia sẽ xem xét hồ sơ và phản hồi trong vòng 24 giờ.</p>
               </div>
@@ -464,7 +464,7 @@ export function ExpertPage() {
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
         }} onClick={() => setShowBookSession(false)}>
-          <div className="card-positivus animate-scale-in" style={{ maxWidth: 500, width: '90%', background: 'var(--gv-white)' }} onClick={e => e.stopPropagation()}>
+          <div className="card-positivus animate-scale-in" style={{ maxWidth: 500, width: '90%', background: 'var(--md-sys-color-surface-container-lowest)' }} onClick={e => e.stopPropagation()}>
             <h3 className="font-semibold mb-lg">Đặt lịch hẹn</h3>
             
             <div className="form-group">

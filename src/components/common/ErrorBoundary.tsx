@@ -42,7 +42,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: 'var(--gv-space-2xl, 48px)',
+          padding: 'var(--md-sys-space-2xl, 48px)',
           textAlign: 'center',
           minHeight: 300,
         }}>
@@ -54,26 +54,26 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginBottom: 'var(--gv-space-lg, 24px)',
+            marginBottom: 'var(--md-sys-space-lg, 24px)',
           }}>
-            <AlertTriangle size={36} color="#E74C3C" />
+            <AlertTriangle size={36} color="var(--md-sys-color-error)" />
           </div>
           <h2 style={{
-            fontSize: 'var(--gv-font-size-xl, 20px)',
+            fontSize: 'var(--md-sys-typescale-title-medium-size, 20px)',
             fontWeight: 700,
-            marginBottom: 'var(--gv-space-sm, 8px)',
+            marginBottom: 'var(--md-sys-space-sm, 8px)',
           }}>
             Đã xảy ra lỗi
           </h2>
           <p style={{
-            color: 'var(--gv-text-muted, #6B6C7A)',
-            marginBottom: 'var(--gv-space-lg, 24px)',
+            color: 'var(--md-sys-color-on-surface-muted, #6B6C7A)',
+            marginBottom: 'var(--md-sys-space-lg, 24px)',
             maxWidth: 400,
             lineHeight: 1.6,
           }}>
             Ứng dụng gặp sự cố không mong muốn. Vui lòng thử lại hoặc tải lại trang.
           </p>
-          <div style={{ display: 'flex', gap: 'var(--gv-space-md, 12px)' }}>
+          <div style={{ display: 'flex', gap: 'var(--md-sys-space-md, 12px)' }}>
             <button
               className="btn btn-primary"
               onClick={this.handleRetry}

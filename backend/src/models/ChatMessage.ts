@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IChatMessage extends Document {
   userId: mongoose.Types.ObjectId;
+  sessionId?: mongoose.Types.ObjectId;
   senderType: 'user' | 'bot';
   content: string;
   timestamp: Date;
@@ -11,6 +12,7 @@ export interface IChatMessage extends Document {
 
 const ChatMessageSchema = new Schema<IChatMessage>({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  sessionId: { type: Schema.Types.ObjectId, ref: 'ChatSession', index: true },
   senderType: { type: String, enum: ['user', 'bot'], required: true },
   content: { type: String, required: true },
   timestamp: { type: Date, default: Date.now, index: true },
@@ -22,6 +24,6 @@ const ChatMessageSchema = new Schema<IChatMessage>({
 });
 
 // Composite index for fast history retrieval
-ChatMessageSchema.index({ userId: 1, timestamp: -1 });
+ChatMessageSchema.index({ userId: 1, sessionId: 1, timestamp: -1 });
 
 export const ChatMessage = mongoose.model<IChatMessage>('ChatMessage', ChatMessageSchema);

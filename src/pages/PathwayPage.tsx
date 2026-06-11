@@ -13,15 +13,15 @@ function DayExerciseCard({ exercise, onRecord }: { exercise: DayExercise; onReco
   };
 
   return (
-    <div className="card" style={{ marginBottom: 'var(--gv-space-md)' }}>
+    <div className="card" style={{ marginBottom: 'var(--md-sys-space-md)' }}>
       <div className="flex items-center justify-between mb-md">
         <span className="badge badge-primary">{typeLabels[exercise.type] || exercise.type}</span>
       </div>
       <h4 className="font-semibold mb-sm">{exercise.title}</h4>
       <p className="text-sm text-secondary mb-md">{exercise.instructions}</p>
       {exercise.sentences && exercise.sentences.length > 0 && (
-        <div className="card-glow" style={{ padding: 'var(--gv-space-md)', marginBottom: 'var(--gv-space-md)', textAlign: 'center' }}>
-          <p style={{ fontSize: 'var(--gv-font-size-lg)', fontWeight: 500, lineHeight: 1.8 }}>
+        <div className="card-glow" style={{ padding: 'var(--md-sys-space-md)', marginBottom: 'var(--md-sys-space-md)', textAlign: 'center' }}>
+          <p style={{ fontSize: 'var(--md-sys-typescale-title-small-size)', fontWeight: 500, lineHeight: 1.8 }}>
             "{exercise.sentences[0]}"
           </p>
         </div>
@@ -70,11 +70,11 @@ function RecordingModal({ exercise, week, day, onClose }: { exercise: DayExercis
       position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex',
       alignItems: 'center', justifyContent: 'center', zIndex: 1000,
     }} onClick={onClose}>
-      <div className="card-positivus animate-scale-in" style={{ maxWidth: 500, width: '90%', background: 'var(--gv-white)' }} onClick={e => e.stopPropagation()}>
+      <div className="card-positivus animate-scale-in" style={{ maxWidth: 500, width: '90%', background: 'var(--md-sys-color-surface-container-lowest)' }} onClick={e => e.stopPropagation()}>
         <h3 className="font-semibold mb-md">{exercise.title}</h3>
         {exercise.sentences && exercise.sentences.length > 0 && (
-          <div className="card-glow text-center mb-lg" style={{ padding: 'var(--gv-space-md)' }}>
-            <p style={{ fontSize: 'var(--gv-font-size-lg)', lineHeight: 1.8 }}>"{exercise.sentences[0]}"</p>
+          <div className="card-glow text-center mb-lg" style={{ padding: 'var(--md-sys-space-md)' }}>
+            <p style={{ fontSize: 'var(--md-sys-typescale-title-small-size)', lineHeight: 1.8 }}>"{exercise.sentences[0]}"</p>
           </div>
         )}
 
@@ -97,8 +97,8 @@ function RecordingModal({ exercise, week, day, onClose }: { exercise: DayExercis
             </div>
           </>
         ) : (
-          <div className="text-center" style={{ padding: 'var(--gv-space-lg)' }}>
-            <CheckCircle size={48} color="var(--gv-success)" style={{ margin: '0 auto var(--gv-space-md)' }} />
+          <div className="text-center" style={{ padding: 'var(--md-sys-space-lg)' }}>
+            <CheckCircle size={48} color="var(--md-sys-color-primary)" style={{ margin: '0 auto var(--md-sys-space-md)' }} />
             <p className="font-semibold">Đã lưu thành công!</p>
           </div>
         )}
@@ -359,9 +359,9 @@ export function PathwayPage() {
 
           return (
             <div key={day} className="card-positivus" style={{
-              borderLeft: `4px solid ${isLocked ? 'var(--gv-border)' : isDone ? 'var(--gv-success)' : 'var(--gv-black)'}`,
+              borderLeft: `4px solid ${isLocked ? 'var(--md-sys-color-outline)' : isDone ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-on-surface)'}`,
               opacity: isLocked ? 0.6 : 1,
-              boxShadow: isDone ? '0 5px 0 0 var(--gv-success)' : undefined,
+              boxShadow: isDone ? '0 5px 0 0 var(--md-sys-color-primary)' : undefined,
             }}>
               <div
                 className="flex items-center justify-between"
@@ -370,9 +370,9 @@ export function PathwayPage() {
               >
                 <div className="flex items-center gap-md">
                   {isDone ? (
-                    <CheckCircle size={20} color="var(--gv-success)" />
+                    <CheckCircle size={20} color="var(--md-sys-color-primary)" />
                   ) : isLocked ? (
-                    <Pause size={20} color="var(--gv-text-muted)" />
+                    <Pause size={20} color="var(--md-sys-color-on-surface-muted)" />
                   ) : (
                     <Play size={20} />
                   )}
@@ -389,7 +389,7 @@ export function PathwayPage() {
               </div>
 
               {isExpanded && (
-                <div style={{ marginTop: 'var(--gv-space-lg)' }}>
+                <div style={{ marginTop: 'var(--md-sys-space-lg)' }}>
                   {loadingDay ? (
                     <div className="text-center p-md">Đang tải...</div>
                   ) : dayContent ? (

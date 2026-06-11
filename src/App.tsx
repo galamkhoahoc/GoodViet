@@ -51,7 +51,7 @@ function SyncIndicator() {
       alignItems: 'center',
       gap: 8,
       padding: '8px 16px',
-      borderRadius: 'var(--gv-radius-full, 999px)',
+      borderRadius: 'var(--md-sys-shape-corner-full, 999px)',
       background: !isOnline ? '#191A23' : isSyncing ? '#1565C0' : '#E65100',
       color: 'white',
       fontSize: 13,
@@ -63,7 +63,7 @@ function SyncIndicator() {
         width: 8,
         height: 8,
         borderRadius: '50%',
-        background: !isOnline ? '#E74C3C' : isSyncing ? '#B9FF66' : '#FF9800',
+        background: !isOnline ? 'var(--md-sys-color-error)' : isSyncing ? 'var(--md-sys-color-primary)' : '#FF9800',
         animation: isSyncing ? 'pulse-recording 1s ease-in-out infinite' : 'none',
       }} />
       {!isOnline
