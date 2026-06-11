@@ -19,9 +19,9 @@ export function Layout() {
   }, [location.pathname]);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-gray-50">
+    <div className="flex h-screen w-full overflow-hidden bg-gradient-to-r from-[#ecefe5] to-[#ecefe5] p-4 gap-4">
       <NavigationRail activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="flex-1 overflow-y-auto relative bg-white">
+      <main className="flex-1 overflow-y-auto relative bg-white rounded-[28px] shadow-sm">
         <Outlet />
       </main>
     </div>

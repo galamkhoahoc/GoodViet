@@ -1,435 +1,592 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { practiceApi, PracticeProgress, PracticePathway, DayContent, DayExercise } from '../services/api/practiceApi';
-import { AudioRecorder } from '../components/audio/AudioRecorder';
-import { indexedDBService } from '../services/storage/indexedDB';
-import { toast } from '../components/common/Toast';
-import { Route, Play, CheckCircle, Pause, Video, ChevronDown, ChevronUp } from 'lucide-react';
-
-function DayExerciseCard({ exercise, onRecord }: { exercise: DayExercise; onRecord: () => void }) {
-  const typeLabels: Record<string, string> = {
-    pronunciation: '🗣️ Phát âm', breathing: '💨 Hơi thở',
-    tongue_placement: '👅 Đặt lưỡi', fluency: '🌊 Trôi chảy',
-  };
-
-  return (
-    <div className="card" style={{ marginBottom: 'var(--md-sys-space-md)' }}>
-      <div className="flex items-center justify-between mb-md">
-        <span className="badge badge-primary">{typeLabels[exercise.type] || exercise.type}</span>
-      </div>
-      <h4 className="font-semibold mb-sm">{exercise.title}</h4>
-      <p className="text-sm text-secondary mb-md">{exercise.instructions}</p>
-      {exercise.sentences && exercise.sentences.length > 0 && (
-        <div className="md3-card" style={{ padding: 'var(--md-sys-space-md)', marginBottom: 'var(--md-sys-space-md)', textAlign: 'center' }}>
-          <p style={{ fontSize: 'var(--md-sys-typescale-title-small-size)', fontWeight: 500, lineHeight: 1.8 }}>
-            "{exercise.sentences[0]}"
-          </p>
-        </div>
-      )}
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-muted">Lặp lại theo hướng dẫn</span>
-        <button className="btn btn-lime btn-sm" onClick={onRecord}>
-          🎙️ Ghi âm
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function RecordingModal({ exercise, week, day, onClose }: { exercise: DayExercise; week: number; day: number; onClose: () => void }) {
-  const user = useAuthStore(s => s.user);
-  const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
-
-  const handleRecordComplete = async (blob: Blob, duration: number) => {
-    const url = URL.createObjectURL(blob);
-    setRecordedUrl(url);
-
-    try {
-      await indexedDBService.saveRecording(blob, {
-        userId: user?.userId || 'anonymous',
-        exerciseId: exercise.exerciseId,
-        phase: `practice_w${week}_d${day}`,
-        duration,
-        format: blob.type || 'audio/webm',
-        timestamp: new Date().toISOString(),
-      });
-    } catch (err) {
-      console.warn('Failed to save to IndexedDB:', err);
-    }
-  };
-
-  const handleSave = () => {
-    setSaved(true);
-    toast.success('Ghi âm đã lưu!', exercise.title);
-    setTimeout(onClose, 800);
-  };
-
-  return (
-    <div style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex',
-      alignItems: 'center', justifyContent: 'center', zIndex: 1000,
-    }} onClick={onClose}>
-      <div className="md3-card-elevated animate-scale-in" style={{ maxWidth: 500, width: '90%', background: 'var(--md-sys-color-surface-container-lowest)' }} onClick={e => e.stopPropagation()}>
-        <h3 className="font-semibold mb-md">{exercise.title}</h3>
-        {exercise.sentences && exercise.sentences.length > 0 && (
-          <div className="md3-card text-center mb-lg" style={{ padding: 'var(--md-sys-space-md)' }}>
-            <p style={{ fontSize: 'var(--md-sys-typescale-title-small-size)', lineHeight: 1.8 }}>"{exercise.sentences[0]}"</p>
-          </div>
-        )}
-
-        {!saved ? (
-          <>
-            <AudioRecorder
-              onRecordingComplete={handleRecordComplete}
-              maxDuration={300}
-              showPlayback
-              compact
-            />
-
-            <div className="flex justify-between mt-lg">
-              <button className="btn btn-secondary" onClick={onClose}>Đóng</button>
-              {recordedUrl && (
-                <button className="btn btn-success" onClick={handleSave}>
-                  <CheckCircle size={14} /> Lưu & Tiếp tục
-                </button>
-              )}
-            </div>
-          </>
-        ) : (
-          <div className="text-center" style={{ padding: 'var(--md-sys-space-lg)' }}>
-            <CheckCircle size={48} color="var(--md-sys-color-primary)" style={{ margin: '0 auto var(--md-sys-space-md)' }} />
-            <p className="font-semibold">Đã lưu thành công!</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+import { Flame, Clock, TrendingUp, BookOpen, Headphones, Mic, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 
 export function PathwayPage() {
   const user = useAuthStore(s => s.user);
-  const [progress, setProgress] = useState<any>(null);
-  const [pathway, setPathway] = useState<PracticePathway | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [pathwaysList, setPathwaysList] = useState<PracticePathway[]>([]);
-  
-  const [selectedWeek, setSelectedWeek] = useState(1);
-  const [expandedDay, setExpandedDay] = useState<number | null>(null);
-  const [dayContent, setDayContent] = useState<DayContent | null>(null);
-  const [loadingDay, setLoadingDay] = useState(false);
-  
-  const [recordingExercise, setRecordingExercise] = useState<DayExercise | null>(null);
-  const [checkedInDays, setCheckedInDays] = useState<Set<number>>(new Set());
+  const [currentDate] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      // Attempt to load progress
-      try {
-        const prog = await practiceApi.getProgress();
-        setProgress(prog);
-        setPathway(prog.pathway);
-        setSelectedWeek(prog.currentWeek);
-      } catch (err: any) {
-        // If 404, load pathways list to let user start one
-        if (err.status === 404 || err.message?.includes('Chưa có')) {
-          const res = await practiceApi.getPathways();
-          setPathwaysList(res.pathways);
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+  // Format date as "Thứ Năm, 24 Tháng 10"
+  const formatDate = (date: Date) => {
+    const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+    const dayName = days[date.getDay()];
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    return `${dayName}, ${day} Tháng ${month}`;
   };
 
-  const handleStartPathway = async (id: string) => {
-    try {
-      await practiceApi.startPathway(id);
-      toast.success('Thành công', 'Đã bắt đầu lộ trình luyện tập');
-      loadData();
-    } catch (err: any) {
-      toast.error('Lỗi', err.message || 'Không thể bắt đầu lộ trình');
-    }
-  };
+  // Sample data for daily exercises
+  const exercises = [
+    {
+      id: 1,
+      type: 'Đọc hiểu',
+      icon: <BookOpen size={24} />,
+      title: 'Văn hóa Trà',
+      status: 'Chưa làm',
+      statusColor: '#9ca3af',
+      progress: 0,
+    },
+    {
+      id: 2,
+      type: 'Nghe',
+      icon: <Headphones size={24} />,
+      title: 'Podcast Lịch sử',
+      status: 'Đang làm',
+      statusColor: '#1f2937',
+      progress: 45,
+    },
+    {
+      id: 3,
+      type: 'Nói',
+      icon: <Mic size={24} />,
+      title: 'Giao tiếp hàng ngày',
+      status: 'Chưa làm',
+      statusColor: '#9ca3af',
+      progress: 0,
+    },
+  ];
 
-  const handleExpandDay = async (week: number, day: number) => {
-    if (expandedDay === day) {
-      setExpandedDay(null);
-      return;
+  // Sample recommendations
+  const recommendations = [
+    { id: 1, title: 'Luyện phát âm cơ bản', description: 'Bài học phù hợp với bạn' },
+    { id: 2, title: 'Từ vựng thiết yếu', description: '100 từ quan trọng' },
+  ];
+
+  // Calendar generation
+  const generateCalendar = (month: Date) => {
+    const year = month.getFullYear();
+    const monthIndex = month.getMonth();
+    const firstDay = new Date(year, monthIndex, 1).getDay();
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+    
+    const calendar = [];
+    let week = [];
+    
+    // Empty cells for days before month starts
+    for (let i = 0; i < firstDay; i++) {
+      week.push(null);
     }
     
-    setExpandedDay(day);
-    setLoadingDay(true);
-    try {
-      const data = await practiceApi.getDayExercises(week, day);
-      setDayContent(data);
-    } catch (err: any) {
-      toast.error('Lỗi', err.message || 'Không thể tải bài tập');
-      setExpandedDay(null);
-    } finally {
-      setLoadingDay(false);
-    }
-  };
-
-  const handleCheckIn = async (week: number, day: number, exercisesCount: number) => {
-    try {
-      const res = await practiceApi.checkin(week, day, exercisesCount);
-      setCheckedInDays(prev => new Set(prev).add(day));
-      toast.success('Chấm công thành công!', `Chuỗi hiện tại: ${res.newStreak} ngày 🎉`);
-      if (res.milestoneAchieved) {
-        toast.success('Thành tựu!', res.milestoneAchieved.message);
+    // Actual days
+    for (let day = 1; day <= daysInMonth; day++) {
+      week.push(day);
+      if (week.length === 7) {
+        calendar.push(week);
+        week = [];
       }
-      loadData(); // Reload progress
-    } catch (err: any) {
-      toast.error('Lỗi', err.message || 'Chấm công thất bại');
     }
+    
+    // Fill remaining cells
+    if (week.length > 0) {
+      while (week.length < 7) {
+        week.push(null);
+      }
+      calendar.push(week);
+    }
+    
+    return calendar;
   };
 
-  if (loading) return <div className="p-xl text-center">Đang tải dữ liệu...</div>;
-
-  if (!progress || !pathway) {
-    return (
-      <div className="page-container" style={{ maxWidth: 800 }}>
-        <div className="page-header-centered">
-          <h1>Chọn Lộ Trình Luyện Tập</h1>
-        </div>
-        {pathwaysList.length === 0 ? (
-          <p>Không có lộ trình nào khả dụng.</p>
-        ) : (
-          <div className="flex flex-col gap-md">
-            {pathwaysList.map(p => (
-              <div key={p._id} className="md3-card-elevated">
-                <h3 className="font-semibold mb-sm">{p.name}</h3>
-                <p className="text-secondary mb-md">{p.description}</p>
-                <div className="flex gap-sm mb-md">
-                  <span className="badge badge-primary">{p.durationDays} ngày</span>
-                  <span className="badge badge-warning">Mức độ: {p.level}</span>
-                </div>
-                <button className="btn btn-lime" onClick={() => handleStartPathway(p._id)}>
-                  Bắt đầu lộ trình
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  const completedDays = progress.completedSessions || 0;
-  const totalDays = pathway.durationDays || 35;
-  const progressPercent = progress.completionPercentage || 0;
-
-  // Render dummy days for UI (1 to 7)
-  const weekDays = Array.from({ length: 7 }, (_, i) => i + 1);
+  const calendar = generateCalendar(currentMonth);
+  const completedDays = [5, 8, 10, 12, 15, 17, 19, 21, 22, 23, 24]; // Sample completed days
+  const currentDay = currentDate.getDate();
+  const isCurrentMonth = currentMonth.getMonth() === currentDate.getMonth() && 
+                         currentMonth.getFullYear() === currentDate.getFullYear();
 
   return (
-    <div className="page-container" style={{ maxWidth: 800 }}>
+    <div className="w-full h-full" style={{ 
+      background: '#ecefe5',
+      padding: '24px',
+      overflowY: 'auto'
+    }}>
       {/* Page Header */}
-      <div className="page-header-centered">
-        <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--md-sys-space-md)' }}>
-          <Route size={28} color="var(--md-sys-color-primary)" />
-          <span style={{ color: 'var(--md-sys-color-primary)' }}>{pathway.name}</span>
-        </h1>
-        <p>
-          {pathway.description}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <p style={{ 
+            fontSize: '14px', 
+            color: '#6b7280',
+            marginBottom: '4px' 
+          }}>
+            {formatDate(currentDate)}
+          </p>
+          <h1 style={{ 
+            fontSize: '32px', 
+            fontWeight: 700,
+            color: '#1f2937',
+            margin: 0
+          }}>
+            Tiến độ hôm nay
+          </h1>
+        </div>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          borderRadius: '50%',
+          background: '#d6e4c8',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '20px'
+        }}>
+          {user?.username?.[0].toUpperCase() || 'U'}
+        </div>
+      </div>
+
+      {/* Hero Banner with Quote */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(32, 81, 7, 0.9), rgba(56, 102, 102, 0.8)), url(/hero-bg.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        borderRadius: '28px',
+        padding: '48px 32px',
+        marginBottom: '24px',
+        minHeight: '200px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center'
+      }}>
+        <p style={{
+          fontSize: '24px',
+          fontWeight: 600,
+          color: 'white',
+          lineHeight: 1.5,
+          maxWidth: '600px',
+          margin: 0
+        }}>
+          "Học một ngôn ngữ mới là mở ra một cánh cửa mới của thế giới"
+        </p>
+        <p style={{
+          fontSize: '14px',
+          color: 'rgba(255, 255, 255, 0.8)',
+          marginTop: '12px'
+        }}>
+          — Khuyết danh
         </p>
       </div>
 
-      {/* Progress Overview */}
+      {/* Metrics Bento Grid */}
       <div style={{
-        background: 'var(--md-sys-color-surface-container-lowest)',
-        borderRadius: 'var(--md-sys-shape-corner-extra-large)',
-        padding: 'var(--md-sys-space-xl)',
-        marginBottom: 'var(--md-sys-space-xl)',
-        boxShadow: 'var(--md-sys-elevation-1)',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '16px',
+        marginBottom: '32px'
       }}>
+        {/* Streak Card */}
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 'var(--md-sys-space-md)',
+          background: '#386666',
+          borderRadius: '24px',
+          padding: '24px',
+          color: 'white'
         }}>
-          <span style={{
-            fontSize: 'var(--md-sys-typescale-title-medium-size)',
-            fontWeight: 500,
-            color: 'var(--md-sys-color-on-surface)',
-          }}>
-            Tiến độ lộ trình
-          </span>
-          <span style={{
-            padding: '6px 16px',
-            background: 'var(--md-sys-color-secondary-container)',
-            color: 'var(--md-sys-color-on-secondary-container)',
-            borderRadius: 'var(--md-sys-shape-corner-full)',
-            fontSize: 'var(--md-sys-typescale-label-large-size)',
-            fontWeight: 500,
-          }}>
-            {progressPercent}% hoàn thành
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+            <Flame size={24} color="white" />
+            <span style={{ fontSize: '14px', opacity: 0.9 }}>Chuỗi ngày</span>
+          </div>
+          <div style={{ fontSize: '48px', fontWeight: 700, marginBottom: '4px' }}>14</div>
+          <div style={{ fontSize: '14px', opacity: 0.8 }}>Ngày</div>
         </div>
+
+        {/* Daily Goal Card */}
         <div style={{
-          height: 8,
-          background: 'var(--md-sys-color-surface-container-high)',
-          borderRadius: 'var(--md-sys-shape-corner-full)',
-          overflow: 'hidden',
-          marginBottom: 'var(--md-sys-space-md)',
+          background: 'white',
+          borderRadius: '24px',
+          padding: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}>
           <div style={{
-            height: '100%',
-            width: `${progressPercent}%`,
-            background: 'var(--md-sys-color-primary)',
-            transition: 'width var(--md-motion-duration-medium2) var(--md-motion-easing-standard)',
-            borderRadius: 'var(--md-sys-shape-corner-full)',
-          }} />
-        </div>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          fontSize: 'var(--md-sys-typescale-body-small-size)',
-          color: 'var(--md-sys-color-on-surface-variant)',
-        }}>
-          <span>{completedDays} / {totalDays} ngày đã luyện tập</span>
-          <span>Chuỗi: {progress.currentStreak} ngày 🔥</span>
-        </div>
-      </div>
-
-      {/* Week Tabs */}
-      <div style={{
-        display: 'flex',
-        gap: 'var(--md-sys-space-md)',
-        marginBottom: 'var(--md-sys-space-xl)',
-        overflowX: 'auto',
-        paddingBottom: 4,
-      }}>
-        {Array.from({ length: Math.ceil(totalDays / 7) }).map((_, i) => {
-          const w = i + 1;
-          const isLocked = w > progress.currentWeek;
-          return (
-            <button
-              key={w}
-              onClick={() => !isLocked && setSelectedWeek(w)}
-              style={{
-                padding: '10px 24px',
-                background: selectedWeek === w ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-surface-container)',
-                color: selectedWeek === w ? 'var(--md-sys-color-on-primary)' : 'var(--md-sys-color-on-surface)',
-                border: 'none',
-                borderRadius: 'var(--md-sys-shape-corner-full)',
-                fontSize: 'var(--md-sys-typescale-label-large-size)',
-                fontWeight: 500,
-                cursor: isLocked ? 'not-allowed' : 'pointer',
-                opacity: isLocked ? 0.5 : 1,
-                whiteSpace: 'nowrap',
-                transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
-                boxShadow: selectedWeek === w ? 'var(--md-sys-elevation-1)' : 'none',
-              }}
-            >
-              Tuần {w} {isLocked ? '🔒' : ''}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Daily Exercises */}
-      <div className="flex flex-col gap-sm">
-        {weekDays.map((day) => {
-          const isExpanded = expandedDay === day;
-          // Determine if done (if past week/day, it's done. Or if checked in.)
-          const isDone = (selectedWeek < progress.currentWeek) || 
-                         (selectedWeek === progress.currentWeek && day < progress.currentDay) ||
-                         checkedInDays.has(day);
-
-          const isLocked = (selectedWeek === progress.currentWeek && day > progress.currentDay);
-
-          return (
-            <div key={day} className="md3-card-elevated" style={{
-              borderLeft: `4px solid ${isLocked ? 'var(--md-sys-color-outline)' : isDone ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-on-surface)'}`,
-              opacity: isLocked ? 0.6 : 1,
-              boxShadow: isDone ? '0 5px 0 0 var(--md-sys-color-primary)' : undefined,
+            position: 'relative',
+            width: '120px',
+            height: '120px',
+            marginBottom: '12px'
+          }}>
+            <svg width="120" height="120" style={{ transform: 'rotate(-90deg)' }}>
+              <circle
+                cx="60"
+                cy="60"
+                r="50"
+                fill="none"
+                stroke="#f3f4f6"
+                strokeWidth="8"
+              />
+              <circle
+                cx="60"
+                cy="60"
+                r="50"
+                fill="none"
+                stroke="#205107"
+                strokeWidth="8"
+                strokeDasharray={`${2 * Math.PI * 50}`}
+                strokeDashoffset={`${2 * Math.PI * 50 * (1 - 0.75)}`}
+                strokeLinecap="round"
+              />
+            </svg>
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              textAlign: 'center'
             }}>
-              <div
-                className="flex items-center justify-between"
-                style={{ cursor: isLocked ? 'not-allowed' : 'pointer' }}
-                onClick={() => !isLocked && handleExpandDay(selectedWeek, day)}
-              >
-                <div className="flex items-center gap-md">
-                  {isDone ? (
-                    <CheckCircle size={20} color="var(--md-sys-color-primary)" />
-                  ) : isLocked ? (
-                    <Pause size={20} color="var(--md-sys-color-on-surface-muted)" />
-                  ) : (
-                    <Play size={20} />
-                  )}
-                  <div>
-                    <span className="font-semibold">Ngày {day}</span>
-                    {isDone && <span className="badge badge-success" style={{ marginLeft: 8 }}>Hoàn thành</span>}
-                  </div>
-                </div>
-                {!isLocked && (
-                  <div className="flex items-center gap-sm">
-                    {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                  </div>
-                )}
-              </div>
+              <div style={{ fontSize: '32px', fontWeight: 700, color: '#205107' }}>75%</div>
+            </div>
+          </div>
+          <div style={{ fontSize: '16px', fontWeight: 600, color: '#1f2937' }}>Mục tiêu hôm nay</div>
+          <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>Còn lại 15 phút</div>
+        </div>
 
-              {isExpanded && (
-                <div style={{ marginTop: 'var(--md-sys-space-lg)' }}>
-                  {loadingDay ? (
-                    <div className="text-center p-md">Đang tải...</div>
-                  ) : dayContent ? (
-                    dayContent.isRestDay ? (
-                      <div className="text-center p-md text-secondary">Hôm nay là ngày nghỉ! Hãy thư giãn.</div>
-                    ) : (
-                      <>
-                        {dayContent.videoTutorial && (
-                          <div style={{ background: 'var(--md-sys-color-surface-container-high)', borderRadius: 'var(--md-sys-shape-corner-extra-large)', overflow: 'hidden', marginBottom: 'var(--md-sys-space-lg)' }}>
-                            <div style={{ background: '#000', height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                                <Play fill="white" color="white" size={24} style={{ marginLeft: 4 }} />
-                              </div>
-                              <span style={{ position: 'absolute', bottom: 8, right: 12, background: 'rgba(0,0,0,0.6)', color: 'white', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>Mô phỏng Video</span>
-                            </div>
-                            <div style={{ padding: 'var(--md-sys-space-md)' }}>
-                              <div className="font-semibold" style={{ fontSize: 'var(--md-sys-typescale-title-medium-size)', color: 'var(--md-sys-color-on-surface)' }}>{dayContent.videoTutorial.title}</div>
-                              <div className="text-secondary" style={{ fontSize: 'var(--md-sys-typescale-body-medium-size)', marginTop: 4 }}>{dayContent.videoTutorial.description}</div>
-                            </div>
-                          </div>
-                        )}
-                        {dayContent.exercises.map(ex => (
-                          <DayExerciseCard key={ex.exerciseId} exercise={ex} onRecord={() => setRecordingExercise(ex)} />
-                        ))}
-                        {!isDone && (
-                          <button className="btn btn-success w-full mt-md" style={{ padding: '16px', fontSize: 'var(--md-sys-typescale-title-small-size)' }} onClick={() => handleCheckIn(selectedWeek, day, dayContent.exercises.length)}>
-                            <CheckCircle size={20} /> Chấm công — Đánh dấu hoàn thành Ngày {day}
-                          </button>
-                        )}
-                      </>
-                    )
-                  ) : (
-                    <div className="text-center p-md">Không tải được dữ liệu.</div>
-                  )}
+        {/* Weekly Progress Card */}
+        <div style={{
+          background: 'white',
+          borderRadius: '24px',
+          padding: '24px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+            <TrendingUp size={20} color="#205107" />
+            <span style={{ fontSize: '14px', fontWeight: 600, color: '#1f2937' }}>Tuần này</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'end', gap: '8px', height: '60px' }}>
+            {[40, 65, 80, 100, 50, 30, 20].map((height, i) => (
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <div style={{
+                  width: '100%',
+                  height: `${height}%`,
+                  background: i < 4 ? '#205107' : '#e5e7eb',
+                  borderRadius: '4px'
+                }} />
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '12px', textAlign: 'center' }}>
+            4/7 ngày hoàn thành
+          </div>
+        </div>
+      </div>
+
+      {/* Daily Exercises Section */}
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ 
+          fontSize: '24px', 
+          fontWeight: 700, 
+          color: '#1f2937',
+          marginBottom: '16px'
+        }}>
+          Bài tập hôm nay
+        </h2>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '16px'
+        }}>
+          {exercises.map((exercise) => (
+            <div key={exercise.id} style={{
+              background: 'white',
+              borderRadius: '24px',
+              padding: '24px',
+              cursor: 'pointer',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}>
+              <div style={{ 
+                width: '48px',
+                height: '48px',
+                borderRadius: '12px',
+                background: '#f2f5eb',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#205107',
+                marginBottom: '16px'
+              }}>
+                {exercise.icon}
+              </div>
+              <div style={{
+                padding: '4px 12px',
+                background: exercise.statusColor,
+                color: 'white',
+                borderRadius: '12px',
+                fontSize: '12px',
+                fontWeight: 500,
+                display: 'inline-block',
+                marginBottom: '12px'
+              }}>
+                {exercise.status}
+              </div>
+              <h3 style={{
+                fontSize: '18px',
+                fontWeight: 600,
+                color: '#1f2937',
+                marginBottom: '8px'
+              }}>
+                {exercise.type}
+              </h3>
+              <p style={{
+                fontSize: '14px',
+                color: '#6b7280',
+                marginBottom: '16px'
+              }}>
+                {exercise.title}
+              </p>
+              {exercise.progress > 0 && (
+                <div>
+                  <div style={{
+                    height: '6px',
+                    background: '#f3f4f6',
+                    borderRadius: '3px',
+                    overflow: 'hidden',
+                    marginBottom: '8px'
+                  }}>
+                    <div style={{
+                      height: '100%',
+                      width: `${exercise.progress}%`,
+                      background: '#205107',
+                      borderRadius: '3px'
+                    }} />
+                  </div>
+                  <span style={{ fontSize: '12px', color: '#6b7280' }}>{exercise.progress}% hoàn thành</span>
                 </div>
               )}
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
-      {recordingExercise && (
-        <RecordingModal 
-          exercise={recordingExercise} 
-          week={selectedWeek}
-          day={expandedDay!}
-          onClose={() => setRecordingExercise(null)} 
-        />
-      )}
+      {/* Bottom Split Section */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '16px'
+      }}>
+        {/* Recommendations */}
+        <div style={{
+          background: 'white',
+          borderRadius: '24px',
+          padding: '24px'
+        }}>
+          <h3 style={{
+            fontSize: '20px',
+            fontWeight: 700,
+            color: '#1f2937',
+            marginBottom: '16px'
+          }}>
+            Gợi ý cho bạn
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {recommendations.map((rec) => (
+              <div key={rec.id} style={{
+                padding: '16px',
+                background: '#f9fafb',
+                borderRadius: '16px',
+                cursor: 'pointer',
+                transition: 'background 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#f9fafb'}>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  color: '#1f2937',
+                  marginBottom: '4px'
+                }}>
+                  {rec.title}
+                </div>
+                <div style={{
+                  fontSize: '14px',
+                  color: '#6b7280'
+                }}>
+                  {rec.description}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Calendar */}
+        <div style={{
+          background: 'white',
+          borderRadius: '24px',
+          padding: '24px'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '16px'
+          }}>
+            <h3 style={{
+              fontSize: '20px',
+              fontWeight: 700,
+              color: '#1f2937',
+              margin: 0
+            }}>
+              Tháng {currentMonth.getMonth() + 1}, {currentMonth.getFullYear()}
+            </h3>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  border: '1px solid #e5e7eb',
+                  background: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  border: '1px solid #e5e7eb',
+                  background: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+
+          {/* Calendar Grid */}
+          <div>
+            {/* Day headers */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(7, 1fr)',
+              gap: '8px',
+              marginBottom: '8px'
+            }}>
+              {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map((day) => (
+                <div key={day} style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: '#6b7280',
+                  textAlign: 'center'
+                }}>
+                  {day}
+                </div>
+              ))}
+            </div>
+            {/* Calendar days */}
+            {calendar.map((week, weekIdx) => (
+              <div key={weekIdx} style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(7, 1fr)',
+                gap: '8px',
+                marginBottom: '8px'
+              }}>
+                {week.map((day, dayIdx) => {
+                  if (!day) {
+                    return <div key={dayIdx} />;
+                  }
+                  
+                  const isCompleted = isCurrentMonth && completedDays.includes(day);
+                  const isToday = isCurrentMonth && day === currentDay;
+                  const isInStreak = isCompleted && day <= currentDay;
+                  
+                  return (
+                    <div key={dayIdx} style={{
+                      width: '36px',
+                      height: '36px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '14px',
+                      fontWeight: isToday ? 700 : 500,
+                      color: isToday ? 'white' : isCompleted ? '#205107' : '#1f2937',
+                      background: isToday ? '#205107' : 'transparent',
+                      borderRadius: '50%',
+                      position: 'relative',
+                      cursor: 'pointer'
+                    }}>
+                      {day}
+                      {isCompleted && !isToday && (
+                        <div style={{
+                          position: 'absolute',
+                          bottom: '2px',
+                          width: '6px',
+                          height: '6px',
+                          borderRadius: '50%',
+                          background: '#205107'
+                        }} />
+                      )}
+                      {isToday && (
+                        <div style={{
+                          position: 'absolute',
+                          inset: '-2px',
+                          border: '2px solid #205107',
+                          borderRadius: '50%'
+                        }} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+
+          {/* Calendar Legend */}
+          <div style={{
+            marginTop: '16px',
+            paddingTop: '16px',
+            borderTop: '1px solid #e5e7eb',
+            display: 'flex',
+            gap: '16px',
+            fontSize: '12px',
+            color: '#6b7280'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                background: '#205107'
+              }} />
+              <span>Hoàn thành</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                background: '#205107',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                color: 'white'
+              }}>
+                {currentDay}
+              </div>
+              <span>Hôm nay</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Flame size={16} color="#205107" />
+              <span>Chuỗi hiện tại: 14 ngày</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

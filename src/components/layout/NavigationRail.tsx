@@ -1,4 +1,4 @@
-import { Home, Mic2, MessageSquare, BookOpen, Settings, LogOut } from 'lucide-react';
+import { Home, Mic2, Users, BookOpen, Settings } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,15 +9,12 @@ interface NavigationRailProps {
 
 export function NavigationRail({ activeTab = 'dashboard', onTabChange }: NavigationRailProps) {
   const navigate = useNavigate();
-  const user = useAuthStore(s => s.user);
-  const logout = useAuthStore(s => s.logout);
 
   const navItems = [
-    { id: 'dashboard', icon: Home, label: 'Trang chủ', path: '/dashboard' },
-    { id: 'assessment', icon: Mic2, label: 'Đánh giá', path: '/assessment' },
-    { id: 'practice', icon: BookOpen, label: 'Luyện tập', path: '/pathway' },
-    { id: 'chat', icon: MessageSquare, label: 'Trò chuyện', path: '/chat' },
-    { id: 'experts', icon: Settings, label: 'Cài đặt', path: '/profile' },
+    { id: 'dashboard', icon: Home, label: 'Home', path: '/dashboard' },
+    { id: 'assessment', icon: Mic2, label: 'Assessment', path: '/assessment' },
+    { id: 'practice', icon: BookOpen, label: 'Practice', path: '/pathway' },
+    { id: 'experts', icon: Users, label: 'Experts', path: '/experts' },
   ];
 
   const handleNavClick = (item: any) => {
@@ -25,21 +22,21 @@ export function NavigationRail({ activeTab = 'dashboard', onTabChange }: Navigat
     if (item.path) navigate(item.path);
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
   return (
-    <div className="w-24 h-full bg-white border-r border-gray-100 flex flex-col items-center py-6 shrink-0">
-      
-      {/* Logo */}
-      <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-8">
-        <span className="text-white text-xl font-bold">G</span>
+    <div className="w-[280px] h-full bg-white rounded-[28px] shadow-sm flex flex-col py-6 shrink-0">
+      {/* Logo Section */}
+      <div className="px-6 pb-8">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-[17px] h-[17px] bg-[#205107] rounded-sm"></div>
+          <h1 className="text-[28px] font-bold text-[#205107] leading-9">GoodViet</h1>
+        </div>
+        <p className="text-[12px] font-medium text-[#42493c] tracking-[0.5px] leading-4">
+          Celebrate Vietnamese Excellence
+        </p>
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 w-full flex flex-col items-center gap-2 px-2">
+      <nav className="flex-1 flex flex-col gap-2 px-3">
         {navItems.map(item => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -47,41 +44,44 @@ export function NavigationRail({ activeTab = 'dashboard', onTabChange }: Navigat
             <button
               key={item.id}
               onClick={() => handleNavClick(item)}
-              className={`w-full flex flex-col items-center justify-center py-3 rounded-2xl transition-all group relative ${
+              className={`w-full flex items-center gap-4 px-5 py-3 rounded-full transition-all ${
                 isActive 
-                  ? 'bg-emerald-50' 
+                  ? 'bg-[#d8e7cb]' 
                   : 'hover:bg-gray-50'
               }`}
-              title={item.label}
             >
-              <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
-                isActive ? 'bg-emerald-600' : 'bg-transparent'
-              }`}>
-                <Icon 
-                  size={18} 
-                  className={isActive ? 'text-white' : 'text-gray-600 group-hover:text-gray-900'} 
-                  strokeWidth={2.5}
-                />
-              </div>
-              <span className={`text-[11px] mt-1 font-medium ${
-                isActive ? 'text-emerald-700' : 'text-gray-500'
+              <Icon 
+                size={18} 
+                className={isActive ? 'text-[#596750]' : 'text-[#42493c]'} 
+                strokeWidth={2}
+              />
+              <span className={`text-[14px] font-medium tracking-[0.1px] leading-5 ${
+                isActive ? 'text-[#596750]' : 'text-[#42493c]'
               }`}>
                 {item.label}
               </span>
             </button>
           );
         })}
+
+        {/* Settings at bottom of nav */}
+        <div className="flex-1 flex flex-col justify-end min-h-[48px] pt-[488px]">
+          <button
+            onClick={() => navigate('/profile')}
+            className="w-full flex items-center gap-4 px-5 py-3 rounded-full hover:bg-gray-50 transition-all"
+          >
+            <Settings size={20} className="text-[#42493c]" strokeWidth={2} />
+            <span className="text-[14px] font-medium tracking-[0.1px] leading-5 text-[#42493c]">
+              Settings
+            </span>
+          </button>
+        </div>
       </nav>
 
-      {/* Bottom Section */}
-      <div className="flex flex-col items-center gap-3 mt-auto pt-4 border-t border-gray-100 w-full px-2">
-        {/* Logout Button */}
-        <button
-          onClick={handleLogout}
-          className="w-12 h-12 rounded-2xl hover:bg-red-50 flex items-center justify-center transition-colors group"
-          title="Đăng xuất"
-        >
-          <LogOut size={18} className="text-gray-400 group-hover:text-red-600" />
+      {/* Join Community Button */}
+      <div className="px-5 pt-6 pb-2">
+        <button className="w-full bg-[#205107] text-white py-3 rounded-full text-[14px] font-medium tracking-[0.1px] leading-5 hover:bg-[#1a4106] transition-colors">
+          Join Community
         </button>
       </div>
     </div>
