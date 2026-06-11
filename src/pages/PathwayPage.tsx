@@ -398,11 +398,16 @@ export function PathwayPage() {
                     ) : (
                       <>
                         {dayContent.videoTutorial && (
-                          <div className="card-dark mb-md flex gap-md items-center">
-                            <Video size={24} color="var(--gv-lime)" />
-                            <div>
-                              <div className="font-semibold text-white">{dayContent.videoTutorial.title}</div>
-                              <div className="text-sm text-secondary">{dayContent.videoTutorial.description}</div>
+                          <div style={{ background: 'var(--md-sys-color-surface-container-high)', borderRadius: 'var(--md-sys-shape-corner-extra-large)', overflow: 'hidden', marginBottom: 'var(--md-sys-space-lg)' }}>
+                            <div style={{ background: '#000', height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                                <Play fill="white" color="white" size={24} style={{ marginLeft: 4 }} />
+                              </div>
+                              <span style={{ position: 'absolute', bottom: 8, right: 12, background: 'rgba(0,0,0,0.6)', color: 'white', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>Mô phỏng Video</span>
+                            </div>
+                            <div style={{ padding: 'var(--md-sys-space-md)' }}>
+                              <div className="font-semibold" style={{ fontSize: 'var(--md-sys-typescale-title-medium-size)', color: 'var(--md-sys-color-on-surface)' }}>{dayContent.videoTutorial.title}</div>
+                              <div className="text-secondary" style={{ fontSize: 'var(--md-sys-typescale-body-medium-size)', marginTop: 4 }}>{dayContent.videoTutorial.description}</div>
                             </div>
                           </div>
                         )}
@@ -410,8 +415,8 @@ export function PathwayPage() {
                           <DayExerciseCard key={ex.exerciseId} exercise={ex} onRecord={() => setRecordingExercise(ex)} />
                         ))}
                         {!isDone && (
-                          <button className="btn btn-success w-full mt-md" onClick={() => handleCheckIn(selectedWeek, day, dayContent.exercises.length)}>
-                            <CheckCircle size={16} /> Chấm công — Hoàn thành ngày {day}
+                          <button className="btn btn-success w-full mt-md" style={{ padding: '16px', fontSize: 'var(--md-sys-typescale-title-small-size)' }} onClick={() => handleCheckIn(selectedWeek, day, dayContent.exercises.length)}>
+                            <CheckCircle size={20} /> Chấm công — Đánh dấu hoàn thành Ngày {day}
                           </button>
                         )}
                       </>

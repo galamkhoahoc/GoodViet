@@ -34,7 +34,7 @@ function IntroPhase({ onStart, isLoading }: { onStart: () => void, isLoading: bo
         lineHeight: 1.8,
         fontSize: 'var(--md-sys-typescale-body-large-size)',
       }}>
-        Bài test gồm <strong>3 giai đoạn</strong> giúp xác định các vấn đề phát âm của bạn:
+        Bài test gồm <strong>3 giai đoạn</strong> giúp phân tích chuyên sâu bởi AI và Chuyên gia:
       </p>
       <div style={{
         display: 'flex',
@@ -357,13 +357,13 @@ function ProcessingPhase() {
   return (
     <div className="processing-container animate-scale-in">
       <div className="processing-spinner" />
-      <h2 style={{ fontSize: 'var(--gv-font-size-2xl)', fontWeight: 700 }}>Đang xử lý kết quả</h2>
-      <p className="text-secondary">{statusText}</p>
+      <h2 style={{ fontSize: 'var(--gv-font-size-2xl)', fontWeight: 700 }}>Hệ thống đang phân tích</h2>
+      <p className="text-secondary mt-md">Vui lòng đợi kết quả sàng lọc khoảng 2-3 phút...</p>
       <div className="progress-bar" style={{ width: 300, marginTop: 'var(--gv-space-md)' }}>
-        <div className="progress-bar-fill" style={{ width: '100%', animation: 'progress-indeterminate 2s infinite linear' }} />
+        <div className="progress-bar-fill" style={{ width: '100%', animation: 'progress 2s infinite' }} />
       </div>
       <p className="text-xs text-muted" style={{ marginTop: 'var(--gv-space-md)' }}>
-        Vui lòng đợi trong giây lát... Hệ thống đang kết nối AI.
+        Dữ liệu đang được đánh giá bởi cả hệ thống AI và đội ngũ Chuyên gia GOODVIET.
       </p>
     </div>
   );
