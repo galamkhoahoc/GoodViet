@@ -1,4 +1,4 @@
-import { Menu, Plus, LayoutDashboard, ClipboardCheck, Dumbbell, Users } from 'lucide-react';
+import { Home, Mic2, MessageSquare, BookOpen, Settings, LogOut } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,12 +10,14 @@ interface NavigationRailProps {
 export function NavigationRail({ activeTab = 'dashboard', onTabChange }: NavigationRailProps) {
   const navigate = useNavigate();
   const user = useAuthStore(s => s.user);
+  const logout = useAuthStore(s => s.logout);
 
   const navItems = [
-    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-    { id: 'assessment', icon: ClipboardCheck, label: 'Assessment', path: '/assessment' },
-    { id: 'practice', icon: Dumbbell, label: 'Practice', path: '/pathway' },
-    { id: 'experts', icon: Users, label: 'Experts', path: '/experts' },
+    { id: 'dashboard', icon: Home, label: 'Trang chủ', path: '/dashboard' },
+    { id: 'assessment', icon: Mic2, label: 'Đánh giá', path: '/assessment' },
+    { id: 'practice', icon: BookOpen, label: 'Luyện tập', path: '/pathway' },
+    { id: 'chat', icon: MessageSquare, label: 'Trò chuyện', path: '/chat' },
+    { id: 'experts', icon: Settings, label: 'Cài đặt', path: '/profile' },
   ];
 
   const handleNavClick = (item: any) => {
@@ -23,25 +25,21 @@ export function NavigationRail({ activeTab = 'dashboard', onTabChange }: Navigat
     if (item.path) navigate(item.path);
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
-    <div className="w-[96px] h-full bg-[#f2f5eb] flex flex-col items-center py-8 shrink-0 shadow-[0px_1px_2px_rgba(0,0,0,0.05)] z-50">
+    <div className="w-24 h-full bg-white border-r border-gray-100 flex flex-col items-center py-6 shrink-0">
       
-      {/* Top Actions */}
-      <div className="flex flex-col items-center gap-6">
-        <button className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors">
-          <Menu size={24} className="text-[#42493c]" />
-        </button>
-        <button 
-          className="w-12 h-12 rounded-full flex items-center justify-center bg-[#386a20] shadow-md text-white hover:bg-[#2d561a] transition-colors"
-          onClick={() => navigate('/chat')}
-          title="New Chat"
-        >
-          <Plus size={24} />
-        </button>
+      {/* Logo */}
+      <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-8">
+        <span className="text-white text-xl font-bold">G</span>
       </div>
 
-      {/* Main Links */}
-      <div className="flex-1 w-full mt-8 flex flex-col items-center gap-2">
+      {/* Main Navigation */}
+      <nav className="flex-1 w-full flex flex-col items-center gap-2 px-2">
         {navItems.map(item => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -49,37 +47,41 @@ export function NavigationRail({ activeTab = 'dashboard', onTabChange }: Navigat
             <button
               key={item.id}
               onClick={() => handleNavClick(item)}
-              className="w-[76px] flex flex-col items-center justify-center py-2 gap-1 rounded-2xl transition-all"
+              className={`w-full flex flex-col items-center justify-center py-3 rounded-2xl transition-all group relative ${
+                isActive 
+                  ? 'bg-emerald-50' 
+                  : 'hover:bg-gray-50'
+              }`}
+              title={item.label}
             >
-              <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${
-                isActive ? 'bg-[#d8e7cb]' : 'hover:bg-black/5'
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
+                isActive ? 'bg-emerald-600' : 'bg-transparent'
               }`}>
-                <Icon size={20} className={isActive ? 'text-[#191d17]' : 'text-[#42493c]'} />
+                <Icon 
+                  size={18} 
+                  className={isActive ? 'text-white' : 'text-gray-600 group-hover:text-gray-900'} 
+                  strokeWidth={2.5}
+                />
               </div>
-              <span className={`text-xs ${isActive ? 'text-[#191d17] font-bold' : 'text-[#42493c] font-medium'}`}>
+              <span className={`text-[11px] mt-1 font-medium ${
+                isActive ? 'text-emerald-700' : 'text-gray-500'
+              }`}>
                 {item.label}
               </span>
             </button>
           );
         })}
-      </div>
+      </nav>
 
-      {/* Bottom Profile */}
-      <div className="mt-auto flex flex-col items-center">
-        <button 
-          onClick={() => {
-            if (onTabChange) onTabChange('profile');
-            navigate('/profile');
-          }}
-          className={`w-12 h-12 rounded-full overflow-hidden flex items-center justify-center shadow-sm border-2 transition-colors ${activeTab === 'profile' ? 'border-[#386a20]' : 'border-transparent hover:border-[#c3c8bc]'}`}
+      {/* Bottom Section */}
+      <div className="flex flex-col items-center gap-3 mt-auto pt-4 border-t border-gray-100 w-full px-2">
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="w-12 h-12 rounded-2xl hover:bg-red-50 flex items-center justify-center transition-colors group"
+          title="Đăng xuất"
         >
-          {user?.avatar ? (
-             <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
-          ) : (
-             <div className="w-full h-full bg-[#386a20] text-white flex items-center justify-center text-lg font-bold">
-               {user?.name?.charAt(0).toUpperCase() || 'U'}
-             </div>
-          )}
+          <LogOut size={18} className="text-gray-400 group-hover:text-red-600" />
         </button>
       </div>
     </div>

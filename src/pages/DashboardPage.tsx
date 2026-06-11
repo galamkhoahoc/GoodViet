@@ -1,286 +1,221 @@
 import { useAuthStore } from '../store/authStore';
-import { Mic, Calendar, Flame, Clock, Target, BookOpen, Route as RouteIcon, Award } from 'lucide-react';
+import { Mic, Bot, Users, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { ExpressiveChart } from '../components/dashboard/ExpressiveChart';
-
-const milestones = [
-  { icon: '🎯', title: 'Hoàn thành GOODVIET Check', done: false }, // We'll override with user data below
-  { icon: '🔥', title: 'Streak 7 ngày liên tiếp', done: false },
-  { icon: '📝', title: 'Ghi âm 10 bài tập', done: false },
-  { icon: '⭐', title: 'Hoàn thành tuần 1', done: true },
-  { icon: '🎓', title: 'Xem 3 video hướng dẫn', done: false },
-  { icon: '🏆', title: 'Hoàn thành lộ trình', done: false },
-];
 
 export function DashboardPage() {
   const user = useAuthStore(s => s.user);
   const navigate = useNavigate();
 
-  const stats = [
-    { icon: Mic, label: 'Tổng ghi âm', value: user?.totalRecordings || 0, shapeClass: 'shape-cookie-4' },
-    { icon: Clock, label: 'Thời gian luyện', value: `${user?.totalPracticeTime || 0}p`, shapeClass: 'shape-blob-1' },
-    { icon: Flame, label: 'Streak hiện tại', value: `${user?.currentStreak || 0} ngày`, shapeClass: 'shape-sunny' },
-    { icon: Calendar, label: 'Streak dài nhất', value: `${user?.longestStreak || 0} ngày`, shapeClass: 'shape-blob-2' },
-  ];
-
-  const updatedMilestones = milestones.map(m => {
-    if (m.title === 'Hoàn thành GOODVIET Check') return { ...m, done: user?.assessmentCompleted || false };
-    if (m.title === 'Streak 7 ngày liên tiếp') return { ...m, done: (user?.currentStreak || 0) >= 7 };
-    if (m.title === 'Ghi âm 10 bài tập') return { ...m, done: (user?.totalRecordings || 0) >= 10 };
-    return m;
-  });
-
   return (
-    <div className="page-container">
-      {/* Page Header */}
-      <div className="page-header-centered">
-        <h1>
-          Xin chào, <span style={{ color: 'var(--md-sys-color-primary)' }}>{user?.name?.split(' ').pop() || 'bạn'}</span>! 👋
-        </h1>
-        <p>
-          Theo dõi tiến bộ và tiếp tục hành trình cải thiện giọng nói
-        </p>
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-7xl mx-auto px-8 py-12">
         
-        {/* Top Section: Organic Stat Cards & Charts */}
-        <div className="grid-cols-2">
-          
-          {/* Left: 2x2 Grid of Organic Shapes */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '24px',
-            maxWidth: '500px',
-            margin: '0 auto'
-          }}>
-            {stats.map((s, i) => (
-              <div key={i} className={s.shapeClass} style={{
-                background: i % 2 === 0 ? 'var(--md-sys-color-secondary-container)' : 'var(--md-sys-color-surface-container-highest)',
-                aspectRatio: '1/1',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                padding: '24px',
-                textAlign: 'center',
-                boxShadow: 'var(--md-sys-elevation-1)',
-                transition: 'transform 0.2s',
-                cursor: 'default'
-              }}
-              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
-              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+        {/* Hero Section */}
+        <section className="relative h-[500px] rounded-[32px] overflow-hidden mb-16 shadow-2xl">
+          {/* Background with gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1200')] bg-cover bg-center opacity-20"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+          </div>
+
+          {/* Hero Content */}
+          <div className="relative z-10 h-full flex flex-col justify-end p-12 max-w-2xl">
+            <h1 className="text-6xl font-bold text-white mb-6 leading-tight">
+              Nền Tảng Luyện Phát Âm Tiếng Việt
+            </h1>
+            <p className="text-xl text-white/90 mb-8 leading-relaxed">
+              Cải thiện kỹ năng phát âm của bạn với công nghệ AI tiên tiến và hướng dẫn từ chuyên gia
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => navigate('/assessment')}
+                className="px-8 py-4 bg-white text-emerald-700 rounded-2xl font-semibold flex items-center gap-2 hover:bg-gray-100 transition-all shadow-lg"
               >
-                <div style={{ 
-                  marginBottom: '12px', 
-                  color: i % 2 === 0 ? 'var(--md-sys-color-on-secondary-container)' : 'var(--md-sys-color-on-surface-variant)' 
-                }}>
-                  <s.icon size={28} />
-                </div>
-                <span style={{ 
-                  fontSize: '2rem', 
-                  fontWeight: 700, 
-                  color: i % 2 === 0 ? 'var(--md-sys-color-on-secondary-container)' : 'var(--md-sys-color-on-surface)', 
-                  lineHeight: 1.2 
-                }}>{s.value}</span>
-                <span style={{ 
-                  fontSize: '1rem', 
-                  color: i % 2 === 0 ? 'var(--md-sys-color-on-secondary-container)' : 'var(--md-sys-color-on-surface-variant)', 
-                  fontWeight: 500,
-                  marginTop: '8px'
-                }}>{s.label}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Right: Expressive Chart */}
-          <div style={{
-            background: 'var(--md-sys-color-surface)',
-            borderRadius: '32px',
-            padding: '32px',
-            boxShadow: 'var(--md-sys-elevation-1)',
-            border: '1px solid var(--md-sys-color-outline-variant)',
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-             <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              marginBottom: '24px'
-            }}>
-              <div style={{ 
-                width: '40px', height: '40px', 
-                background: 'var(--md-sys-color-primary-container)',
-                borderRadius: '50%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: 'var(--md-sys-color-on-primary-container)'
-              }}>
-                <Clock size={24} />
-              </div>
-              <span style={{ fontWeight: 600, fontSize: '1.2rem', color: 'var(--md-sys-color-on-surface)' }}>
-                Thời gian luyện tập (phút/ngày)
-              </span>
-            </div>
-            <ExpressiveChart />
-          </div>
-        </div>
-
-        {/* Bottom Row: Quick Actions & Milestones */}
-        <div className="grid-cols-auto">
-          {/* Quick Actions */}
-          <div style={{
-            background: 'var(--md-sys-color-surface-container-lowest)',
-            borderRadius: '32px',
-            padding: '32px',
-            boxShadow: 'var(--md-sys-elevation-1)',
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--md-sys-space-sm)',
-              marginBottom: 'var(--md-sys-space-xl)',
-            }}>
-              <Target size={24} color="var(--md-sys-color-tertiary)" />
-              <span style={{
-                fontSize: 'var(--md-sys-typescale-title-large-size)',
-                fontWeight: 600,
-                color: 'var(--md-sys-color-on-surface)',
-              }}>
-                Hành động nhanh
-              </span>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {!user?.assessmentCompleted && (
-                <button
-                  onClick={() => navigate('/assessment')}
-                  style={{
-                    width: '100%',
-                    padding: '16px 24px',
-                    background: 'var(--md-sys-color-secondary-container)',
-                    color: 'var(--md-sys-color-on-secondary-container)',
-                    border: 'none',
-                    borderRadius: '999px',
-                    fontSize: '1.1rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '12px',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
-                >
-                  <BookOpen size={20} /> Bắt đầu GOODVIET Check
-                </button>
-              )}
+                Bắt đầu đánh giá
+                <ArrowRight size={20} />
+              </button>
               <button
                 onClick={() => navigate('/pathway')}
-                style={{
-                  width: '100%',
-                  padding: '16px 24px',
-                  background: 'var(--md-sys-color-primary)',
-                  color: 'var(--md-sys-color-on-primary)',
-                  border: 'none',
-                  borderRadius: '999px',
-                  fontSize: '1.1rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '12px',
-                  transition: 'all 0.2s',
-                  boxShadow: 'var(--md-sys-elevation-1)',
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-2)'}
-                onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-1)'}
+                className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-2xl font-semibold hover:bg-white/10 transition-all"
               >
-                <RouteIcon size={20} /> Tiếp tục luyện tập
-              </button>
-              <button
-                onClick={() => navigate('/chat')}
-                style={{
-                  width: '100%',
-                  padding: '16px 24px',
-                  background: 'transparent',
-                  color: 'var(--md-sys-color-primary)',
-                  border: '2px solid var(--md-sys-color-primary)',
-                  borderRadius: '999px',
-                  fontSize: '1.1rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '12px',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--md-sys-color-surface-container)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              >
-                <Mic size={20} /> Chat với GOODVIET Bot
+                Xem lộ trình
               </button>
             </div>
           </div>
+        </section>
 
-          {/* Milestones */}
-          <div style={{
-            background: 'var(--md-sys-color-surface-container-lowest)',
-            borderRadius: '32px',
-            padding: '32px',
-            boxShadow: 'var(--md-sys-elevation-1)',
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--md-sys-space-sm)',
-              marginBottom: 'var(--md-sys-space-xl)',
-            }}>
-              <Award size={24} color="var(--md-sys-color-tertiary)" />
-              <span style={{
-                fontSize: 'var(--md-sys-typescale-title-large-size)',
-                fontWeight: 600,
-                color: 'var(--md-sys-color-on-surface)',
-              }}>
-                Cột mốc đạt được
-              </span>
+        {/* Featured Collections - Bento Grid */}
+        <section className="mb-16">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-4xl font-bold text-gray-900 mb-2">Các Tính Năng Nổi Bật</h2>
+              <p className="text-gray-600">Khám phá những công cụ hỗ trợ học tập hiệu quả</p>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {updatedMilestones.map((m, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '16px',
-                    padding: '16px 20px',
-                    borderRadius: '24px',
-                    background: m.done ? 'var(--md-sys-color-primary-container)' : 'var(--md-sys-color-surface-container)',
-                    border: m.done ? '1px solid var(--md-sys-color-primary)' : '1px solid transparent',
-                    opacity: m.done ? 1 : 0.7,
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  <span style={{ fontSize: '1.5rem' }}>{m.icon}</span>
-                  <span style={{
-                    fontSize: '1rem',
-                    color: m.done ? 'var(--md-sys-color-on-primary-container)' : 'var(--md-sys-color-on-surface-variant)',
-                    fontWeight: m.done ? 600 : 500,
-                    flex: 1,
-                  }}>
-                    {m.title}
-                  </span>
-                  {m.done && <span style={{ fontWeight: 800, color: 'var(--md-sys-color-primary)', fontSize: '1.2rem' }}>✓</span>}
+            <button className="text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1">
+              Xem tất cả
+              <ArrowRight size={16} />
+            </button>
+          </div>
+
+          {/* Bento Grid Layout */}
+          <div className="grid grid-cols-3 gap-6 mb-6">
+            {/* Large Card - AI Assessment */}
+            <div 
+              onClick={() => navigate('/assessment')}
+              className="col-span-2 h-[280px] relative rounded-3xl overflow-hidden cursor-pointer group"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <div className="relative h-full flex flex-col justify-end p-8">
+                <div className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-4 w-fit">
+                  Phổ biến
                 </div>
-              ))}
+                <h3 className="text-4xl font-bold text-white mb-3">Đánh giá giọng nói AI</h3>
+                <p className="text-white/90 text-lg max-w-md">
+                  Phân tích chính xác phát âm với công nghệ trí tuệ nhân tạo tiên tiến
+                </p>
+              </div>
+            </div>
+
+            {/* Tall Card - Personalized Path */}
+            <div 
+              onClick={() => navigate('/pathway')}
+              className="row-span-2 h-[584px] relative rounded-3xl overflow-hidden cursor-pointer group"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-400 to-orange-500"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <div className="relative h-full flex flex-col justify-end p-6">
+                <div className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs font-medium mb-3 w-fit">
+                  Cá nhân hóa
+                </div>
+                <h3 className="text-3xl font-bold text-white mb-2">Lộ trình cá nhân hóa</h3>
+                <p className="text-white/90">
+                  Các bài tập được thiết kế riêng biệt cho từng người dùng trong 1-1.5 tháng.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
+          {/* Bottom Row - Small Cards */}
+          <div className="grid grid-cols-3 gap-6">
+            {/* Chat AI */}
+            <div 
+              onClick={() => navigate('/chat')}
+              className="h-[280px] bg-white rounded-3xl p-6 cursor-pointer hover:shadow-xl transition-all border border-gray-100"
+            >
+              <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center mb-4">
+                <Bot className="text-blue-600" size={24} />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3 mt-16">Trò chuyện cùng AI</h3>
+              <p className="text-gray-600 mb-4">
+                Trợ lý GoodBot luôn sẵn sàng hỗ trợ, động viên và giải đáp thắc mắc.
+              </p>
+              <div className="flex items-center text-emerald-600 font-medium">
+                Bắt đầu chat
+                <ArrowRight className="ml-1" size={14} />
+              </div>
+            </div>
+
+            {/* Expert Connection */}
+            <div 
+              onClick={() => navigate('/experts')}
+              className="h-[280px] bg-white rounded-3xl p-6 cursor-pointer hover:shadow-xl transition-all border border-gray-100"
+            >
+              <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center mb-4">
+                <Users className="text-emerald-600" size={24} />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3 mt-16">Kết nối chuyên gia</h3>
+              <p className="text-gray-600 mb-4">
+                Đặt lịch tư vấn 1:1 trực tiếp với các chuyên gia ngôn ngữ trị liệu hàng đầu.
+              </p>
+              <div className="flex items-center text-emerald-600 font-medium">
+                Tìm chuyên gia
+                <ArrowRight className="ml-1" size={14} />
+              </div>
+            </div>
+
+            {/* Additional Feature */}
+            <div className="h-[280px] bg-gradient-to-br from-teal-50 to-cyan-50 rounded-3xl p-6 border border-teal-100">
+              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mb-4">
+                <Sparkles className="text-teal-600" size={24} />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3 mt-16">Theo dõi tiến độ</h3>
+              <p className="text-gray-600">
+                Xem chi tiết thống kê và tiến bộ của bạn qua từng buổi luyện tập.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Solution Section */}
+        <section className="bg-white rounded-3xl p-12 border border-gray-100 flex gap-12 items-center">
+          <div className="flex-1">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-full text-emerald-700 text-sm font-medium mb-6">
+              <CheckCircle size={16} />
+              Giải pháp hiệu quả
+            </div>
+            <h2 className="text-5xl font-bold text-gray-900 mb-6">
+              Giải Pháp Toàn Diện Cho Giọng Nói
+            </h2>
+            <p className="text-xl text-gray-600 mb-8">
+              GOODVIET kết hợp giữa trí tuệ nhân tạo và chuyên môn lâm sàng để mang lại hiệu quả cao nhất.
+            </p>
+            <ul className="space-y-4 mb-8">
+              <li className="flex items-start gap-3">
+                <CheckCircle className="text-emerald-600 shrink-0 mt-1" size={20} />
+                <span className="text-gray-700">Đánh giá giọng nói tự động với độ chính xác cao</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="text-emerald-600 shrink-0 mt-1" size={20} />
+                <span className="text-gray-700">Lộ trình luyện tập cá nhân hóa phù hợp với từng người</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="text-emerald-600 shrink-0 mt-1" size={20} />
+                <span className="text-gray-700">Hỗ trợ từ chuyên gia ngôn ngữ trị liệu giàu kinh nghiệm</span>
+              </li>
+            </ul>
+            <button 
+              onClick={() => navigate('/assessment')}
+              className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors"
+            >
+              Tìm hiểu thêm
+            </button>
+          </div>
+          <div className="flex-1">
+            <div className="w-full h-[450px] bg-gradient-to-br from-emerald-100 to-teal-100 rounded-3xl"></div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="mt-16 pt-12 border-t border-gray-200">
+          <div className="grid grid-cols-4 gap-12">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">GoodViet</h3>
+              <p className="text-gray-600 text-sm">
+                Nền tảng luyện phát âm Tiếng Việt chuẩn xác với sự hỗ trợ của AI.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-4">Platform</h4>
+              <ul className="space-y-2 text-gray-600 text-sm">
+                <li><button onClick={() => navigate('/dashboard')}>Dashboard</button></li>
+                <li><button onClick={() => navigate('/assessment')}>Assessment</button></li>
+                <li><button onClick={() => navigate('/experts')}>Experts</button></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-4">Hỗ Trợ</h4>
+              <ul className="space-y-2 text-gray-600 text-sm">
+                <li>Contact Support</li>
+                <li>Terms of Service</li>
+                <li>Privacy Policy</li>
+              </ul>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-500 mb-4">© 2024 GoodViet. Một dự án của Phú Quý & TCG Science.</p>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ export function Layout() {
     const path = location.pathname;
     if (path.includes('/chat')) setActiveTab('chat');
     else if (path.includes('/dashboard')) setActiveTab('dashboard');
-    else if (path.includes('/profile')) setActiveTab('profile');
+    else if (path.includes('/profile')) setActiveTab('experts');
     else if (path.includes('/experts')) setActiveTab('experts');
     else if (path.includes('/pathway')) setActiveTab('practice');
     else if (path.includes('/assessment')) setActiveTab('assessment');
@@ -19,9 +19,9 @@ export function Layout() {
   }, [location.pathname]);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#fdfdf5] font-plus-jakarta">
+    <div className="flex h-screen w-full overflow-hidden bg-gray-50">
       <NavigationRail activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="flex-1 overflow-y-auto relative">
+      <main className="flex-1 overflow-y-auto relative bg-white">
         <Outlet />
       </main>
     </div>
