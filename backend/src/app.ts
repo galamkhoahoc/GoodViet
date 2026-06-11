@@ -33,16 +33,25 @@ export function createApp(): Application {
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:", "https://i.pravatar.cc"],
-        connectSrc: ["'self'", env.CORS_ORIGIN],
+        connectSrc: ["'self'", ...env.CORS_ORIGIN.split(',').map(o => o.trim()), "https://*.vercel.app"],
       },
     },
     crossOriginResourcePolicy: { policy: "cross-origin" },
   }));
 
-  // CORS configuration
+  // CORS configuration - support multiple origins
+  const allowedOrigins = env.CORS_ORIGIN.split(',').map(o => o.trim());
   app.use(
     cors({
-      origin: env.CORS_ORIGIN,
+      origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, etc.)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.some(allowed => origin === allowed || origin.endsWith('.vercel.app'))) {
+          callback(null, true);
+        } else {
+          callback(null, false);
+        }
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
       allowedHeaders: ['Content-Type', 'Authorization'],

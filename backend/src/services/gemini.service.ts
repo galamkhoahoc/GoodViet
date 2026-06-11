@@ -13,16 +13,16 @@ export class GeminiService {
   constructor() {
     if (env.GEMINI_API_KEY) {
       this.genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-      // Try gemini-1.5-pro - more stable than flash
+      // Use gemini-2.0-flash - fast, free, and reliable
       this.model = this.genAI.getGenerativeModel({ 
-        model: "gemini-1.5-pro",
+        model: "gemini-2.0-flash",
         generationConfig: {
           temperature: 0.7,
           maxOutputTokens: 500,
         }
       });
       // Use same model for audio
-      this.audioModel = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+      this.audioModel = this.genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     } else {
       console.warn('GEMINI_API_KEY is not set. Gemini Service will run in mock mode.');
     }
@@ -48,7 +48,7 @@ export class GeminiService {
 
       // Format history for Gemini API
       const formattedHistory = history.map(msg => ({
-        role: msg.senderType === 'user' ? 'user' : 'model',
+        role: msg.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: msg.content }],
       }));
 

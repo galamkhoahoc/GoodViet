@@ -211,7 +211,7 @@ export class AssessmentController {
                 const buffer = await StorageService.download(fileIdStr);
                 const audioBase64 = buffer.toString('base64');
                 const mimeType = `audio/${rec.format}`; // e.g., audio/webm or audio/wav
-                const expectedText = getExpectedText(rec.sentenceId);
+                const expectedText = getExpectedText(rec.sentenceId || 'p1-1');
                 const normalizedText = normalizeVietnamese(expectedText);
 
                 const aiResult = await aiService.analyzeAudio(audioBase64, mimeType, normalizedText);
@@ -270,7 +270,7 @@ export class AssessmentController {
                 updatedAssessment.confidenceLevel = 'medium';
                 updatedAssessment.completedAt = new Date();
                 updatedAssessment.pronunciationIssues = [
-                  { type: 'substitution', phoneme: 'L/N', message: 'Cần phân biệt rõ L và N', severity: 'medium' }
+                  { phoneme: 'L/N', severity: 'moderate', description: 'Cần phân biệt rõ L và N', timestamps: [] }
                 ];
                 updatedAssessment.recommendedPathwayId = new mongoose.Types.ObjectId();
                 await updatedAssessment.save();
