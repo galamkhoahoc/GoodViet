@@ -1,6 +1,19 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 /**
+ * Phase Data interfaces
+ */
+interface IPhaseData {
+  sentences: string[];
+  recordings: string[];
+}
+
+interface IPhaseIIIData {
+  recordingId: string;
+  duration: number;
+}
+
+/**
  * Pronunciation Issue interface
  */
 interface IPronunciationIssue {
@@ -22,6 +35,11 @@ export interface IAssessment extends Document {
   // Completion status
   completedAt?: Date;
   phase: 'not_started' | 'phase_1' | 'phase_2' | 'phase_3' | 'processing' | 'completed';
+  
+  // Phase data
+  phaseIData?: IPhaseData;
+  phaseIIData?: IPhaseData;
+  phaseIIIData?: IPhaseIIIData;
   
   // Results (embedded)
   overallScore?: number;
@@ -94,6 +112,29 @@ const AssessmentSchema = new Schema<IAssessment>(
       type: String,
       enum: ['not_started', 'phase_1', 'phase_2', 'phase_3', 'processing', 'completed'],
       default: 'not_started',
+    },
+    
+    // Phase data
+    phaseIData: {
+      type: {
+        sentences: [String],
+        recordings: [String],
+      },
+      default: undefined,
+    },
+    phaseIIData: {
+      type: {
+        sentences: [String],
+        recordings: [String],
+      },
+      default: undefined,
+    },
+    phaseIIIData: {
+      type: {
+        recordingId: String,
+        duration: Number,
+      },
+      default: undefined,
     },
     
     overallScore: {

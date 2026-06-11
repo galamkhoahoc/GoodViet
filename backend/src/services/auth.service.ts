@@ -87,6 +87,8 @@ export class AuthService {
     password: string;
     fullName: string;
     phoneNumber?: string;
+    age?: number;
+    targetGoals?: string;
   }): Promise<{ user: IUser; token: string }> {
     // Check if user already exists
     const existingUser = await User.findOne({ email: data.email });
@@ -103,6 +105,8 @@ export class AuthService {
       passwordHash,
       fullName: data.fullName,
       phoneNumber: data.phoneNumber,
+      age: data.age,
+      targetGoals: data.targetGoals,
       verifiedEmail: true, // For MVP, auto-verify
     });
 

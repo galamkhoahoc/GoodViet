@@ -8,8 +8,11 @@ export interface IExpert extends Document {
   specializations: string[];
   bio: string;
   profileImageUrl?: string;
+  experience: number; // years of experience
   averageRating: number;
   totalRatings: number;
+  totalSessions: number;
+  availability: string[]; // available time slots
   isActive: boolean;
 }
 
@@ -21,8 +24,11 @@ const ExpertSchema = new Schema<IExpert>({
   specializations: { type: [String], default: [] },
   bio: { type: String, required: true },
   profileImageUrl: { type: String },
+  experience: { type: Number, default: 0 },
   averageRating: { type: Number, default: 0 },
   totalRatings: { type: Number, default: 0 },
+  totalSessions: { type: Number, default: 0 },
+  availability: { type: [String], default: [] },
   isActive: { type: Boolean, default: true },
 }, {
   timestamps: true,

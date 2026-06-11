@@ -1,6 +1,7 @@
-import { MessageCircle, BarChart3, Info, Settings, Plus, Menu } from 'lucide-react';
+import { MessageCircle, BarChart3, Info, Settings, Plus, Menu, ClipboardCheck, Route, Users2 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface NavigationRailProps {
   activeTab?: string;
@@ -9,23 +10,26 @@ interface NavigationRailProps {
 
 export function NavigationRail({ activeTab = 'dashboard', onTabChange }: NavigationRailProps) {
   const [expanded, setExpanded] = useState(false);
+  const navigate = useNavigate();
   const user = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
 
   const navItems = [
     { id: 'chat', icon: MessageCircle, label: 'Trò chuyện', path: '/chat' },
-    { id: 'stats', icon: BarChart3, label: 'Khám phá', path: '/dashboard' },
-    { id: 'info', icon: Info, label: 'Thông tin', path: '/profile' },
-    { id: 'settings', icon: Settings, label: 'Cài đặt', path: '/profile' },
+    { id: 'stats', icon: BarChart3, label: 'Trang chủ', path: '/dashboard' },
+    { id: 'assessment', icon: ClipboardCheck, label: 'Đánh giá', path: '/assessment' },
+    { id: 'pathway', icon: Route, label: 'Lộ trình', path: '/pathway' },
+    { id: 'experts', icon: Users2, label: 'Chuyên gia', path: '/experts' },
+    { id: 'info', icon: Info, label: 'Hồ sơ', path: '/profile' },
   ];
 
   const handleNavClick = (item: typeof navItems[0]) => {
     if (onTabChange) {
       onTabChange(item.id);
     }
-    // Also navigate using React Router if needed
-    if (item.path && item.path !== window.location.pathname) {
-      window.location.href = item.path;
+    // Navigate using React Router
+    if (item.path) {
+      navigate(item.path);
     }
   };
 

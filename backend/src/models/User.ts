@@ -10,6 +10,7 @@ export interface IUser extends Document {
   fullName: string;
   phoneNumber?: string;
   dateOfBirth?: Date;
+  age?: number;
   gender?: 'male' | 'female' | 'other';
   
   // Account status
@@ -21,6 +22,12 @@ export interface IUser extends Document {
   profileImageUrl?: string;
   targetGoals?: string;
   learningStyle?: string;
+  
+  // Statistics
+  totalRecordings: number;
+  totalPracticeTime: number;
+  currentStreak: number;
+  longestStreak: number;
   
   // Assessment status
   assessmentCompleted: boolean;
@@ -61,6 +68,11 @@ const UserSchema = new Schema<IUser>(
       match: [/^0\d{9}$/, 'Phone number must be 10 digits starting with 0'],
     },
     dateOfBirth: Date,
+    age: {
+      type: Number,
+      min: [1, 'Age must be at least 1'],
+      max: [150, 'Age cannot exceed 150'],
+    },
     gender: {
       type: String,
       enum: ['male', 'female', 'other'],
@@ -79,6 +91,24 @@ const UserSchema = new Schema<IUser>(
     profileImageUrl: String,
     targetGoals: String,
     learningStyle: String,
+    
+    // Statistics
+    totalRecordings: {
+      type: Number,
+      default: 0,
+    },
+    totalPracticeTime: {
+      type: Number,
+      default: 0,
+    },
+    currentStreak: {
+      type: Number,
+      default: 0,
+    },
+    longestStreak: {
+      type: Number,
+      default: 0,
+    },
     
     assessmentCompleted: {
       type: Boolean,

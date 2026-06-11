@@ -9,10 +9,10 @@ export function ProfilePage() {
   const updateUser = useAuthStore(s => s.updateUser);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
-    name: user?.name || '',
+    fullName: user?.fullName || '',
     age: user?.age?.toString() || '',
-    phone: user?.phone || '',
-    speechDescription: user?.speechDescription || '',
+    phoneNumber: user?.phoneNumber || '',
+    targetGoals: user?.targetGoals || '',
   });
   const [activeTab, setActiveTab] = useState<'profile' | 'history' | 'notifications' | 'privacy'>('profile');
 
@@ -39,10 +39,10 @@ export function ProfilePage() {
 
   const handleSave = () => {
     updateUser({
-      name: form.name,
+      fullName: form.fullName,
       age: parseInt(form.age) || user?.age || 30,
-      phone: form.phone || undefined,
-      speechDescription: form.speechDescription,
+      phoneNumber: form.phoneNumber || undefined,
+      targetGoals: form.targetGoals,
     });
     setEditing(false);
   };
@@ -99,7 +99,7 @@ export function ProfilePage() {
           fontSize: 'var(--md-sys-typescale-headline-large-size)',
           fontWeight: 700,
         }}>
-          {user?.name?.charAt(0).toUpperCase() || 'U'}
+          {user?.fullName?.charAt(0).toUpperCase() || 'U'}
         </div>
         <div style={{ flex: 1, minWidth: 200 }}>
           <h2 style={{
@@ -107,7 +107,7 @@ export function ProfilePage() {
             fontWeight: 700,
             color: 'var(--md-sys-color-on-surface)',
           }}>
-            {user?.name}
+            {user?.fullName}
           </h2>
           <p style={{
             fontSize: 'var(--md-sys-typescale-body-large-size)',
@@ -127,9 +127,9 @@ export function ProfilePage() {
             <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--md-sys-space-xs)' }}>
               <Calendar size={14} /> {user?.age} tuổi
             </span>
-            {user?.phone && (
+            {user?.phoneNumber && (
               <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--md-sys-space-xs)' }}>
-                <Phone size={14} /> {user.phone}
+                <Phone size={14} /> {user.phoneNumber}
               </span>
             )}
             <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--md-sys-space-xs)' }}>
@@ -287,8 +287,8 @@ export function ProfilePage() {
               </label>
               {editing ? (
                 <input
-                  value={form.name}
-                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                  value={form.fullName}
+                  onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -308,7 +308,7 @@ export function ProfilePage() {
                   background: 'var(--md-sys-color-surface-container-high)',
                   borderRadius: 'var(--md-sys-shape-corner-small)',
                 }}>
-                  {user?.name}
+                  {user?.fullName}
                 </div>
               )}
             </div>
@@ -385,8 +385,8 @@ export function ProfilePage() {
               </label>
               {editing ? (
                 <input
-                  value={form.phone}
-                  onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                  value={form.phoneNumber}
+                  onChange={e => setForm(f => ({ ...f, phoneNumber: e.target.value }))}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -406,7 +406,7 @@ export function ProfilePage() {
                   background: 'var(--md-sys-color-surface-container-high)',
                   borderRadius: 'var(--md-sys-shape-corner-small)',
                 }}>
-                  {user?.phone || '—'}
+                  {user?.phoneNumber || '—'}
                 </div>
               )}
             </div>
@@ -424,8 +424,8 @@ export function ProfilePage() {
             </label>
             {editing ? (
               <textarea
-                value={form.speechDescription}
-                onChange={e => setForm(f => ({ ...f, speechDescription: e.target.value }))}
+                value={form.targetGoals}
+                onChange={e => setForm(f => ({ ...f, targetGoals: e.target.value }))}
                 style={{
                   width: '100%',
                   padding: '12px 16px',
@@ -449,7 +449,7 @@ export function ProfilePage() {
                 borderRadius: 'var(--md-sys-shape-corner-small)',
                 minHeight: 100,
               }}>
-                {user?.speechDescription || '—'}
+                {user?.targetGoals || '—'}
               </div>
             )}
           </div>

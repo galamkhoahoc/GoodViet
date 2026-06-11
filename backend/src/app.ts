@@ -14,6 +14,8 @@ import assessmentRoutes from './routes/assessment.routes';
 import chatRoutes from './routes/chat.routes';
 import practiceRoutes from './routes/practice.routes';
 import expertRoutes from './routes/expert.routes';
+import expertConnectionRoutes from './routes/expert-connection.routes';
+import expertSessionRoutes from './routes/expert-session.routes';
 import notificationRoutes from './routes/notification.routes';
 
 /**
@@ -100,6 +102,8 @@ export function createApp(): Application {
   app.use('/api/chat', chatRoutes);
   app.use('/api/practice', practiceRoutes);
   app.use('/api/experts', expertRoutes);
+  app.use('/api/expert-connections', expertConnectionRoutes);
+  app.use('/api/expert-sessions', expertSessionRoutes);
   app.use('/api/notifications', notificationRoutes);
 
   // 404 handler

@@ -7,7 +7,9 @@ const router = Router();
 // Apply auth middleware
 router.use(authMiddleware);
 
-// Only expert listing endpoint
-router.get('/', ExpertController.getExperts);
+// Expert session routes (mounted at /api/expert-sessions)
+router.post('/', ExpertController.bookSession);
+router.get('/', ExpertController.getSessions);
+router.patch('/:id/rate', ExpertController.rateSession);
 
 export default router;

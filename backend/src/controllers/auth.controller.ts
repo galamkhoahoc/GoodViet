@@ -16,7 +16,7 @@ export class AuthController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const { email, password, fullName, phoneNumber } = req.body;
+      const { email, password, fullName, phoneNumber, age, targetGoals } = req.body;
 
       // Register user
       const { user, token } = await AuthService.register({
@@ -24,6 +24,8 @@ export class AuthController {
         password,
         fullName,
         phoneNumber,
+        age,
+        targetGoals,
       });
 
       // Send response (exclude passwordHash)
@@ -33,6 +35,12 @@ export class AuthController {
           email: user.email,
           fullName: user.fullName,
           phoneNumber: user.phoneNumber,
+          age: user.age,
+          targetGoals: user.targetGoals,
+          totalRecordings: user.totalRecordings,
+          totalPracticeTime: user.totalPracticeTime,
+          currentStreak: user.currentStreak,
+          longestStreak: user.longestStreak,
           createdAt: user.createdAt,
         },
         token,
@@ -68,8 +76,14 @@ export class AuthController {
           email: user.email,
           fullName: user.fullName,
           phoneNumber: user.phoneNumber,
+          age: user.age,
+          targetGoals: user.targetGoals,
           assessmentCompleted: user.assessmentCompleted,
           currentPathwayId: user.currentPathwayId,
+          totalRecordings: user.totalRecordings,
+          totalPracticeTime: user.totalPracticeTime,
+          currentStreak: user.currentStreak,
+          longestStreak: user.longestStreak,
           lastLoginAt: user.lastLoginAt,
         },
         token,

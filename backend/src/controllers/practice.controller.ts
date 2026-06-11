@@ -302,4 +302,38 @@ export class PracticeController {
       next(error);
     }
   }
+
+  /**
+   * POST /api/practice/recording
+   * Upload practice recording (delegates to audio service)
+   */
+  static async uploadRecording(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const userId = req.userId;
+      if (!userId) throw new AppError(401, 'Unauthorized');
+
+      const { exerciseId, week, day, audioData } = req.body;
+
+      if (!exerciseId || !week || !day) {
+        throw new AppError(400, 'Missing required fields: exerciseId, week, day');
+      }
+
+      // This endpoint should delegate to audio service
+      // For now, return a placeholder response
+      res.status(200).json({
+        success: true,
+        message: 'Recording uploaded successfully',
+        recordingId: new mongoose.Types.ObjectId().toString(),
+        exerciseId,
+        week,
+        day,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

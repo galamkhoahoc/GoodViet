@@ -56,9 +56,29 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const response: any = await apiClient.post('/api/users/login', { email, password });
       
       if (response && response.token && response.user) {
+        // Map backend response to frontend User interface
+        const mappedUser: User = {
+          userId: response.user.id,
+          email: response.user.email,
+          fullName: response.user.fullName,
+          age: response.user.age || 0,
+          phoneNumber: response.user.phoneNumber,
+          targetGoals: response.user.targetGoals,
+          assessmentCompleted: response.user.assessmentCompleted || false,
+          currentPathwayId: response.user.currentPathwayId,
+          totalRecordings: response.user.totalRecordings || 0,
+          totalPracticeTime: response.user.totalPracticeTime || 0,
+          currentStreak: response.user.currentStreak || 0,
+          longestStreak: response.user.longestStreak || 0,
+          createdAt: response.user.createdAt || new Date().toISOString(),
+          lastLoginAt: response.user.lastLoginAt || new Date().toISOString(),
+          isActive: response.user.isActive !== undefined ? response.user.isActive : true,
+          verifiedEmail: response.user.verifiedEmail !== undefined ? response.user.verifiedEmail : false,
+        };
+        
         localStorage.setItem(TOKEN_KEY, response.token);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(response.user));
-        set({ user: response.user, isAuthenticated: true });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(mappedUser));
+        set({ user: mappedUser, isAuthenticated: true });
         
         // Trigger migration if needed
         const { MigrationService } = await import('../services/storage/migrator');
@@ -79,13 +99,41 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const { apiClient } = await import('../services/api/apiClient');
       
-      // Data is already prepared by RegisterPage, just pass it through
-      const response: any = await apiClient.post('/api/users/register', data);
+      // Map frontend data to backend expected format
+      const backendData = {
+        email: data.email,
+        password: data.password,
+        fullName: data.fullName,
+        phoneNumber: data.phoneNumber,
+        age: data.age,
+        targetGoals: data.targetGoals,
+      };
+      
+      const response: any = await apiClient.post('/api/users/register', backendData);
       
       if (response && response.token && response.user) {
+        // Map backend response to frontend User interface
+        const mappedUser: User = {
+          userId: response.user.id,
+          email: response.user.email,
+          fullName: response.user.fullName,
+          age: response.user.age || 0,
+          phoneNumber: response.user.phoneNumber,
+          targetGoals: response.user.targetGoals,
+          assessmentCompleted: false,
+          totalRecordings: response.user.totalRecordings || 0,
+          totalPracticeTime: response.user.totalPracticeTime || 0,
+          currentStreak: response.user.currentStreak || 0,
+          longestStreak: response.user.longestStreak || 0,
+          createdAt: response.user.createdAt || new Date().toISOString(),
+          lastLoginAt: new Date().toISOString(),
+          isActive: true,
+          verifiedEmail: true,
+        };
+        
         localStorage.setItem(TOKEN_KEY, response.token);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(response.user));
-        set({ user: response.user, isAuthenticated: true });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(mappedUser));
+        set({ user: mappedUser, isAuthenticated: true });
         return true;
       }
       return false;

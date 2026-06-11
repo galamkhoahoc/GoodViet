@@ -239,16 +239,16 @@ export function ExpertPage() {
                       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--md-sys-typescale-headline-small-size)',
                       overflow: 'hidden'
                     }}>
-                      {expert.profileImage ? <img src={expert.profileImage} alt={expert.fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : expert.fullName.charAt(0)}
+                      {expert.profileImageUrl ? <img src={expert.profileImageUrl} alt={expert.fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : expert.fullName.charAt(0)}
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 'var(--md-sys-typescale-title-medium-size)', fontWeight: 500, color: 'var(--md-sys-color-on-surface)' }}>
                         {expert.fullName}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--md-sys-space-sm)', marginTop: 'var(--md-sys-space-xs)' }}>
-                        <StarRating rating={Math.round(expert.rating)} />
+                        <StarRating rating={Math.round(expert.averageRating)} />
                         <span style={{ fontSize: 'var(--md-sys-typescale-body-small-size)', fontWeight: 500, color: 'var(--md-sys-color-on-surface)' }}>
-                          {expert.rating}
+                          {expert.averageRating.toFixed(1)}
                         </span>
                       </div>
                     </div>

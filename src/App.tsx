@@ -6,6 +6,7 @@ import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { ToastContainer } from './components/common/Toast';
 import { useSyncStore } from './services/storage/syncManager';
+import { autoMigrateOnLoad } from './utils/userDataMigration';
 
 // Lazy-loaded pages for code splitting
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
@@ -82,6 +83,8 @@ export default function App() {
   const destroySync = useSyncStore(s => s.destroy);
 
   useEffect(() => {
+    // Run migration before loading user data
+    autoMigrateOnLoad();
     loadFromStorage();
   }, [loadFromStorage]);
 
