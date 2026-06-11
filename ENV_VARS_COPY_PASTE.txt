@@ -1,0 +1,132 @@
+════════════════════════════════════════════════════════════════
+  BACKEND ENVIRONMENT VARIABLES - COPY/PASTE
+════════════════════════════════════════════════════════════════
+
+Hướng dẫn:
+1. Vào Vercel Dashboard → Backend Project
+2. Settings → Environment Variables
+3. Click "Add New"
+4. Copy Name và Value từ dưới đây
+5. Paste vào Vercel
+6. Click "Save"
+7. Lặp lại cho 7 biến
+
+════════════════════════════════════════════════════════════════
+
+VARIABLE 1:
+-----------
+Name:
+MONGODB_URI
+
+Value:
+mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true&w=majority
+
+════════════════════════════════════════════════════════════════
+
+VARIABLE 2:
+-----------
+Name:
+JWT_SECRET
+
+Value:
+goodviet-super-secret-jwt-key-change-in-production-2024
+
+════════════════════════════════════════════════════════════════
+
+VARIABLE 3:
+-----------
+Name:
+GEMINI_API_KEY
+
+Value:
+AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q
+
+════════════════════════════════════════════════════════════════
+
+VARIABLE 4:
+-----------
+Name:
+AI_SERVICE
+
+Value:
+gemini
+
+════════════════════════════════════════════════════════════════
+
+VARIABLE 5:
+-----------
+Name:
+CORS_ORIGIN
+
+Value:
+*
+
+════════════════════════════════════════════════════════════════
+
+VARIABLE 6:
+-----------
+Name:
+NODE_ENV
+
+Value:
+production
+
+════════════════════════════════════════════════════════════════
+
+VARIABLE 7:
+-----------
+Name:
+PORT
+
+Value:
+3000
+
+════════════════════════════════════════════════════════════════
+
+FRONTEND ENVIRONMENT VARIABLES - COPY/PASTE
+════════════════════════════════════════════════════════════════
+
+VARIABLE 1:
+-----------
+Name:
+VITE_API_URL
+
+Value:
+https://your-backend-url.vercel.app
+↑↑↑ THAY BẰNG BACKEND URL THẬT CỦA BẠN ↑↑↑
+
+════════════════════════════════════════════════════════════════
+
+VARIABLE 2:
+-----------
+Name:
+VITE_USE_MOCK_API
+
+Value:
+false
+
+════════════════════════════════════════════════════════════════
+
+✅ CHECKLIST:
+
+Backend (7 biến):
+□ MONGODB_URI
+□ JWT_SECRET
+□ GEMINI_API_KEY
+□ AI_SERVICE
+□ CORS_ORIGIN
+□ NODE_ENV
+□ PORT
+
+Frontend (2 biến):
+□ VITE_API_URL
+□ VITE_USE_MOCK_API
+
+════════════════════════════════════════════════════════════════
+
+⏱️ THỜI GIAN DỰ KIẾN: 5-7 phút (cho 9 biến)
+
+💡 MẸO: Mở file này ở một cửa sổ, mở Vercel ở cửa sổ khác
+để copy/paste nhanh hơn.
+
+════════════════════════════════════════════════════════════════
