@@ -17,8 +17,8 @@ export function ProfilePage() {
   return (
     <div className="w-full max-w-[1440px] mx-auto p-4 md:p-8 lg:p-12 font-plus-jakarta pb-20">
       {/* Page Header */}
-      <div className="mb-10">
-        <h1 className="text-4xl md:text-[57px] font-normal leading-tight md:leading-[64px] text-[#191d17] tracking-[-0.25px] mb-2">
+      <div className="mb-8 lg:mb-10">
+        <h1 className="text-3xl lg:text-4xl xl:text-[57px] font-normal leading-tight xl:leading-[64px] text-[#191d17] tracking-[-0.25px] mb-2">
           Account Settings
         </h1>
         <p className="text-[#42493c] text-base tracking-[0.5px] leading-6">
@@ -27,9 +27,9 @@ export function ProfilePage() {
       </div>
 
       {/* Grid Layout */}
-      <div className="grid grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 xl:gap-8">
         {/* Left Column - Profile Overview */}
-        <div className="col-span-12 md:col-span-4 space-y-6">
+        <div className="col-span-1 xl:col-span-4 space-y-6">
           {/* User Profile Card */}
           <div className="bg-white border border-[#e0e4da] rounded-[28px] shadow-sm p-6 relative overflow-hidden">
             {/* Header Background */}
@@ -106,11 +106,11 @@ export function ProfilePage() {
         </div>
 
         {/* Right Column - Settings Details */}
-        <div className="col-span-12 md:col-span-8 space-y-8">
+        <div className="col-span-1 xl:col-span-8 space-y-6 xl:space-y-8">
           {/* Personal Information Form */}
-          <div className="bg-white border border-[#e0e4da] rounded-[28px] shadow-sm p-6 md:p-8">
+          <div className="bg-white border border-[#e0e4da] rounded-[28px] shadow-sm p-6 lg:p-8">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl md:text-[22px] font-medium text-[#191d17] leading-7">Personal Information</h3>
+              <h3 className="text-xl lg:text-[22px] font-medium text-[#191d17] leading-7">Personal Information</h3>
               <button 
                 onClick={() => setEditing(!editing)}
                 className="text-sm font-medium text-[#205107] tracking-[0.1px] hover:underline"
@@ -119,7 +119,7 @@ export function ProfilePage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <label className="block text-xs font-medium text-[#42493c] tracking-[0.5px] mb-2 pl-4">
                   First Name
@@ -144,7 +144,7 @@ export function ProfilePage() {
                   className="w-full bg-[#e1e3cf] px-6 py-4 rounded-[28px] text-[#191d17] text-base tracking-[0.5px] leading-6 focus:outline-none focus:ring-2 focus:ring-[#205107] disabled:opacity-70 transition-all"
                 />
               </div>
-              <div className="col-span-1 md:col-span-2">
+              <div className="col-span-1 lg:col-span-2">
                 <label className="block text-xs font-medium text-[#42493c] tracking-[0.5px] mb-2 pl-4">
                   Bio
                 </label>
@@ -160,14 +160,14 @@ export function ProfilePage() {
           </div>
 
           {/* Preferences Bento Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 xl:gap-8">
             {/* Language & Region */}
-            <div className="bg-white border border-[#e0e4da] rounded-[28px] shadow-sm p-6 md:p-8">
+            <div className="bg-white border border-[#e0e4da] rounded-[28px] shadow-sm p-6 lg:p-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-[#d8e7cb] rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-[#d8e7cb] rounded-full flex items-center justify-center shrink-0">
                   <Globe size={20} className="text-[#205107]" />
                 </div>
-                <h3 className="text-xl md:text-[22px] font-medium text-[#191d17] leading-7">
+                <h3 className="text-xl lg:text-[22px] font-medium text-[#191d17] leading-7">
                   Language &<br/>Region
                 </h3>
               </div>
@@ -195,12 +195,12 @@ export function ProfilePage() {
             </div>
 
             {/* Notifications */}
-            <div className="bg-white border border-[#e0e4da] rounded-[28px] shadow-sm p-6 md:p-8">
+            <div className="bg-white border border-[#e0e4da] rounded-[28px] shadow-sm p-6 lg:p-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-[#386666] rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-[#386666] rounded-full flex items-center justify-center shrink-0">
                   <Bell size={20} className="text-white" />
                 </div>
-                <h3 className="text-xl md:text-[22px] font-medium text-[#191d17] leading-7">Notifications</h3>
+                <h3 className="text-xl lg:text-[22px] font-medium text-[#191d17] leading-7">Notifications</h3>
               </div>
 
               <div className="space-y-5">
@@ -250,12 +250,12 @@ export function ProfilePage() {
           </div>
 
           {/* Security Section */}
-          <div className="bg-white border border-[#e0e4da] rounded-[28px] shadow-sm p-6 md:p-8">
+          <div className="bg-white border border-[#e0e4da] rounded-[28px] shadow-sm p-6 lg:p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-[#ffdad6] rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-[#ffdad6] rounded-full flex items-center justify-center shrink-0">
                 <Shield size={20} className="text-[#ba1a1a]" />
               </div>
-              <h3 className="text-xl md:text-[22px] font-medium text-[#191d17] leading-7">Account Security</h3>
+              <h3 className="text-xl lg:text-[22px] font-medium text-[#191d17] leading-7">Account Security</h3>
             </div>
 
             <div className="space-y-4">
