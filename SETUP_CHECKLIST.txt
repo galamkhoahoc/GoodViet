@@ -1,0 +1,121 @@
+================================================================================
+⚡ SETUP CHECKLIST - LÀM THEO THỨ TỰ
+================================================================================
+
+□ BƯỚC 1: LẤY GEMINI API KEY (2 phút)
+  
+  1. Mở browser: https://aistudio.google.com/app/apikey
+  2. Đăng nhập Google
+  3. Click "Create API Key"
+  4. COPY key (dạng: AIzaSy...)
+  5. ✅ Done - GIỮ KEY NÀY
+
+□ BƯỚC 2: ĐIỀN GEMINI KEY VÀO BACKEND (30 giây)
+  
+  1. Mở file: backend\.env
+  2. Tìm dòng: GEMINI_API_KEY=your-gemini-api-key-here
+  3. Thay bằng: GEMINI_API_KEY=AIzaSy...  (paste key)
+  4. Save file (Ctrl+S)
+  5. ✅ Done
+
+□ BƯỚC 3: ĐIỀN MONGODB (TÙY CHỌN)
+  
+  Option A - Dùng MongoDB Atlas:
+    1. Mở file: backend\.env
+    2. Tìm dòng: MONGODB_URI=...
+    3. Thay bằng connection string của bạn
+    4. Save
+    5. ✅ Done
+  
+  Option B - Dùng Local MongoDB:
+    MONGODB_URI=mongodb://localhost:27017/goodviet
+
+□ BƯỚC 4: CÀI ĐẶT VÀ CHẠY BACKEND (2 phút)
+  
+  Mở Terminal/CMD:
+  
+  cd C:\Users\trand\Downloads\Good_Viet_proj\GoodViet\backend
+  npm install
+  npm run dev
+  
+  Chờ: "🚀 Server running on http://localhost:3000"
+  ✅ Done - GIỮ TERMINAL NÀY MỞ
+
+□ BƯỚC 5: CÀI ĐẶT VÀ CHẠY FRONTEND (2 phút)
+  
+  Mở Terminal/CMD MỚI:
+  
+  cd C:\Users\trand\Downloads\Good_Viet_proj\GoodViet
+  npm install
+  npm run dev
+  
+  Chờ: "Local: http://localhost:5173"
+  ✅ Done - GIỮ TERMINAL NÀY MỞ
+
+□ BƯỚC 6: MỞ VÀ TEST (1 phút)
+  
+  1. Mở browser: http://localhost:5173
+  2. Login hoặc Register
+  3. Click "Trò chuyện"
+  4. Gõ: "Xin chào"
+  5. Bot trả lời! ✅ Success!
+
+□ BƯỚC 7: ADD KEY VÀO VERCEL (5 phút)
+  
+  1. Mở: https://vercel.com/dashboard
+  2. Chọn project backend
+  3. Settings → Environment Variables
+  4. Add New:
+     Name: GEMINI_API_KEY
+     Value: (paste key)
+     Environments: ✅ ALL
+     Save
+  5. Add New:
+     Name: AI_SERVICE
+     Value: gemini
+     Environments: ✅ ALL
+     Save
+  ✅ Done
+
+□ BƯỚC 8: PUSH CODE VÀ DEPLOY (2 phút)
+  
+  Mở Terminal/CMD:
+  
+  cd C:\Users\trand\Downloads\Good_Viet_proj\GoodViet
+  git add .
+  git commit -m "fix: add AI service fallback"
+  git push origin main
+  
+  ✅ Done - Chờ Vercel deploy (1-2 phút)
+
+□ BƯỚC 9: REDEPLOY VERCEL (1 phút)
+  
+  1. Vercel → Deployments
+  2. Latest deployment → "..."
+  3. Click "Redeploy"
+  4. ✅ Use existing Build Cache
+  5. Click "Redeploy"
+  6. Chờ "Ready" ✅
+
+□ BƯỚC 10: TEST PRODUCTION (1 phút)
+  
+  1. Mở: https://good-viet-33rp.vercel.app
+  2. Login
+  3. Click "Trò chuyện"
+  4. Gõ: "Xin chào"
+  5. Bot trả lời! ✅ Production Works!
+
+================================================================================
+✅ ALL DONE! CONGRATULATIONS! 🎉
+================================================================================
+
+Local: http://localhost:5173
+Production: https://good-viet-33rp.vercel.app
+
+Bot hoạt động ✅
+Assessment hoạt động ✅
+Navigation hoạt động ✅
+
+ENJOY! 🚀
+
+================================================================================
