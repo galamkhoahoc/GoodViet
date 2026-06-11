@@ -9,74 +9,76 @@
 
 /* ============= MATERIAL DESIGN 3 COLOR TOKENS ============= */
 :root {
-    /* Primary - Blue */
-    --md-sys-color-primary: #415F91;
-    --md-sys-color-on-primary: #FFFFFF;
-    --md-sys-color-primary-container: #D6E3FF;
-    --md-sys-color-on-primary-container: #284777;
+    /* Primary - Sage Green */
+    --md-sys-color-primary: #386a20;
+    --md-sys-color-on-primary: #ffffff;
+    --md-sys-color-primary-container: #bdf59b; /* Vibrant light green */
+    --md-sys-color-on-primary-container: #052100;
 
-    /* Secondary - Muted Blue */
-    --md-sys-color-secondary: #565F71;
-    --md-sys-color-on-secondary: #FFFFFF;
-    --md-sys-color-secondary-container: #DAE2F9;
-    --md-sys-color-on-secondary-container: #3E4759;
+    /* Secondary - Muted Green */
+    --md-sys-color-secondary: #55624c;
+    --md-sys-color-on-secondary: #ffffff;
+    --md-sys-color-secondary-container: #d8e7cb; /* Used for active pill */
+    --md-sys-color-on-secondary-container: #131f0d;
 
-    /* Tertiary - Purple Accent */
-    --md-sys-color-tertiary: #705575;
-    --md-sys-color-on-tertiary: #FFFFFF;
-    --md-sys-color-tertiary-container: #FAD8FD;
-    --md-sys-color-on-tertiary-container: #573E5C;
+    /* Tertiary - Teal Accent */
+    --md-sys-color-tertiary: #386666;
+    --md-sys-color-on-tertiary: #ffffff;
+    --md-sys-color-tertiary-container: #bbecec;
+    --md-sys-color-on-tertiary-container: #002020;
 
-    /* Surface Colors - M3 Surface Container Hierarchy */
-    --md-sys-color-surface: #F9F9FF;
-    --md-sys-color-on-surface: #191C20;
-    --md-sys-color-surface-dim: #D9D9E0;
-    --md-sys-color-surface-bright: #F9F9FF;
-    --md-sys-color-surface-variant: #E0E2EC;
-    --md-sys-color-on-surface-variant: #44474E;
-    --md-sys-color-surface-container-lowest: #FFFFFF;
-    --md-sys-color-surface-container-low: #F3F3FA;
-    --md-sys-color-surface-container: #EDEDF4;
-    --md-sys-color-surface-container-high: #E7E8EE;
-    --md-sys-color-surface-container-highest: #E2E2E9;
+    /* Surface Colors - M3 Surface Container Hierarchy (Matches Image 2 exactly) */
+    --md-sys-color-surface: #f8f9eb;
+    --md-sys-color-on-surface: #1a1c18;
+    --md-sys-color-surface-dim: #d8dad0;
+    --md-sys-color-surface-bright: #f8f9eb;
+    --md-sys-color-surface-variant: #dfe4d3;
+    --md-sys-color-on-surface-variant: #43483e;
+    
+    /* Exact Surface Layers mapped from visual reference */
+    --md-sys-color-surface-container-lowest: #ffffff;    /* Chat Content */
+    --md-sys-color-surface-container-low: #f3f6e8;       /* Main Wrapper */
+    --md-sys-color-surface-container: #edeeda;           /* Navigation Rail */
+    --md-sys-color-surface-container-high: #e7e8d5;      /* Elevated items */
+    --md-sys-color-surface-container-highest: #e1e3cf;   /* Search bar / Input */
 
     /* Background */
-    --md-sys-color-background: #F9F9FF;
-    --md-sys-color-on-background: #191C20;
+    --md-sys-color-background: #fdfdf5;
+    --md-sys-color-on-background: #1a1c18;
 
     /* Outline */
-    --md-sys-color-outline: #74777F;
-    --md-sys-color-outline-variant: #C4C6D0;
+    --md-sys-color-outline: #74796d;
+    --md-sys-color-outline-variant: #c3c8bc;
 
     /* Error */
-    --md-sys-color-error: #BA1A1A;
-    --md-sys-color-on-error: #FFFFFF;
-    --md-sys-color-error-container: #FFDAD6;
-    --md-sys-color-on-error-container: #93000A;
+    --md-sys-color-error: #ba1a1a;
+    --md-sys-color-on-error: #ffffff;
+    --md-sys-color-error-container: #ffdad6;
+    --md-sys-color-on-error-container: #410002;
 
     /* Inverse */
-    --md-sys-color-inverse-surface: #2E3036;
-    --md-sys-color-inverse-on-surface: #F0F0F7;
-    --md-sys-color-inverse-primary: #AAC7FF;
+    --md-sys-color-inverse-surface: #2e312c;
+    --md-sys-color-inverse-on-surface: #f0f1e8;
+    --md-sys-color-inverse-primary: #a2d881;
 
     /* Shadow & Scrim */
     --md-sys-color-shadow: #000000;
     --md-sys-color-scrim: #000000;
-    --md-sys-color-surface-tint: #415F91;
+    --md-sys-color-surface-tint: #386a20;
 
-    /* Fixed Accent Colors (same in light/dark themes) */
-    --md-sys-color-primary-fixed: #D6E3FF;
-    --md-sys-color-primary-fixed-dim: #AAC7FF;
-    --md-sys-color-on-primary-fixed: #001B3E;
-    --md-sys-color-on-primary-fixed-variant: #284777;
-    --md-sys-color-secondary-fixed: #DAE2F9;
-    --md-sys-color-secondary-fixed-dim: #BEC6DC;
-    --md-sys-color-on-secondary-fixed: #131C2B;
-    --md-sys-color-on-secondary-fixed-variant: #3E4759;
-    --md-sys-color-tertiary-fixed: #FAD8FD;
-    --md-sys-color-tertiary-fixed-dim: #DDBCE0;
-    --md-sys-color-on-tertiary-fixed: #28132E;
-    --md-sys-color-on-tertiary-fixed-variant: #573E5C;
+    /* Fixed Accent Colors */
+    --md-sys-color-primary-fixed: #bdf59b;
+    --md-sys-color-primary-fixed-dim: #a2d881;
+    --md-sys-color-on-primary-fixed: #052100;
+    --md-sys-color-on-primary-fixed-variant: #1e5107;
+    --md-sys-color-secondary-fixed: #d8e7cb;
+    --md-sys-color-secondary-fixed-dim: #bccbb0;
+    --md-sys-color-on-secondary-fixed: #131f0d;
+    --md-sys-color-on-secondary-fixed-variant: #3e4a36;
+    --md-sys-color-tertiary-fixed: #bbecec;
+    --md-sys-color-tertiary-fixed-dim: #a0cfcf;
+    --md-sys-color-on-tertiary-fixed: #002020;
+    --md-sys-color-on-tertiary-fixed-variant: #1e4e4e;
 
     /* ============= ELEVATION (Shadows) ============= */
     --md-sys-elevation-0: none;

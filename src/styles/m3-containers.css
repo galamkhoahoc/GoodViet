@@ -18,7 +18,7 @@
 
 /* ===== SURFACE 0: Body/Background (Darkest) ===== */
 body {
-    background: var(--md-sys-color-surface-dim) !important;
+    background: var(--md-sys-color-surface-container) !important;
     margin: 0;
     padding: 0;
 }
@@ -75,15 +75,17 @@ body {
 }
 
 /* ===== SURFACE 2: Main Content Area Container ===== */
-/* chat-main is now a transparent container for all tabs */
+/* chat-main is now the distinct white card floating inside the wrapper */
 .chat-main {
-    background: transparent !important;
+    background: var(--md-sys-color-surface-container-lowest) !important;
     border-radius: 28px !important;
-    margin: 12px !important;
+    margin: 16px !important; /* Margin on all sides to float it */
     overflow-x: hidden !important;
     overflow-y: auto !important;
     position: relative;
     z-index: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ===== CHAT TAB - Has the bright background ===== */
@@ -94,13 +96,13 @@ body {
 
 /* Chat Header - matches chat tab */
 .chat-header {
-    background: var(--md-sys-color-surface-container-lowest) !important;
-    border-bottom: none !important;
+    background: transparent !important;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant) !important;
 }
 
 /* Messages Area */
 .messages-area {
-    background: var(--md-sys-color-surface-container-lowest) !important;
+    background: transparent !important;
 }
 
 /* ===== EXPLORE & SETTINGS TABS - Transparent ===== */
