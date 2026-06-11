@@ -80,7 +80,8 @@ body {
     background: transparent !important;
     border-radius: 28px !important;
     margin: 12px !important;
-    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
     position: relative;
     z-index: 1;
 }
