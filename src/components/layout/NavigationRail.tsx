@@ -1,5 +1,4 @@
-import { Home, Mic2, Users, BookOpen, Settings } from 'lucide-react';
-import { useAuthStore } from '../../store/authStore';
+import { Home, Compass, Edit3, MessageSquare, User, Settings as SettingsIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface NavigationRailProps {
@@ -11,10 +10,12 @@ export function NavigationRail({ activeTab = 'dashboard', onTabChange }: Navigat
   const navigate = useNavigate();
 
   const navItems = [
-    { id: 'dashboard', icon: Home, label: 'Home', path: '/dashboard' },
-    { id: 'assessment', icon: Mic2, label: 'Assessment', path: '/assessment' },
-    { id: 'practice', icon: BookOpen, label: 'Practice', path: '/pathway' },
-    { id: 'experts', icon: Users, label: 'Experts', path: '/experts' },
+    { id: 'dashboard', icon: Home, label: 'Trang chủ', path: '/dashboard' },
+    { id: 'pathway', icon: Compass, label: 'Lộ trình', path: '/pathway' },
+    { id: 'assessment', icon: Edit3, label: 'Đánh giá', path: '/assessment' },
+    { id: 'chat', icon: MessageSquare, label: 'Tin nhắn &\nChuyên gia', path: '/chat' },
+    { id: 'profile', icon: User, label: 'Hồ sơ', path: '/profile' },
+    { id: 'settings', icon: SettingsIcon, label: 'Cài đặt', path: '/settings' },
   ];
 
   const handleNavClick = (item: any) => {
@@ -23,67 +24,42 @@ export function NavigationRail({ activeTab = 'dashboard', onTabChange }: Navigat
   };
 
   return (
-    <div className="w-[280px] h-full bg-white rounded-[28px] shadow-sm flex flex-col py-6 shrink-0">
-      {/* Logo Section */}
-      <div className="px-6 pb-8">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-[17px] h-[17px] bg-[#205107] rounded-sm"></div>
-          <h1 className="text-[28px] font-bold text-[#205107] leading-9">GoodViet</h1>
+    <aside className="bg-white flex flex-col h-full items-center justify-between overflow-clip py-6 relative rounded-[28px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] shrink-0 w-[96px] z-20">
+      {/* Logo */}
+      <div className="flex flex-col items-center pb-10">
+        <div className="bg-[#386a20] flex items-center justify-center rounded-full w-12 h-12 shadow-sm cursor-pointer hover:bg-[#2c5319] transition-colors" onClick={() => navigate('/dashboard')}>
+          <div className="w-5 h-5 bg-white/20 rounded-sm"></div>
         </div>
-        <p className="text-[12px] font-medium text-[#42493c] tracking-[0.5px] leading-4">
-          Celebrate Vietnamese Excellence
-        </p>
       </div>
 
-      {/* Main Navigation */}
-      <nav className="flex-1 flex flex-col gap-2 px-3">
+      {/* Main Navigation Links */}
+      <nav className="flex flex-1 flex-col gap-6 items-center px-2 w-full">
         {navItems.map(item => {
-          const Icon = item.icon;
           const isActive = activeTab === item.id;
+          const Icon = item.icon;
           return (
             <button
               key={item.id}
               onClick={() => handleNavClick(item)}
-              className={`w-full flex items-center gap-4 px-5 py-3 rounded-full transition-all ${
-                isActive 
-                  ? 'bg-[#d8e7cb]' 
-                  : 'hover:bg-gray-50'
-              }`}
+              className="flex flex-col gap-1 items-center w-full group"
             >
-              <Icon 
-                size={18} 
-                className={isActive ? 'text-[#596750]' : 'text-[#42493c]'} 
-                strokeWidth={2}
-              />
-              <span className={`text-[14px] font-medium tracking-[0.1px] leading-5 ${
-                isActive ? 'text-[#596750]' : 'text-[#42493c]'
-              }`}>
+              <div className={`flex items-center justify-center rounded-full w-14 h-8 transition-colors ${isActive ? 'bg-[#d8e7cb]' : 'group-hover:bg-[#f2f5eb]'}`}>
+                <Icon size={isActive ? 18 : 20} className={isActive ? 'text-[#191d17]' : 'text-[#42493c]'} strokeWidth={isActive ? 2.5 : 2} />
+              </div>
+              <span className={`text-[11px] text-center whitespace-pre-line leading-[13.75px] ${isActive ? 'font-bold text-[#191d17]' : 'font-normal text-[#42493c]'}`}>
                 {item.label}
               </span>
             </button>
           );
         })}
-
-        {/* Settings at bottom of nav */}
-        <div className="flex-1 flex flex-col justify-end min-h-[48px] pt-[488px]">
-          <button
-            onClick={() => navigate('/profile')}
-            className="w-full flex items-center gap-4 px-5 py-3 rounded-full hover:bg-gray-50 transition-all"
-          >
-            <Settings size={20} className="text-[#42493c]" strokeWidth={2} />
-            <span className="text-[14px] font-medium tracking-[0.1px] leading-5 text-[#42493c]">
-              Settings
-            </span>
-          </button>
-        </div>
       </nav>
 
-      {/* Join Community Button */}
-      <div className="px-5 pt-6 pb-2">
-        <button className="w-full bg-[#205107] text-white py-3 rounded-full text-[14px] font-medium tracking-[0.1px] leading-5 hover:bg-[#1a4106] transition-colors">
-          Join Community
+      {/* Footer User Avatar / Community Button */}
+      <div className="flex flex-col items-center w-full mt-4">
+        <button className="bg-[#205107] flex items-center justify-center rounded-full w-12 h-12 shadow-sm hover:bg-[#1a4106] transition-colors relative group">
+          <User size={20} className="text-white" />
         </button>
       </div>
-    </div>
+    </aside>
   );
 }
