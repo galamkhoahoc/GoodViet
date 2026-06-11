@@ -55,9 +55,9 @@ export function ProfilePage() {
   ];
 
   return (
-    <div style={{ padding: 'var(--md-sys-space-2xl)' }}>
+    <div className="page-container">
       {/* Page Header */}
-      <div style={{ marginBottom: 'var(--md-sys-space-2xl)' }}>
+      <div className="page-header-centered">
         <h1 style={{
           fontSize: 'var(--md-sys-typescale-headline-medium-size)',
           fontWeight: 'var(--md-sys-typescale-headline-medium-weight)',
@@ -484,7 +484,7 @@ export function ProfilePage() {
           ) : (
             <div className="flex flex-col gap-md">
               {history.map((session: any) => (
-                <div key={session._id} className="card-positivus flex gap-xl items-center flex-wrap" style={{ padding: 'var(--md-sys-space-lg)' }}>
+                <div key={session._id} className="md3-card-elevated flex gap-xl items-center flex-wrap" style={{ padding: 'var(--md-sys-space-lg)' }}>
                   <div style={{
                     width: 48, height: 48, borderRadius: '50%', background: 'var(--md-sys-color-primary-light)', color: 'var(--md-sys-color-primary)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center'

@@ -20,7 +20,7 @@ function DayExerciseCard({ exercise, onRecord }: { exercise: DayExercise; onReco
       <h4 className="font-semibold mb-sm">{exercise.title}</h4>
       <p className="text-sm text-secondary mb-md">{exercise.instructions}</p>
       {exercise.sentences && exercise.sentences.length > 0 && (
-        <div className="card-glow" style={{ padding: 'var(--md-sys-space-md)', marginBottom: 'var(--md-sys-space-md)', textAlign: 'center' }}>
+        <div className="md3-card" style={{ padding: 'var(--md-sys-space-md)', marginBottom: 'var(--md-sys-space-md)', textAlign: 'center' }}>
           <p style={{ fontSize: 'var(--md-sys-typescale-title-small-size)', fontWeight: 500, lineHeight: 1.8 }}>
             "{exercise.sentences[0]}"
           </p>
@@ -70,10 +70,10 @@ function RecordingModal({ exercise, week, day, onClose }: { exercise: DayExercis
       position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex',
       alignItems: 'center', justifyContent: 'center', zIndex: 1000,
     }} onClick={onClose}>
-      <div className="card-positivus animate-scale-in" style={{ maxWidth: 500, width: '90%', background: 'var(--md-sys-color-surface-container-lowest)' }} onClick={e => e.stopPropagation()}>
+      <div className="md3-card-elevated animate-scale-in" style={{ maxWidth: 500, width: '90%', background: 'var(--md-sys-color-surface-container-lowest)' }} onClick={e => e.stopPropagation()}>
         <h3 className="font-semibold mb-md">{exercise.title}</h3>
         {exercise.sentences && exercise.sentences.length > 0 && (
-          <div className="card-glow text-center mb-lg" style={{ padding: 'var(--md-sys-space-md)' }}>
+          <div className="md3-card text-center mb-lg" style={{ padding: 'var(--md-sys-space-md)' }}>
             <p style={{ fontSize: 'var(--md-sys-typescale-title-small-size)', lineHeight: 1.8 }}>"{exercise.sentences[0]}"</p>
           </div>
         )}
@@ -196,14 +196,16 @@ export function PathwayPage() {
 
   if (!progress || !pathway) {
     return (
-      <div style={{ padding: 'var(--md-sys-space-2xl)', maxWidth: 800, margin: '0 auto' }}>
-        <h1 className="page-title mb-xl">Chọn Lộ Trình Luyện Tập</h1>
+      <div className="page-container" style={{ maxWidth: 800 }}>
+        <div className="page-header-centered">
+          <h1>Chọn Lộ Trình Luyện Tập</h1>
+        </div>
         {pathwaysList.length === 0 ? (
           <p>Không có lộ trình nào khả dụng.</p>
         ) : (
           <div className="flex flex-col gap-md">
             {pathwaysList.map(p => (
-              <div key={p._id} className="card-positivus">
+              <div key={p._id} className="md3-card-elevated">
                 <h3 className="font-semibold mb-sm">{p.name}</h3>
                 <p className="text-secondary mb-md">{p.description}</p>
                 <div className="flex gap-sm mb-md">
@@ -229,25 +231,14 @@ export function PathwayPage() {
   const weekDays = Array.from({ length: 7 }, (_, i) => i + 1);
 
   return (
-    <div style={{ padding: 'var(--md-sys-space-2xl)', maxWidth: 800, margin: '0 auto' }}>
+    <div className="page-container" style={{ maxWidth: 800 }}>
       {/* Page Header */}
-      <div style={{ marginBottom: 'var(--md-sys-space-2xl)' }}>
-        <h1 style={{
-          fontSize: 'var(--md-sys-typescale-headline-medium-size)',
-          fontWeight: 700,
-          color: 'var(--md-sys-color-on-surface)',
-          marginBottom: 'var(--md-sys-space-xs)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--md-sys-space-md)',
-        }}>
+      <div className="page-header-centered">
+        <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--md-sys-space-md)' }}>
           <Route size={28} color="var(--md-sys-color-primary)" />
           <span style={{ color: 'var(--md-sys-color-primary)' }}>{pathway.name}</span>
         </h1>
-        <p style={{
-          fontSize: 'var(--md-sys-typescale-body-large-size)',
-          color: 'var(--md-sys-color-on-surface-variant)',
-        }}>
+        <p>
           {pathway.description}
         </p>
       </div>
@@ -358,7 +349,7 @@ export function PathwayPage() {
           const isLocked = (selectedWeek === progress.currentWeek && day > progress.currentDay);
 
           return (
-            <div key={day} className="card-positivus" style={{
+            <div key={day} className="md3-card-elevated" style={{
               borderLeft: `4px solid ${isLocked ? 'var(--md-sys-color-outline)' : isDone ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-on-surface)'}`,
               opacity: isLocked ? 0.6 : 1,
               boxShadow: isDone ? '0 5px 0 0 var(--md-sys-color-primary)' : undefined,

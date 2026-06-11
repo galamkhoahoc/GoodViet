@@ -139,9 +139,9 @@ export function ExpertPage() {
   };
 
   return (
-    <div style={{ padding: 'var(--md-sys-space-2xl)' }}>
+    <div className="page-container">
       {/* Page Header */}
-      <div style={{ marginBottom: 'var(--md-sys-space-2xl)' }}>
+      <div className="page-header-centered">
         <h1 style={{
           fontSize: 'var(--md-sys-typescale-headline-medium-size)',
           fontWeight: 700,
@@ -309,7 +309,7 @@ export function ExpertPage() {
           ) : (
             <div className="flex flex-col gap-lg">
               {connections.map((conn: any) => (
-                <div key={conn.id} className="card-positivus flex gap-xl items-center flex-wrap">
+                <div key={conn.id} className="md3-card-elevated flex gap-xl items-center flex-wrap">
                   <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--md-sys-color-surface-container)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     {conn.expert?.profileImageUrl ? <img src={conn.expert.profileImageUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Users size={24} />}
                   </div>
@@ -424,7 +424,7 @@ export function ExpertPage() {
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
         }} onClick={() => !requestSent && setShowRequest(false)}>
-          <div className="card-positivus animate-scale-in" style={{ maxWidth: 500, width: '90%', background: 'var(--md-sys-color-surface-container-lowest)' }} onClick={e => e.stopPropagation()}>
+          <div className="md3-card-elevated animate-scale-in" style={{ maxWidth: 500, width: '90%', background: 'var(--md-sys-color-surface-container-lowest)' }} onClick={e => e.stopPropagation()}>
             {requestSent ? (
               <div className="text-center" style={{ padding: 'var(--md-sys-space-xl)' }}>
                 <CheckCircle size={48} color="var(--md-sys-color-primary)" style={{ margin: '0 auto var(--md-sys-space-lg)' }} />
@@ -464,7 +464,7 @@ export function ExpertPage() {
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
         }} onClick={() => setShowBookSession(false)}>
-          <div className="card-positivus animate-scale-in" style={{ maxWidth: 500, width: '90%', background: 'var(--md-sys-color-surface-container-lowest)' }} onClick={e => e.stopPropagation()}>
+          <div className="md3-card-elevated animate-scale-in" style={{ maxWidth: 500, width: '90%', background: 'var(--md-sys-color-surface-container-lowest)' }} onClick={e => e.stopPropagation()}>
             <h3 className="font-semibold mb-lg">Đặt lịch hẹn</h3>
             
             <div className="form-group">

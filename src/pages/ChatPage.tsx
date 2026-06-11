@@ -97,15 +97,6 @@ export function ChatPage() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               rows={1}
-              style={{
-                flex: 1,
-                padding: '12px 0',
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                fontFamily: 'inherit'
-              }}
             />
             <button className="send-btn" onClick={handleSend} disabled={!input.trim()}>
               <Send size={20} />

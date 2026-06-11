@@ -463,6 +463,45 @@ body {
     box-shadow: var(--md-sys-elevation-2);
 }
 
+/* ============= PAGE LAYOUT UTILITIES ============= */
+.page-container {
+    padding: var(--md-sys-space-2xl);
+    max-width: var(--content-max-width, 1200px);
+    margin: 0 auto;
+    width: 100%;
+    animation: fadeIn var(--md-motion-duration-medium) var(--md-motion-easing-standard);
+}
+
+.page-header-centered {
+    margin-bottom: var(--md-sys-space-2xl);
+    text-align: center;
+}
+
+.page-header-centered h1 {
+    font-size: var(--md-sys-typescale-display-small-size);
+    font-weight: 600;
+    color: var(--md-sys-color-on-surface);
+    margin-bottom: var(--md-sys-space-xs);
+}
+
+.page-header-centered p {
+    font-size: var(--md-sys-typescale-body-large-size);
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.grid-cols-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--md-sys-space-2xl);
+    align-items: start;
+}
+
+.grid-cols-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: var(--md-sys-space-xl);
+}
+
 /* ============= SCROLLBARS ============= */
 *::-webkit-scrollbar {
     width: 8px;

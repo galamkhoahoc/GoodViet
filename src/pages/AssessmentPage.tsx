@@ -188,7 +188,7 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading }
         <div className="progress-bar-fill" style={{ width: `${(recordings.size / sentences.length) * 100}%` }} />
       </div>
 
-      <div className="card-positivus" style={{ textAlign: 'center', marginBottom: 'var(--md-sys-space-xl)' }}>
+      <div className="md3-card-elevated" style={{ textAlign: 'center', marginBottom: 'var(--md-sys-space-xl)' }}>
         <p style={{ fontSize: 'var(--md-sys-typescale-title-medium-size)', fontWeight: 600, lineHeight: 1.8, padding: 'var(--md-sys-space-md)' }}>
           "{sentences[currentIdx].text}"
         </p>
@@ -286,7 +286,7 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: an
         </p>
       </div>
 
-      <div className="card-positivus text-center mb-lg" style={{ padding: 'var(--md-sys-space-xl)' }}>
+      <div className="md3-card-elevated text-center mb-lg" style={{ padding: 'var(--md-sys-space-xl)' }}>
         <p style={{ fontSize: 'var(--md-sys-typescale-title-small-size)', fontStyle: 'italic', lineHeight: 1.8 }}>
           "{mainPrompt}"
         </p>
@@ -404,7 +404,7 @@ function ResultsPhase() {
         <p className="text-secondary mt-md">Kết quả phân tích từ AI</p>
       </div>
 
-      <div className="card-positivus text-center" style={{ marginBottom: 'var(--md-sys-space-xl)', padding: 'var(--md-sys-space-2xl)' }}>
+      <div className="md3-card-elevated text-center" style={{ marginBottom: 'var(--md-sys-space-xl)', padding: 'var(--md-sys-space-2xl)' }}>
         <div style={{ fontSize: '4rem', fontWeight: 700, color: getScoreColor(result.overallScore) }}>
           {result.overallScore}
         </div>
@@ -425,7 +425,7 @@ function ResultsPhase() {
         ))}
       </div>
 
-      <div className="card-positivus" style={{ marginBottom: 'var(--md-sys-space-xl)' }}>
+      <div className="md3-card-elevated" style={{ marginBottom: 'var(--md-sys-space-xl)' }}>
         <div className="flex items-center gap-sm mb-lg">
           <AlertTriangle size={20} style={{ color: 'var(--md-sys-color-tertiary)' }} />
           <span className="font-semibold">Các vấn đề phát âm phát hiện</span>
@@ -488,7 +488,7 @@ export function AssessmentPage() {
   if (user?.assessmentCompleted && phase !== 'results') {
     return (
       <div className="animate-fade-in-up" style={{ maxWidth: 600, margin: '0 auto' }}>
-        <div className="card-positivus text-center" style={{ padding: 'var(--md-sys-space-2xl)' }}>
+        <div className="md3-card-elevated text-center" style={{ padding: 'var(--md-sys-space-2xl)' }}>
           <CheckCircle size={48} style={{ color: 'var(--md-sys-color-primary)', margin: '0 auto var(--md-sys-space-lg)' }} />
           <h2 style={{ marginBottom: 'var(--md-sys-space-md)' }}>Bạn đã hoàn thành GOODVIET Check</h2>
           <p className="text-secondary">Mỗi tài khoản chỉ được làm bài test 1 lần duy nhất.</p>

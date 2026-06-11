@@ -22,7 +22,9 @@ export function Layout() {
     <div className="app-container">
       <NavigationRail activeTab={activeTab} onTabChange={setActiveTab} />
       <main className="chat-main">
-        <Outlet />
+        <div className="chat-content-card" style={{ overflowY: 'auto' }}>
+          <Outlet />
+        </div>
       </main>
     </div>
   );

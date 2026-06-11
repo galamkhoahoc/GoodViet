@@ -31,38 +31,21 @@ export function DashboardPage() {
   });
 
   return (
-    <div style={{ padding: 'var(--md-sys-space-2xl)', maxWidth: '1200px', margin: '0 auto' }}>
+    <div className="page-container">
       {/* Page Header */}
-      <div style={{ marginBottom: 'var(--md-sys-space-2xl)', textAlign: 'center' }}>
-        <h1 style={{
-          fontSize: 'var(--md-sys-typescale-display-small-size)',
-          fontWeight: 600,
-          color: 'var(--md-sys-color-on-surface)',
-          marginBottom: 'var(--md-sys-space-xs)',
-        }}>
+      <div className="page-header-centered">
+        <h1>
           Xin chào, <span style={{ color: 'var(--md-sys-color-primary)' }}>{user?.name?.split(' ').pop() || 'bạn'}</span>! 👋
         </h1>
-        <p style={{
-          fontSize: 'var(--md-sys-typescale-body-large-size)',
-          color: 'var(--md-sys-color-on-surface-variant)',
-        }}>
+        <p>
           Theo dõi tiến bộ và tiếp tục hành trình cải thiện giọng nói
         </p>
       </div>
 
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '40px'
-      }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
         
         {/* Top Section: Organic Stat Cards & Charts */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-          gap: '40px',
-          alignItems: 'start'
-        }}>
+        <div className="grid-cols-2">
           
           {/* Left: 2x2 Grid of Organic Shapes */}
           <div style={{
@@ -145,11 +128,7 @@ export function DashboardPage() {
         </div>
 
         {/* Bottom Row: Quick Actions & Milestones */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-          gap: 'var(--md-sys-space-xl)',
-        }}>
+        <div className="grid-cols-auto">
           {/* Quick Actions */}
           <div style={{
             background: 'var(--md-sys-color-surface-container-lowest)',
