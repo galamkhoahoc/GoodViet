@@ -138,10 +138,29 @@ export class AIService {
       }
     }
 
-    // All services failed
+    // All services failed - return friendly mock response instead of throwing error
     console.error('[AI Service] All AI services unavailable');
     console.error('[AI Service] Errors:', errors);
-    throw new Error('All AI services unavailable');
+    console.log('[AI Service] Returning mock response to maintain user experience');
+    
+    // Return a helpful mock response instead of throwing error
+    return this.generateMockResponse(message);
+  }
+
+  /**
+   * Generate a mock response when all AI services are unavailable
+   */
+  private async generateMockResponse(message: string): Promise<string> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const responses = [
+      `Xin chào! Hiện tại hệ thống AI đang bảo trì. Tin nhắn của bạn đã được ghi nhận. Chúng tôi sẽ phản hồi sớm nhất có thể. 🙏`,
+      `Cảm ơn bạn đã liên hệ! Hệ thống AI tạm thời không khả dụng, nhưng bạn vẫn có thể tiếp tục sử dụng các tính năng luyện tập và đánh giá trên GOODVIET. 💪`,
+      `Xin lỗi vì sự bất tiện! Bot AI đang được nâng cấp. Trong thời gian này, hãy thử các bài luyện tập trong phần "Lộ trình" nhé! 🎯`,
+    ];
+    
+    const randomIndex = Math.floor(Math.random() * responses.length);
+    return responses[randomIndex];
   }
 
   /**
