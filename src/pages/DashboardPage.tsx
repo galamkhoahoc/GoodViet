@@ -1,5 +1,5 @@
 import { useAuthStore } from '../store/authStore';
-import { ArrowRight, CheckCircle, Search, Bell, Settings as SettingsIcon, MessageSquare, Users, BookOpen } from 'lucide-react';
+import { ArrowRight, CheckCircle, Search, Bell, Settings as SettingsIcon, MessageSquare, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function DashboardPage() {
@@ -7,7 +7,7 @@ export function DashboardPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white relative h-full flex flex-col font-plus-jakarta">
+    <div className="bg-white relative min-h-full flex flex-col font-plus-jakarta">
       {/* Top Header - Sticky */}
       <div className="sticky top-0 z-50 backdrop-blur-sm bg-white/90 border-b border-gray-100 px-[40px] py-[16px] flex items-center justify-between shrink-0">
         <h2 className="text-[22px] font-bold text-[#191d17] leading-7">Home</h2>
@@ -33,14 +33,14 @@ export function DashboardPage() {
           
           <div className="ml-2 cursor-pointer" onClick={() => navigate('/profile')}>
             <div className="w-[40px] h-[40px] rounded-[9999px] bg-[#386a20] flex items-center justify-center text-white font-bold border-2 border-[#e0e4da] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
-              {user?.name?.charAt(0).toUpperCase() || 'U'}
+              {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto px-[40px] py-[24px] pb-[96px] flex flex-col gap-[80px] max-w-[1280px] mx-auto w-full">
+      <div className="flex-1 px-[40px] py-[24px] pb-[96px] flex flex-col gap-[80px] max-w-[1280px] mx-auto w-full">
         
         {/* Hero Section */}
         <section className="bg-[#e6e9df] rounded-[28px] h-[500px] relative overflow-hidden flex items-center shrink-0 w-full shadow-[0px_4px_8px_0px_rgba(0,0,0,0.05)]">

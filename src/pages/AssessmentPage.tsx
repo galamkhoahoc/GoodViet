@@ -501,7 +501,7 @@ export function AssessmentPage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-[#fdfdf5] font-plus-jakarta pb-20">
+    <div className="w-full min-h-full bg-[#fdfdf5] font-plus-jakarta pb-20">
       {(phase === 'not_started' || phase === 'intro') && (
         <div className="pt-20">
            <IntroPhase onStart={startAssessment} isLoading={isLoading} />

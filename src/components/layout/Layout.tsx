@@ -21,7 +21,7 @@ export function Layout() {
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#ecefe5] p-4 gap-4 font-plus-jakarta">
       <NavigationRail activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex-1 overflow-y-auto relative rounded-[28px]">
+      <main className="bg-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex-1 min-w-0 overflow-y-auto relative rounded-[28px]">
         <Outlet />
       </main>
     </div>

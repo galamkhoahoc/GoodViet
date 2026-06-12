@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { Flame, Clock, TrendingUp, BookOpen, Headphones, Mic, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import { Flame, TrendingUp, BookOpen, Headphones, Mic, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export function PathwayPage() {
   const user = useAuthStore(s => s.user);
@@ -95,10 +95,9 @@ export function PathwayPage() {
                          currentMonth.getFullYear() === currentDate.getFullYear();
 
   return (
-    <div className="w-full h-full" style={{ 
+    <div className="w-full min-h-full" style={{ 
       background: '#ecefe5',
-      padding: '24px',
-      overflowY: 'auto'
+      padding: '24px'
     }}>
       {/* Page Header */}
       <div className="flex items-center justify-between mb-6">
@@ -129,7 +128,7 @@ export function PathwayPage() {
           justifyContent: 'center',
           fontSize: '20px'
         }}>
-          {user?.username?.[0].toUpperCase() || 'U'}
+          {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
         </div>
       </div>
 
@@ -502,7 +501,6 @@ export function PathwayPage() {
                   
                   const isCompleted = isCurrentMonth && completedDays.includes(day);
                   const isToday = isCurrentMonth && day === currentDay;
-                  const isInStreak = isCompleted && day <= currentDay;
                   
                   return (
                     <div key={dayIdx} style={{
