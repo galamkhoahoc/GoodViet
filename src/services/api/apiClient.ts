@@ -37,9 +37,15 @@ class ApiClient {
   }
 
   private buildUrl(path: string, params?: Record<string, string>): string {
-    const url = new URL(`${this.baseUrl}${path}`);
+    // Handle relative URLs correctly by providing a base (window.location.origin)
+    const base = this.baseUrl || window.location.origin;
+    const url = new URL(`${this.baseUrl}${path}`, base);
     if (params) {
       Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+    }
+    // Return relative path if no baseUrl was provided, to allow Vite proxy to work
+    if (!this.baseUrl) {
+      return `${path}${url.search}`
     }
     return url.toString();
   }

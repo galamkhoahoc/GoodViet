@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { assessmentApi, Assessment, AssessmentSentence } from '../services/api/assessmentApi';
+import { assessmentApi } from '../services/api/assessmentApi';
+import type { Assessment, AssessmentSentence } from '../services/api/assessmentApi';
 
 export type AssessmentPhase = 'not_started' | 'intro' | 'phase_1' | 'phase_2' | 'phase_3' | 'processing' | 'results';
 

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useChatStore } from '../../store/chatStore';
-import { Search, Plus, MessageCircle, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export function ConversationsPanel() {
   const { sessions, activeSessionId, loadSessions, createSession, switchSession, deleteSession } = useChatStore();
@@ -13,7 +13,7 @@ export function ConversationsPanel() {
     await createSession();
   };
 
-  const formatDate = (dateString: string) => {
+  const formatTime = (dateString: string) => {
     const d = new Date(dateString);
     const now = new Date();
     if (d.toDateString() === now.toDateString()) {
@@ -22,155 +22,96 @@ export function ConversationsPanel() {
     return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
   };
 
+  // Mock expert sessions to match the Figma design
+  const mockExperts = [
+    {
+      _id: 'mock_1',
+      title: 'ThS. Lê Trần (Chuyên gia)',
+      lastMessage: 'Chào bạn, tôi đã xem qua đánh giá...',
+      time: 'Hôm qua',
+      avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAVCgl7W-tWs83qNjAlhYXc4TcdUDWwtDbndOFChbcbxm3xLf6AWqAQ4DjVQpElT5JgoLvSdq8pnIfg84TKii5jwtiWiGAVvJHvh7-UfvCXmyS9bZGyuysHsTfnyFhixF8__5GOhostBEXHtvhGznTTLBnuysybTQBYd6fWVnboMGg15YrJvk-cnko56q1cZ-7gLfG-O3ixaSu3-sV85nDpFONyU-5nTgZba45-bB8XX6ZCJuTfQfscJExyjQ9sYxB-v661e8Qt9Kc'
+    },
+    {
+      _id: 'mock_2',
+      title: 'Bác sĩ Ngọc Phạm (Chuyên gia)',
+      lastMessage: 'Lịch hẹn của bạn đã được xác nhận...',
+      time: 'Thứ 2',
+      avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA4_NRzcjKqYTdRKCLFclqWgDugKc1BWqQYAC2ofwB1kODE9rMUHybaxXKr0qH4xhQeadHX1vWZNEbWm9cUdZNuvXBEEkBdNoaH4hKEL1K7pe3IpTDBEWgZi2252T622J_hO-36JW8O9B3uMrmY9FJh6mI7RMJoToWKPdqOyq_V4zGOn51U9htmKusMjABDtJg1h88jgmhmW0aOR05R6IMj526XDp2OmtDv6Et5moKRV-rX46P63mgMBnJEdbtyox49FWwqUvQPnCM'
+    }
+  ];
+
   return (
-    <div className="conversations-panel" style={{ background: 'transparent', borderRight: 'none', padding: '16px 8px 16px 16px' }}>
+    <div className="flex flex-col h-full bg-[#f2f5eb] border-r border-[#C3C8BC]/20">
       
-      {/* Header & New Chat Button */}
-      <div style={{ marginBottom: '16px' }}>
+      {/* New Chat Button */}
+      <div className="p-4 border-b border-[#C3C8BC]/20 shrink-0">
         <button 
           onClick={handleCreateSession}
-          style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '12px 16px',
-            background: 'var(--md-sys-color-primary-container)',
-            color: 'var(--md-sys-color-on-primary-container)',
-            border: 'none',
-            borderRadius: '16px',
-            fontSize: 'var(--md-sys-typescale-label-large-size)',
-            fontWeight: 500,
-            cursor: 'pointer',
-            boxShadow: 'var(--md-sys-elevation-1)',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-2)'}
-          onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-1)'}
+          className="w-full py-3 px-4 bg-[#205107] text-white rounded-full text-[14px] font-medium flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform"
         >
           <Plus size={20} />
-          New space
+          Bắt đầu cuộc hội thoại mới
         </button>
       </div>
 
-      {/* Search Bar */}
-      <div className="search-container" style={{ marginBottom: '16px' }}>
-        <Search className="search-icon" size={20} />
-        <input 
-          type="text" 
-          className="search-input" 
-          placeholder="Search chat and spaces" 
-          style={{ 
-            background: 'var(--md-sys-color-surface-container)',
-            width: '100%'
-          }} 
-        />
-      </div>
-
-      <div style={{ padding: '0 8px 8px', fontSize: '12px', fontWeight: 600, color: 'var(--md-sys-color-on-surface-variant)' }}>
-        Chats ({sessions.length})
-      </div>
-
       {/* Conversations List */}
-      <div className="conversations-list" style={{ padding: 0 }}>
-        {sessions.map(session => (
+      <div className="flex-1 overflow-y-auto">
+        {/* Real Bot Sessions */}
+        {sessions.map((session, index) => {
+          const isActive = activeSessionId === session._id || (index === 0 && activeSessionId === null);
+          return (
+            <div 
+              key={session._id} 
+              className={`p-4 flex gap-3 cursor-pointer border-b border-[#C3C8BC]/10 transition-colors ${
+                isActive ? 'bg-[#D8E7CB] text-[#596750]' : 'hover:bg-[#e0e4da] text-[#191d17]'
+              }`}
+              onClick={() => switchSession(session._id)}
+            >
+              <div className="w-12 h-12 rounded-full bg-[#BDF59B] shrink-0 flex items-center justify-center overflow-hidden">
+                <img 
+                  className="w-full h-full object-cover" 
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgQLzkmVyq3xF3VWcGrPE-e86rF0g6L0PxeTZzShIo4cZPEBoQ8n6CjGMah-4pDglRtytU-HDhmgWXAHXMH1rT-qgTOdo8zgTigk-AOAjOk6Gc6A6KxR_mabNhjGsH6yLM2EKZ-qwM9EtGzHQ2c_gPI3Y2FLSScUZv1RxNoNTG52uW0pudHwfbXFTPysy9wUk7huYnwuT-62-X3yzpGTYaW1ydQYxDf737mlCxqCmBgCAcFpgi3FkFTsQVCViBhQDBnf4NQBrwf9s" 
+                  alt="GoodBot Avatar" 
+                />
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-baseline">
+                  <h3 className="text-[16px] font-bold truncate">GoodBot (Trợ lý AI)</h3>
+                  <span className="text-[12px] font-medium opacity-70">
+                    {formatTime(session.lastMessageAt)}
+                  </span>
+                </div>
+                <p className={`text-[14px] truncate mt-0.5 ${isActive ? 'opacity-80' : 'text-[#42493c] opacity-60'}`}>
+                  {session.title || 'Mình có một vài bài tập thư giãn...'}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Mock Expert Sessions for Design Parity */}
+        {mockExperts.map(expert => (
           <div 
-            key={session._id} 
-            className={`conversation-item ${activeSessionId === session._id ? 'active' : ''}`}
-            onClick={() => switchSession(session._id)}
-            style={{ 
-              borderRadius: '28px', 
-              marginBottom: '2px',
-              padding: '12px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}
+            key={expert._id} 
+            className="p-4 hover:bg-[#e0e4da] transition-colors flex gap-3 cursor-pointer border-b border-[#C3C8BC]/10"
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden' }}>
-              <div style={{ 
-                width: '32px', 
-                height: '32px', 
-                borderRadius: '50%', 
-                background: 'var(--md-sys-color-tertiary-container)', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                flexShrink: 0
-              }}>
-                <MessageCircle size={16} color="var(--md-sys-color-on-tertiary-container)" />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                <span style={{ 
-                  fontSize: '14px', 
-                  fontWeight: activeSessionId === session._id ? 600 : 500,
-                  color: activeSessionId === session._id ? 'var(--md-sys-color-on-secondary-container)' : 'var(--md-sys-color-on-surface)',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}>
-                  {session.title}
-                </span>
-                <span style={{ fontSize: '11px', color: 'var(--md-sys-color-on-surface-variant)' }}>
-                  {formatDate(session.lastMessageAt)}
-                </span>
-              </div>
+            <div className="w-12 h-12 rounded-full bg-[#C3C8BC] shrink-0 flex items-center justify-center overflow-hidden">
+              <img className="w-full h-full object-cover" src={expert.avatarUrl} alt={expert.title} />
             </div>
             
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                deleteSession(session._id);
-              }}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--md-sys-color-on-surface-variant)',
-                cursor: 'pointer',
-                opacity: 0.6,
-                padding: '4px'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--md-sys-color-error)'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--md-sys-color-on-surface-variant)'}
-            >
-              <Trash2 size={16} />
-            </button>
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between items-baseline">
+                <h3 className="text-[16px] font-bold text-[#191d17] truncate">{expert.title}</h3>
+                <span className="text-[12px] font-medium text-[#191d17] opacity-70">{expert.time}</span>
+              </div>
+              <p className="text-[14px] text-[#42493c] truncate mt-0.5 opacity-60">
+                {expert.lastMessage}
+              </p>
+            </div>
           </div>
         ))}
-
-        {/* Legacy History Item */}
-        <div 
-            className={`conversation-item ${activeSessionId === null ? 'active' : ''}`}
-            onClick={() => switchSession(null)}
-            style={{ 
-              borderRadius: '28px', 
-              marginTop: '16px',
-              padding: '12px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}
-          >
-            <div style={{ 
-                width: '32px', 
-                height: '32px', 
-                borderRadius: '50%', 
-                background: 'var(--md-sys-color-surface-variant)', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                flexShrink: 0
-              }}>
-                <MessageCircle size={16} color="var(--md-sys-color-on-surface-variant)" />
-            </div>
-            <span style={{ 
-                fontSize: '14px', 
-                fontWeight: activeSessionId === null ? 600 : 500,
-                color: activeSessionId === null ? 'var(--md-sys-color-on-secondary-container)' : 'var(--md-sys-color-on-surface)',
-            }}>
-              Lịch sử cũ
-            </span>
-          </div>
+        
       </div>
     </div>
   );

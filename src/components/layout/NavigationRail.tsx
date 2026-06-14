@@ -1,5 +1,5 @@
-import { Home, Compass, Edit3, MessageSquare, User, Settings as SettingsIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 
 interface NavigationRailProps {
   activeTab?: string;
@@ -8,58 +8,95 @@ interface NavigationRailProps {
 
 export function NavigationRail({ activeTab = 'dashboard', onTabChange }: NavigationRailProps) {
   const navigate = useNavigate();
+  const logout = useAuthStore(s => s.logout);
 
-  const navItems = [
-    { id: 'dashboard', icon: Home, label: 'Trang chủ', path: '/dashboard' },
-    { id: 'pathway', icon: Compass, label: 'Lộ trình', path: '/pathway' },
-    { id: 'assessment', icon: Edit3, label: 'Đánh giá', path: '/assessment' },
-    { id: 'chat', icon: MessageSquare, label: 'Tin nhắn &\nChuyên gia', path: '/chat' },
-    { id: 'profile', icon: User, label: 'Hồ sơ', path: '/profile' },
-    { id: 'settings', icon: SettingsIcon, label: 'Cài đặt', path: '/settings' },
-  ];
+  const handleNavClick = (path: string, id: string) => {
+    if (onTabChange) onTabChange(id);
+    navigate(path);
+  };
 
-  const handleNavClick = (item: any) => {
-    if (onTabChange) onTabChange(item.id);
-    if (item.path) navigate(item.path);
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   return (
-    <aside className="bg-white flex flex-col h-full items-center justify-between overflow-clip py-6 relative rounded-[28px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] shrink-0 w-[96px] z-20">
-      {/* Logo */}
-      <div className="flex flex-col items-center pb-10">
-        <div className="bg-[#386a20] flex items-center justify-center rounded-full w-12 h-12 shadow-sm cursor-pointer hover:bg-[#2c5319] transition-colors" onClick={() => navigate('/dashboard')}>
-          <div className="w-5 h-5 bg-white/20 rounded-sm"></div>
+    <nav className="flex flex-col h-screen fixed left-0 top-0 py-6 bg-surface-container-low w-nav-rail-width z-50 items-center border-r border-outline-variant/20">
+      <div className="mb-10 cursor-pointer" onClick={() => handleNavClick('/dashboard', 'dashboard')}>
+        <div className="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container shadow-sm hover:opacity-80 transition-opacity">
+          <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>spa</span>
         </div>
       </div>
+      
+      <div className="flex-1 flex flex-col gap-6 w-full px-2">
+        <button onClick={() => handleNavClick('/dashboard', 'dashboard')} className="flex flex-col items-center gap-1 group">
+          <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${activeTab === 'dashboard' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-variant'}`}>
+            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: activeTab === 'dashboard' ? "'FILL' 1" : "'FILL' 0" }}>home</span>
+          </div>
+          <span className={`font-label-md text-[11px] ${activeTab === 'dashboard' ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>Trang chủ</span>
+        </button>
 
-      {/* Main Navigation Links */}
-      <nav className="flex flex-1 flex-col gap-6 items-center px-2 w-full">
-        {navItems.map(item => {
-          const isActive = activeTab === item.id;
-          const Icon = item.icon;
-          return (
-            <button
-              key={item.id}
-              onClick={() => handleNavClick(item)}
-              className="flex flex-col gap-1 items-center w-full group"
-            >
-              <div className={`flex items-center justify-center rounded-full w-14 h-8 transition-colors ${isActive ? 'bg-[#d8e7cb]' : 'group-hover:bg-[#f2f5eb]'}`}>
-                <Icon size={isActive ? 18 : 20} className={isActive ? 'text-[#191d17]' : 'text-[#42493c]'} strokeWidth={isActive ? 2.5 : 2} />
-              </div>
-              <span className={`text-[11px] text-center whitespace-pre-line leading-[13.75px] ${isActive ? 'font-bold text-[#191d17]' : 'font-normal text-[#42493c]'}`}>
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
-      </nav>
+        <button onClick={() => handleNavClick('/assessment', 'assessment')} className="flex flex-col items-center gap-1 group">
+          <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${activeTab === 'assessment' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-variant'}`}>
+            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: activeTab === 'assessment' ? "'FILL' 1" : "'FILL' 0" }}>grid_view</span>
+          </div>
+          <span className={`font-label-md text-[11px] ${activeTab === 'assessment' ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>Đánh giá</span>
+        </button>
 
-      {/* Footer User Avatar / Community Button */}
-      <div className="flex flex-col items-center w-full mt-4">
-        <button className="bg-[#205107] flex items-center justify-center rounded-full w-12 h-12 shadow-sm hover:bg-[#1a4106] transition-colors relative group">
-          <User size={20} className="text-white" />
+        <button onClick={() => handleNavClick('/pathway', 'pathway')} className="flex flex-col items-center gap-1 group">
+          <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${activeTab === 'pathway' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-variant'}`}>
+            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: activeTab === 'pathway' ? "'FILL' 1" : "'FILL' 0" }}>auto_stories</span>
+          </div>
+          <span className={`font-label-md text-[11px] ${activeTab === 'pathway' ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>Lộ trình</span>
+        </button>
+
+        <button onClick={() => handleNavClick('/chat', 'chat')} className="flex flex-col items-center gap-1 group">
+          <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${activeTab === 'chat' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-variant'}`}>
+            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: activeTab === 'chat' ? "'FILL' 1" : "'FILL' 0" }}>forum</span>
+          </div>
+          <span className={`font-label-md text-[11px] ${activeTab === 'chat' ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>Chatbot</span>
+        </button>
+
+        <button onClick={() => handleNavClick('/experts', 'experts')} className="flex flex-col items-center gap-1 group">
+          <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${activeTab === 'experts' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-variant'}`}>
+            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: activeTab === 'experts' ? "'FILL' 1" : "'FILL' 0" }}>diversity_3</span>
+          </div>
+          <span className={`font-label-md text-[11px] min-w-max ${activeTab === 'experts' ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>Chuyên gia</span>
+        </button>
+
+        <button onClick={() => handleNavClick('/profile', 'profile')} className="flex flex-col items-center gap-1 group">
+          <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${activeTab === 'profile' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-variant'}`}>
+            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: activeTab === 'profile' ? "'FILL' 1" : "'FILL' 0" }}>person</span>
+          </div>
+          <span className={`font-label-md text-[11px] ${activeTab === 'profile' ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>Hồ sơ</span>
+        </button>
+
+        <button onClick={() => handleNavClick('/settings', 'settings')} className="flex flex-col items-center gap-1 group">
+          <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${activeTab === 'settings' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-variant'}`}>
+            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: activeTab === 'settings' ? "'FILL' 1" : "'FILL' 0" }}>settings</span>
+          </div>
+          <span className={`font-label-md text-[11px] ${activeTab === 'settings' ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>Cài đặt</span>
         </button>
       </div>
-    </aside>
+
+      {/* Footer Section */}
+      <div className="mt-auto mb-6 flex flex-col items-center gap-6 w-full">
+        <button className="w-12 h-12 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md hover:scale-105 transition-transform group relative">
+          <span className="material-symbols-outlined text-[24px]">group_add</span>
+          <div className="absolute left-full ml-4 px-3 py-1 bg-inverse-surface text-inverse-on-surface text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Join Community</div>
+        </button>
+        <div className="flex flex-col items-center gap-6">
+          <button className="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors group relative">
+             <span className="material-symbols-outlined text-[20px]">help_center</span>
+             <div className="absolute left-full ml-4 px-3 py-1 bg-inverse-surface text-inverse-on-surface text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Hướng dẫn sử dụng</div>
+          </button>
+          <button onClick={handleLogout} className="flex flex-col items-center gap-1 text-on-surface-variant hover:text-error transition-colors group relative">
+             <span className="material-symbols-outlined text-[20px]">logout</span>
+             <div className="absolute left-full ml-4 px-3 py-1 bg-inverse-surface text-inverse-on-surface text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Đăng xuất</div>
+          </button>
+        </div>
+      </div>
+    </nav>
   );
 }
+

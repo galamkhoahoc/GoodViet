@@ -5,7 +5,7 @@ import { AudioRecorder } from '../components/audio/AudioRecorder';
 import { AudioPlayer } from '../components/audio/AudioPlayer';
 import { indexedDBService } from '../services/storage/indexedDB';
 import { toast } from '../components/common/Toast';
-import { Play, ChevronRight, CheckCircle, AlertTriangle, Mic, Square, Volume2, Info, RotateCcw } from 'lucide-react';
+import { Play, ChevronRight, CheckCircle, AlertTriangle, Mic, Square, Volume2, Info, RotateCcw, Languages } from 'lucide-react';
 import { config } from '../config/env';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { WaveformVisualizer } from '../components/audio/WaveformVisualizer';
@@ -100,7 +100,9 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
         format: blob.type || 'audio/webm',
         timestamp: new Date().toISOString(),
       });
-    } catch (err) {}
+    } catch (err) {
+      console.error('Failed to save offline', err);
+    }
     toast.success('Ghi âm thành công!', `Câu ${currentIdx + 1} đã được ghi.`);
     
     if (currentIdx < sentences.length - 1) {
@@ -109,7 +111,7 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
          resetRecording();
        }, 500);
     }
-  }, [currentIdx, sentences, addRecording, user?.userId, assessmentId, phaseKey, resetRecording]);
+  }, [currentIdx, sentences, addRecording, user, assessmentId, phaseKey, resetRecording]);
 
   useEffect(() => {
     if (audioBlob && !isRecording) {
@@ -121,7 +123,7 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
     return () => {
       recordings.forEach(r => URL.revokeObjectURL(r.url));
     };
-  }, []);
+  }, [recordings]);
 
   const goToSentence = (idx: number) => {
     setCurrentIdx(idx);
@@ -133,133 +135,128 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
   }
 
   const allDone = recordings.size === sentences.length;
-  const isRecorded = recordings.has(currentIdx);
 
   return (
-    <div className="flex flex-col w-full max-w-[1440px] mx-auto p-4 md:p-8 lg:p-12 gap-8">
-       {/* Header */}
-       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-          <div>
-             <div className="bg-[#386666] inline-flex items-center gap-2 px-3 py-1 rounded-full text-white text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
-                ĐANG TIẾN HÀNH
-             </div>
-             <h1 className="text-[#191d17] text-4xl md:text-5xl font-plus-jakarta tracking-tight mb-2 font-medium">{title}</h1>
-             <p className="text-[#42493c] text-base">{subtitle}</p>
+    <div className="flex flex-col w-full max-w-[1200px] mx-auto gap-8 h-full">
+      {/* Header */}
+      <div className="flex justify-between items-start">
+        <div>
+          <div className="inline-flex items-center gap-1 px-3 py-1 bg-teal-800 text-teal-100 rounded-full text-xs font-medium uppercase tracking-wider mb-4">
+            <span className="material-symbols-outlined text-[14px]">headphones</span>
+            Đang tiến hành
           </div>
-          <div className="bg-white rounded-3xl shadow-sm p-4 w-[200px] border border-[#e0e4da] shrink-0">
-             <div className="flex justify-between items-center mb-2">
-                <span className="text-[#42493c] text-sm font-medium">Tiến độ</span>
-                <span className="text-[#205107] font-bold">{recordings.size}/{sentences.length}</span>
-             </div>
-             <div className="w-full bg-[#e0e4da] h-2.5 rounded-full overflow-hidden">
-                <div className="bg-[#386a20] h-full transition-all duration-300" style={{ width: `${(recordings.size / sentences.length) * 100}%` }}></div>
-             </div>
-          </div>
-       </div>
+          <h2 className="font-display-lg text-display-lg text-on-background font-bold tracking-tight mb-2">{title}</h2>
+          <p className="text-body-lg text-on-surface-variant max-w-2xl">{subtitle}</p>
+        </div>
+        <div className="bg-surface-lowest px-6 py-4 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col items-end">
+           <div className="font-label-lg text-on-surface mb-2">Tiến độ {title} <span className="font-bold text-primary ml-2">{recordings.size}/{sentences.length}</span></div>
+           <div className="w-48 h-2 bg-surface-container-high rounded-full overflow-hidden flex">
+              <div className="bg-primary h-full transition-all duration-300" style={{ width: `${(recordings.size / sentences.length) * 100}%` }}></div>
+           </div>
+        </div>
+      </div>
 
-       {/* Bento Layout */}
-       <div className="grid grid-cols-12 gap-6 h-[635px]">
-          {/* Left List */}
-          <div className="col-span-12 md:col-span-4 flex flex-col gap-3 overflow-y-auto pr-2 h-full pb-20 md:pb-0 custom-scrollbar">
-             {sentences.map((sent, idx) => {
-                const recorded = recordings.has(idx);
-                const active = currentIdx === idx;
-                
-                let cardClass = "bg-white p-4 rounded-xl flex gap-4 items-start border border-[#e0e4da] transition-all cursor-pointer hover:bg-gray-50";
-                let iconClass = "w-8 h-8 rounded-full flex items-center justify-center shrink-0 font-bold text-sm transition-colors";
-                
-                if (active) {
-                   cardClass = "bg-white p-4 rounded-xl flex gap-4 items-start border-2 border-[#386a20] shadow-md relative";
-                   iconClass += " bg-[#386a20] text-white";
-                } else if (recorded) {
-                   cardClass += " opacity-75";
-                   iconClass += " bg-[#d8e7cb] text-[#205107]";
-                } else {
-                   iconClass += " bg-[#e0e4da] text-[#42493c]";
-                }
+      <div className="flex flex-1 gap-8 mt-4 h-[600px]">
+        {/* List of Sentences */}
+        <div className="w-[380px] flex flex-col gap-4 overflow-y-auto pr-2 pb-12">
+          {sentences.map((sent, idx) => {
+            const recorded = recordings.has(idx);
+            const active = currentIdx === idx;
 
-                return (
-                   <div key={sent.id} className={cardClass} onClick={() => goToSentence(idx)}>
-                      {active && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#386a20] rounded-l-xl"></div>}
-                      <div className={iconClass}>
-                         {recorded && !active ? <CheckCircle size={16} /> : (idx + 1)}
-                      </div>
-                      <div className="flex-1">
-                         <p className={`text-sm ${active ? 'text-[#191d17] font-bold' : 'text-[#42493c]'}`}>{sent.text}</p>
-                         {active && <div className="mt-2 inline-block bg-[#b8f398]/30 px-2 py-0.5 rounded text-xs font-semibold text-[#205107]">Đang thực hiện</div>}
-                      </div>
+            if (active) {
+              return (
+                <div key={sent.id} onClick={() => goToSentence(idx)} className="bg-surface-lowest p-5 rounded-2xl border-2 border-primary shadow-md flex items-center gap-4 relative cursor-pointer">
+                   <div className="absolute top-1/2 -left-3 -translate-y-1/2 w-1.5 h-12 bg-primary rounded-r-md"></div>
+                   <div className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold shrink-0">
+                     {idx + 1}
                    </div>
-                );
-             })}
-          </div>
+                   <div className="flex-1">
+                     <p className="font-title-md font-bold text-on-surface mb-1">{sent.text}</p>
+                     <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded font-medium">Đang thực hiện</span>
+                   </div>
+                </div>
+              );
+            }
 
-          {/* Right Canvas */}
-          <div className="col-span-12 md:col-span-8 bg-white rounded-3xl border border-[#e6e9df] shadow-sm flex flex-col justify-between p-6 md:p-10 h-full relative overflow-hidden">
-             <div className="border-b border-[#ecefe5] pb-4 flex justify-between items-center shrink-0">
-                <h2 className="text-xl md:text-2xl font-bold text-[#191d17]">Câu số {currentIdx + 1}</h2>
-                <button className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full hover:bg-gray-100 text-[#205107] text-sm font-semibold transition-colors">
-                   <Info size={16} /> Hướng dẫn
+            if (recorded) {
+              return (
+                <div key={sent.id} onClick={() => goToSentence(idx)} className="bg-surface-lowest p-5 rounded-xl border border-outline-variant/20 flex items-center gap-4 opacity-70 cursor-pointer hover:opacity-100 transition-opacity">
+                   <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface shrink-0">
+                     <span className="material-symbols-outlined text-[16px]">check</span>
+                   </div>
+                   <p className="text-body-md text-on-surface flex-1 line-clamp-2">{sent.text}</p>
+                </div>
+              );
+            }
+
+            return (
+              <div key={sent.id} onClick={() => goToSentence(idx)} className="bg-surface-lowest p-5 rounded-xl border border-outline-variant/20 flex items-center gap-4 opacity-50 cursor-pointer hover:opacity-80 transition-opacity">
+                 <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-on-surface-variant shrink-0">
+                   {idx + 1}
+                 </div>
+                 <p className="text-body-md text-on-surface-variant flex-1 line-clamp-2">{sent.text}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Active View */}
+        <div className="flex-1 bg-surface-lowest organic-curve shadow-sm border border-outline-variant/20 flex flex-col p-10 relative">
+           <div className="flex justify-between items-center w-full mb-16">
+             <span className="font-headline-sm font-bold">Câu số {currentIdx + 1}</span>
+             <button className="text-primary font-label-md flex items-center gap-1 hover:underline">
+               <span className="material-symbols-outlined text-[18px]">help</span> Hướng dẫn
+             </button>
+           </div>
+           
+           <div className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto text-center w-full gap-8">
+              <h3 className="font-display-md text-display-md leading-tight text-on-surface">"{sentences[currentIdx].text}"</h3>
+              
+              <div className="w-full bg-surface-container-low rounded-2xl h-24 mt-8 flex items-center justify-center relative overflow-hidden">
+                 {isRecording ? (
+                    <WaveformVisualizer analyserNode={analyserNode} isActive={isRecording} width={400} height={48} barColor="#3b6990" />
+                 ) : (
+                    <span className="mx-4 text-sm font-medium text-on-surface-variant uppercase tracking-widest">Sẵn sàng ghi âm</span>
+                 )}
+              </div>
+
+              <div className="flex items-center justify-center gap-6 mt-8">
+                <button className="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-surface-container transition-colors shadow-sm">
+                   <span className="material-symbols-outlined text-[24px]">volume_up</span>
                 </button>
-             </div>
+                <button 
+                  onClick={isRecording ? stopRecording : startRecording}
+                  className={`w-20 h-20 rounded-full flex items-center justify-center text-on-primary shadow-lg hover:scale-105 transition-transform group ${isRecording ? 'bg-error' : 'bg-primary'}`}
+                >
+                   {isRecording ? <span className="material-symbols-outlined text-[32px]">square</span> : <span className="material-symbols-outlined text-[32px] group-hover:animate-pulse">mic</span>}
+                </button>
+                <button 
+                  onClick={() => currentIdx < sentences.length - 1 ? goToSentence(currentIdx + 1) : null}
+                  disabled={currentIdx === sentences.length - 1}
+                  className="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-surface-container transition-colors shadow-sm disabled:opacity-50"
+                >
+                   <span className="material-symbols-outlined text-[24px]">skip_next</span>
+                </button>
+              </div>
+           </div>
 
-             <div className="flex-1 flex flex-col items-center justify-center text-center px-4 md:px-10 overflow-y-auto">
-                <p className="text-3xl md:text-[40px] leading-tight font-medium text-[#191d17] mb-6">"{sentences[currentIdx].text}"</p>
-                <div className="bg-[#f2f5eb] inline-flex items-center gap-2 px-4 py-2 rounded-lg opacity-80">
-                   <Volume2 size={16} className="text-[#42493c]" />
-                   <span className="text-sm font-medium tracking-wide text-[#42493c]">Nhấn bắt đầu ghi âm để đọc câu này</span>
-                </div>
-             </div>
-
-             <div className="flex flex-col items-center mt-auto shrink-0 pb-4">
-                <div className="h-24 w-full max-w-md bg-[#f2f5eb] rounded-2xl flex items-center justify-center mb-8 overflow-hidden">
-                   {isRecording ? (
-                      <WaveformVisualizer analyserNode={analyserNode} isActive={isRecording} width={300} height={48} barColor="#386a20" />
-                   ) : (
-                      <span className="text-[#c3c8bc] text-sm font-semibold uppercase tracking-wider">Sẵn sàng ghi âm</span>
-                   )}
-                </div>
-
-                <div className="flex items-center gap-6 md:gap-10">
-                   <button 
-                      onClick={() => currentIdx > 0 ? goToSentence(currentIdx - 1) : null}
-                      disabled={currentIdx === 0}
-                      className="w-12 h-12 rounded-full bg-[#ecefe5] flex items-center justify-center hover:bg-gray-200 disabled:opacity-50 transition-colors"
-                      title="Câu trước"
-                   >
-                      <ChevronRight size={20} className="text-[#42493c] rotate-180" />
-                   </button>
-                   <button 
-                      onClick={isRecording ? stopRecording : startRecording}
-                      className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 ${isRecording ? 'bg-red-500 shadow-lg shadow-red-500/30' : 'bg-[#386a20] shadow-lg shadow-[#386a20]/30 hover:scale-105'}`}
-                   >
-                      {isRecording ? <Square size={32} className="text-white" /> : <Mic size={32} className="text-white" />}
-                   </button>
-                   <button 
-                      onClick={() => currentIdx < sentences.length - 1 ? goToSentence(currentIdx + 1) : null}
-                      disabled={currentIdx === sentences.length - 1}
-                      className="w-12 h-12 rounded-full bg-[#ecefe5] flex items-center justify-center hover:bg-gray-200 disabled:opacity-50 transition-colors"
-                      title="Câu tiếp"
-                   >
-                      <ChevronRight size={20} className="text-[#42493c]" />
-                   </button>
-                </div>
-             </div>
-
-             {/* Complete Button Overlay if all done */}
-             {allDone && currentIdx === sentences.length - 1 && (
-                <div className="absolute bottom-6 right-6 z-10 animate-fade-in-up">
-                   <button onClick={onComplete} disabled={isLoading} className="bg-[#386a20] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#2d561a] transition-colors flex items-center gap-2">
-                      {isLoading ? 'Đang gửi...' : 'Hoàn thành giai đoạn'} <CheckCircle size={20} />
-                   </button>
-                </div>
-             )}
-          </div>
-       </div>
+           {/* Complete Button Overlay if all done */}
+           {allDone && currentIdx === sentences.length - 1 && (
+              <div className="absolute bottom-10 right-10 z-10 animate-fade-in-up">
+                 <button onClick={onComplete} disabled={isLoading} className="bg-primary text-on-primary px-8 py-4 rounded-full font-bold shadow-lg hover:bg-primary-fixed-variant transition-colors flex items-center gap-2">
+                    {isLoading ? 'Đang gửi...' : 'Hoàn thành giai đoạn'} <span className="material-symbols-outlined">check_circle</span>
+                 </button>
+              </div>
+           )}
+        </div>
+      </div>
     </div>
   );
 }
 
-function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: any[], onComplete: () => void, isLoading: boolean }) {
+import type { AssessmentSentence } from '../services/api/assessmentApi';
+
+function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: AssessmentSentence[], onComplete: () => void, isLoading: boolean }) {
   const [recorded, setRecorded] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const user = useAuthStore(s => s.user);
@@ -289,9 +286,11 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: an
         format: blob.type || 'audio/webm',
         timestamp: new Date().toISOString(),
       });
-    } catch (err) {}
+    } catch (err) {
+      console.error('Failed to save offline', err);
+    }
     toast.success('Ghi âm hoàn tất!', 'Bài kể chuyện của bạn đã được lưu.');
-  }, [addRecording, user?.userId, assessmentId, sentences]);
+  }, [addRecording, user, assessmentId, sentences]);
 
   useEffect(() => {
     return () => {
@@ -487,57 +486,59 @@ export function AssessmentPage() {
 
   if (user?.assessmentCompleted && phase !== 'results') {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl p-12 text-center shadow-sm border border-[#e0e4da] max-w-[600px] w-full">
-          <CheckCircle size={64} className="text-[#386a20] mx-auto mb-6" />
-          <h2 className="text-2xl font-bold text-[#191d17] mb-4">Bạn đã hoàn thành GOODVIET Check</h2>
-          <p className="text-[#42493c] mb-8">Mỗi tài khoản chỉ được làm bài test 1 lần duy nhất.</p>
-          <button className="bg-[#386a20] text-white px-8 py-3 rounded-full font-bold shadow-md hover:bg-[#2d561a]" onClick={() => loadResult()}>
+      <main className="flex-1 ml-nav-rail-width min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="bg-surface-lowest rounded-3xl p-12 text-center shadow-sm border border-outline-variant/20 max-w-[600px] w-full">
+          <CheckCircle size={64} className="text-primary mx-auto mb-6" />
+          <h2 className="font-display-sm font-bold text-on-surface mb-4">Bạn đã hoàn thành GOODVIET Check</h2>
+          <p className="text-body-lg text-on-surface-variant mb-8">Mỗi tài khoản chỉ được làm bài test 1 lần duy nhất.</p>
+          <button className="bg-primary text-on-primary px-8 py-3 rounded-full font-bold shadow-md hover:bg-primary-fixed-variant" onClick={() => loadResult()}>
             Xem lại kết quả
           </button>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="w-full min-h-full bg-[#fdfdf5] font-plus-jakarta pb-20">
-      {(phase === 'not_started' || phase === 'intro') && (
-        <div className="pt-20">
-           <IntroPhase onStart={startAssessment} isLoading={isLoading} />
-        </div>
-      )}
+    <main className="flex-1 ml-nav-rail-width min-h-screen pb-12 pt-0 bg-background">
+      <div className="max-w-[1200px] mx-auto p-12 flex flex-col gap-8 h-screen">
+        {(phase === 'not_started' || phase === 'intro') && (
+          <div className="pt-20">
+             <IntroPhase onStart={startAssessment} isLoading={isLoading} />
+          </div>
+        )}
 
-      {phase === 'phase_1' && (
-        <SentenceRecording
-          sentences={sentences}
-          title="Giai đoạn I"
-          subtitle="Đọc to và rõ ràng các câu dưới đây. Hệ thống sẽ phân tích ngữ điệu và độ chính xác của bạn."
-          onComplete={completeCurrentPhase}
-          isLoading={isLoading}
-          phaseKey="phase_1"
-        />
-      )}
+        {phase === 'phase_1' && (
+          <SentenceRecording
+            sentences={sentences}
+            title="Giai đoạn I"
+            subtitle="Đọc to và rõ ràng các câu dưới đây. Hệ thống sẽ phân tích ngữ điệu và độ chính xác của bạn."
+            onComplete={completeCurrentPhase}
+            isLoading={isLoading}
+            phaseKey="phase_1"
+          />
+        )}
 
-      {phase === 'phase_2' && (
-        <SentenceRecording
-          sentences={sentences}
-          title="Giai đoạn II"
-          subtitle="Đọc lại các câu có lỗi phát hiện ở Giai đoạn I để xác nhận"
-          onComplete={completeCurrentPhase}
-          isLoading={isLoading}
-          phaseKey="phase_2"
-        />
-      )}
+        {phase === 'phase_2' && (
+          <SentenceRecording
+            sentences={sentences}
+            title="Giai đoạn II"
+            subtitle="Đọc lại các câu có lỗi phát hiện ở Giai đoạn I để xác nhận"
+            onComplete={completeCurrentPhase}
+            isLoading={isLoading}
+            phaseKey="phase_2"
+          />
+        )}
 
-      {phase === 'phase_3' && (
-        <div className="pt-10">
-           <StorytellingPhase sentences={sentences} onComplete={completeCurrentPhase} isLoading={isLoading} />
-        </div>
-      )}
+        {phase === 'phase_3' && (
+          <div className="pt-10">
+             <StorytellingPhase sentences={sentences} onComplete={completeCurrentPhase} isLoading={isLoading} />
+          </div>
+        )}
 
-      {phase === 'processing' && <div className="pt-20"><ProcessingPhase /></div>}
-      {phase === 'results' && <div className="pt-10"><ResultsPhase /></div>}
-    </div>
+        {phase === 'processing' && <div className="pt-20"><ProcessingPhase /></div>}
+        {phase === 'results' && <div className="pt-10"><ResultsPhase /></div>}
+      </div>
+    </main>
   );
 }

@@ -3,7 +3,7 @@
 
 export const config = {
   // API Configuration
-  apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  apiUrl: import.meta.env.VITE_API_URL || '',
   
   // Feature Flags
   useMockApi: import.meta.env.VITE_USE_MOCK_API !== 'false', // Default: true (mock mode)

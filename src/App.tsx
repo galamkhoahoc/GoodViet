@@ -14,7 +14,7 @@ const RegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ defa
 const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
 const AssessmentPage = lazy(() => import('./pages/AssessmentPage').then(m => ({ default: m.AssessmentPage })));
 const PathwayPage = lazy(() => import('./pages/PathwayPage').then(m => ({ default: m.PathwayPage })));
-const ChatPage = lazy(() => import('./pages/ChatPage').then(m => ({ default: m.ChatPage })));
+// Removed ChatPage import
 const ExpertPage = lazy(() => import('./pages/ExpertPage').then(m => ({ default: m.ExpertPage })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
 
@@ -108,7 +108,7 @@ export default function App() {
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="assessment" element={<AssessmentPage />} />
               <Route path="pathway" element={<PathwayPage />} />
-              <Route path="chat" element={<ChatPage />} />
+              <Route path="chat" element={<ExpertPage />} />
               <Route path="experts" element={<ExpertPage />} />
               <Route path="profile" element={<ProfilePage />} />
             </Route>
