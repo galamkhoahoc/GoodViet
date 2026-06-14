@@ -31,9 +31,7 @@ export function ExpertPage() {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Determine initial contact based on route
-  const isChatRoute = location.pathname.includes('/chat');
-  const [activeContact, setActiveContact] = useState<'bot' | 'expert'>(isChatRoute ? 'bot' : 'expert');
+  const [activeContact, setActiveContact] = useState<'bot' | 'expert'>('bot');
 
   // Zustand Store for AI Bot
   const { messages: botMessages, isTyping: botIsTyping, sendMessage: sendBotMessage, loadMessages } = useChatStore();
@@ -110,7 +108,7 @@ export function ExpertPage() {
               <div className="p-4 border-b border-outline-variant/10">
                  <h4 className="font-label-md font-bold text-on-surface-variant mb-3 uppercase tracking-wider">Trợ lý AI</h4>
                  <div 
-                   onClick={() => { setActiveContact('bot'); navigate('/chat'); }}
+                   onClick={() => setActiveContact('bot')}
                    className={`flex gap-3 p-3 rounded-xl cursor-pointer transition-colors ${activeContact === 'bot' ? 'bg-primary-container/30' : 'hover:bg-surface-container-low'}`}
                  >
                    <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-primary/10 relative">
@@ -138,7 +136,7 @@ export function ExpertPage() {
                  
                  <div className="space-y-1">
                     <div 
-                      onClick={() => { setActiveContact('expert'); navigate('/experts'); }}
+                      onClick={() => setActiveContact('expert')}
                       className={`flex gap-3 p-3 rounded-xl cursor-pointer transition-colors ${activeContact === 'expert' ? 'bg-primary-container/30' : 'hover:bg-surface-container-low'}`}
                     >
                        <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-secondary-container text-on-secondary-container relative flex items-center justify-center">

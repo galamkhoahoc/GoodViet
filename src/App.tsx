@@ -16,6 +16,7 @@ const AssessmentPage = lazy(() => import('./pages/AssessmentPage').then(m => ({ 
 const PathwayPage = lazy(() => import('./pages/PathwayPage').then(m => ({ default: m.PathwayPage })));
 // Removed ChatPage import
 const ExpertPage = lazy(() => import('./pages/ExpertPage').then(m => ({ default: m.ExpertPage })));
+const FindExpertsPage = lazy(() => import('./pages/FindExpertsPage').then(m => ({ default: m.FindExpertsPage })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
 
 function PageLoader() {
@@ -109,7 +110,7 @@ export default function App() {
               <Route path="assessment" element={<AssessmentPage />} />
               <Route path="pathway" element={<PathwayPage />} />
               <Route path="chat" element={<ExpertPage />} />
-              <Route path="experts" element={<ExpertPage />} />
+              <Route path="experts" element={<FindExpertsPage />} />
               <Route path="profile" element={<ProfilePage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
