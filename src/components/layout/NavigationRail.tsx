@@ -22,10 +22,12 @@ export function NavigationRail({ activeTab = 'dashboard', onTabChange }: Navigat
 
   return (
     <nav className="flex flex-col h-screen fixed left-0 top-0 py-6 bg-surface-container-low w-nav-rail-width z-50 items-center border-r border-outline-variant/20">
-      <div className="mb-10 cursor-pointer" onClick={() => handleNavClick('/dashboard', 'dashboard')}>
-        <div className="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container shadow-sm hover:opacity-80 transition-opacity">
-          <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>spa</span>
-        </div>
+      <div className="mb-10 cursor-pointer flex justify-center w-full px-2" onClick={() => handleNavClick('/dashboard', 'dashboard')}>
+        <img 
+          src="/logo.png" 
+          alt="GoodViet Logo" 
+          className="w-12 h-12 object-contain hover:opacity-80 transition-opacity drop-shadow-sm" 
+        />
       </div>
       
       <div className="flex-1 flex flex-col gap-6 w-full px-2">
