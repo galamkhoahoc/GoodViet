@@ -88,8 +88,8 @@ export function NavigationRail({ activeTab = 'dashboard', onTabChange }: Navigat
           <div className="absolute left-full ml-4 px-3 py-1 bg-inverse-surface text-inverse-on-surface text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Join Community</div>
         </button>
         <div className="flex flex-col items-center gap-6">
-          <button className="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors group relative">
-             <span className="material-symbols-outlined text-[20px]">help_center</span>
+          <button onClick={() => handleNavClick('/guide', 'guide')} className={`flex flex-col items-center gap-1 transition-colors group relative ${activeTab === 'guide' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'}`}>
+             <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: activeTab === 'guide' ? "'FILL' 1" : "'FILL' 0" }}>help_center</span>
              <div className="absolute left-full ml-4 px-3 py-1 bg-inverse-surface text-inverse-on-surface text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Hướng dẫn sử dụng</div>
           </button>
           <button onClick={handleLogout} className="flex flex-col items-center gap-1 text-on-surface-variant hover:text-error transition-colors group relative">

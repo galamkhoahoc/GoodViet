@@ -18,6 +18,7 @@ const PathwayPage = lazy(() => import('./pages/PathwayPage').then(m => ({ defaul
 const ExpertPage = lazy(() => import('./pages/ExpertPage').then(m => ({ default: m.ExpertPage })));
 const FindExpertsPage = lazy(() => import('./pages/FindExpertsPage').then(m => ({ default: m.FindExpertsPage })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const GuidePage = lazy(() => import('./pages/GuidePage').then(m => ({ default: m.GuidePage })));
 
 function PageLoader() {
   return <LoadingSpinner size="lg" label="Đang tải trang..." fullPage />;
@@ -112,6 +113,7 @@ export default function App() {
               <Route path="chat" element={<ExpertPage />} />
               <Route path="experts" element={<FindExpertsPage />} />
               <Route path="profile" element={<ProfilePage />} />
+              <Route path="guide" element={<GuidePage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
