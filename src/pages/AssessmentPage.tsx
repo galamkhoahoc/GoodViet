@@ -12,9 +12,9 @@ import { WaveformVisualizer } from '../components/audio/WaveformVisualizer';
 
 function IntroPhase({ onStart, isLoading }: { onStart: () => void, isLoading: boolean }) {
   return (
-    <div className="max-w-[700px] mx-auto text-center bg-surface-lowest rounded-3xl p-12 shadow-sm border border-outline-variant/20 organic-curve">
+    <div className="max-w-[700px] mx-auto text-center bg-surface-lowest organic-curve p-12 shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-transparent">
       <div className="text-5xl mb-6">🎙️</div>
-      <h2 className="font-display-md font-bold mb-4 text-on-surface">
+      <h2 className="font-display-lg font-bold tracking-tight mb-4 text-on-surface">
         <span className="text-primary">GOODVIET Check</span> — Bài test sàng lọc giọng nói
       </h2>
       <p className="text-on-surface-variant text-body-lg mb-8 leading-relaxed">
@@ -45,7 +45,7 @@ function IntroPhase({ onStart, isLoading }: { onStart: () => void, isLoading: bo
       <button
         onClick={onStart}
         disabled={isLoading}
-        className={`w-full max-w-[300px] py-4 px-6 bg-primary text-on-primary rounded-full font-bold flex items-center justify-center gap-2 mx-auto shadow-md transition-all hover:bg-primary-fixed-variant hover:shadow-lg hover:-translate-y-0.5 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+        className={`w-full max-w-[300px] py-4 px-6 bg-primary text-on-primary rounded-full font-bold flex items-center justify-center gap-2 mx-auto shadow-md transition-transform hover:scale-105 hover:bg-primary-fixed-variant ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
       >
         <Play size={18} /> {isLoading ? 'Đang khởi tạo...' : 'Bắt đầu bài test'}
       </button>
@@ -300,20 +300,20 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: As
 
   return (
     <div className="max-w-[800px] mx-auto text-center py-12 px-4">
-      <h2 className="font-display-sm font-bold mb-4 text-on-surface">
+      <h2 className="font-display-lg font-bold tracking-tight mb-4 text-on-surface">
         Giai đoạn III — Kể chuyện tự do
       </h2>
       <p className="font-body-lg text-on-surface-variant mb-10">
         Hãy kể về câu chuyện hàng ngày của bạn. Chúng tôi sẽ đánh giá phát âm, hơi thở, âm điệu và sự tự tin.
       </p>
 
-      <div className="bg-surface-lowest rounded-3xl p-10 shadow-sm border border-outline-variant/20 mb-10 organic-curve">
+      <div className="bg-surface-lowest organic-curve p-10 shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-transparent mb-10">
         <p className="font-headline-md italic text-on-surface leading-relaxed">
           "{mainPrompt}"
         </p>
       </div>
 
-      <div className="bg-surface-lowest rounded-3xl p-8 shadow-sm border border-outline-variant/20 mb-10 organic-curve">
+      <div className="bg-surface-lowest organic-curve p-8 shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-transparent mb-10">
         <AudioRecorder
           onRecordingComplete={handleRecordComplete}
           maxDuration={config.audio.maxDurationSeconds}
@@ -409,11 +409,11 @@ function ResultsPhase() {
     <div className="max-w-[800px] mx-auto py-12 px-4 animate-fade-in-up">
       <div className="text-center mb-12">
         <div className="text-5xl mb-6">📊</div>
-        <h2 className="font-display-md font-bold text-on-surface mb-2">Kết quả <span className="text-primary">GOODVIET Check</span></h2>
+        <h2 className="font-display-lg font-bold tracking-tight text-on-surface mb-2">Kết quả <span className="text-primary">GOODVIET Check</span></h2>
         <p className="font-body-lg text-on-surface-variant">Kết quả phân tích từ AI</p>
       </div>
 
-      <div className="bg-surface-lowest rounded-3xl p-10 text-center shadow-sm border border-outline-variant/20 mb-8 organic-curve">
+      <div className="bg-surface-lowest organic-curve p-10 text-center shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-transparent mb-8">
         <div className={`font-display-lg text-[80px] font-bold mb-2 leading-none ${getScoreColor(result.overallScore)}`}>
           {result.overallScore}
         </div>
@@ -427,14 +427,14 @@ function ResultsPhase() {
           { label: 'Tốc độ nói', value: `${result.speechRate} wpm` },
           { label: 'Mức tự tin', value: result.confidenceLevel === 'high' ? 'Cao' : result.confidenceLevel === 'medium' ? 'Trung bình' : 'Thấp' },
         ].map((s, i) => (
-          <div key={i} className="bg-surface-lowest p-6 rounded-2xl border border-outline-variant/20 text-center shadow-sm hover:-translate-y-1 transition-transform cursor-default">
+          <div key={i} className="bg-surface-lowest organic-curve p-6 border border-transparent text-center shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:-translate-y-1 transition-transform cursor-default">
             <div className="font-label-md text-on-surface-variant mb-2">{s.label}</div>
             <div className="font-headline-md font-bold text-on-surface">{s.value}</div>
           </div>
         ))}
       </div>
 
-      <div className="bg-surface-lowest rounded-3xl p-8 border border-outline-variant/20 shadow-sm mb-8 organic-curve">
+      <div className="bg-surface-lowest organic-curve p-8 border border-transparent shadow-[0_4px_12px_rgba(0,0,0,0.03)] mb-8">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-full bg-error-container text-on-error-container flex items-center justify-center">
              <AlertTriangle size={20} />
@@ -443,7 +443,7 @@ function ResultsPhase() {
         </div>
         <div className="flex flex-col gap-4">
           {result.pronunciationIssues.map((issue, i) => (
-            <div key={i} className="flex items-center justify-between p-5 bg-surface-container-low rounded-2xl border border-outline-variant/20 hover:shadow-sm transition-shadow">
+            <div key={i} className="flex items-center justify-between p-5 bg-surface-container-low organic-curve border border-transparent hover:shadow-[0_4px_12px_rgba(0,0,0,0.03)] transition-shadow">
               <div>
                 <div className="font-title-md font-bold text-on-surface mb-1">Phụ âm {issue.phoneme.toUpperCase()}</div>
                 <div className="font-body-sm text-on-surface-variant">{issue.description}</div>
