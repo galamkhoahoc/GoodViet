@@ -26,7 +26,7 @@ export function NavigationRail({ activeTab = 'dashboard', onTabChange }: Navigat
         <img 
           src="/logo.png" 
           alt="GoodViet Logo" 
-          className="w-12 h-12 object-contain hover:opacity-80 transition-opacity drop-shadow-sm" 
+          className="w-24 h-24 object-contain hover:opacity-80 transition-opacity drop-shadow-sm" 
         />
       </div>
       
