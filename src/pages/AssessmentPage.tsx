@@ -12,12 +12,12 @@ import { WaveformVisualizer } from '../components/audio/WaveformVisualizer';
 
 function IntroPhase({ onStart, isLoading }: { onStart: () => void, isLoading: boolean }) {
   return (
-    <div className="max-w-[700px] mx-auto text-center bg-white rounded-3xl p-12 shadow-sm border border-gray-100">
+    <div className="max-w-[700px] mx-auto text-center bg-surface-lowest rounded-3xl p-12 shadow-sm border border-outline-variant/20 organic-curve">
       <div className="text-5xl mb-6">🎙️</div>
-      <h2 className="text-3xl font-bold mb-4 text-[#191d17]">
-        <span className="text-[#386a20]">GOODVIET Check</span> — Bài test sàng lọc giọng nói
+      <h2 className="font-display-md font-bold mb-4 text-on-surface">
+        <span className="text-primary">GOODVIET Check</span> — Bài test sàng lọc giọng nói
       </h2>
-      <p className="text-[#42493c] mb-8 leading-relaxed text-lg">
+      <p className="text-on-surface-variant text-body-lg mb-8 leading-relaxed">
         Bài test gồm <strong>3 giai đoạn</strong> giúp phân tích chuyên sâu bởi AI và Chuyên gia:
       </p>
       
@@ -27,25 +27,25 @@ function IntroPhase({ onStart, isLoading }: { onStart: () => void, isLoading: bo
           { num: 'II', text: 'Đọc lại các câu bị sai + câu bổ sung để xác nhận lỗi' },
           { num: 'III', text: 'Kể chuyện tự do để đánh giá toàn diện giọng nói' },
         ].map(item => (
-          <div key={item.num} className="p-4 flex gap-4 items-center bg-[#f2f5eb] rounded-2xl">
-            <span className="text-sm font-bold px-3 py-1 bg-[#d8e7cb] text-[#205107] rounded-full shrink-0">
+          <div key={item.num} className="p-4 flex gap-4 items-center bg-surface-container-low rounded-2xl">
+            <span className="font-label-lg px-3 py-1 bg-primary-container text-on-primary-container rounded-full shrink-0">
               {item.num}
             </span>
-            <span className="text-base text-[#191d17]">
+            <span className="font-body-md text-on-surface">
               {item.text}
             </span>
           </div>
         ))}
       </div>
       
-      <p className="text-sm text-[#42493c] mb-8 opacity-80">
+      <p className="font-body-sm text-on-surface-variant mb-8 opacity-80">
         ⚠️ Mỗi tài khoản chỉ được làm bài test này <strong>1 lần duy nhất</strong>. Hãy chuẩn bị ở nơi yên tĩnh.
       </p>
       
       <button
         onClick={onStart}
         disabled={isLoading}
-        className={`w-full max-w-[300px] py-4 px-6 bg-[#386a20] text-white rounded-full font-bold flex items-center justify-center gap-2 mx-auto shadow-md transition-all hover:bg-[#2d561a] ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+        className={`w-full max-w-[300px] py-4 px-6 bg-primary text-on-primary rounded-full font-bold flex items-center justify-center gap-2 mx-auto shadow-md transition-all hover:bg-primary-fixed-variant hover:shadow-lg hover:-translate-y-0.5 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
       >
         <Play size={18} /> {isLoading ? 'Đang khởi tạo...' : 'Bắt đầu bài test'}
       </button>
@@ -300,20 +300,20 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: As
 
   return (
     <div className="max-w-[800px] mx-auto text-center py-12 px-4">
-      <h2 className="text-3xl font-bold mb-4 text-[#191d17]">
+      <h2 className="font-display-sm font-bold mb-4 text-on-surface">
         Giai đoạn III — Kể chuyện tự do
       </h2>
-      <p className="text-[#42493c] mb-10">
+      <p className="font-body-lg text-on-surface-variant mb-10">
         Hãy kể về câu chuyện hàng ngày của bạn. Chúng tôi sẽ đánh giá phát âm, hơi thở, âm điệu và sự tự tin.
       </p>
 
-      <div className="bg-white rounded-3xl p-10 shadow-sm border border-[#e0e4da] mb-10">
-        <p className="text-2xl font-medium italic text-[#191d17] leading-relaxed">
+      <div className="bg-surface-lowest rounded-3xl p-10 shadow-sm border border-outline-variant/20 mb-10 organic-curve">
+        <p className="font-headline-md italic text-on-surface leading-relaxed">
           "{mainPrompt}"
         </p>
       </div>
 
-      <div className="bg-white rounded-3xl p-8 shadow-sm border border-[#e0e4da] mb-10">
+      <div className="bg-surface-lowest rounded-3xl p-8 shadow-sm border border-outline-variant/20 mb-10 organic-curve">
         <AudioRecorder
           onRecordingComplete={handleRecordComplete}
           maxDuration={config.audio.maxDurationSeconds}
@@ -330,14 +330,14 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: As
 
       <div className="text-center">
         <button
-          className={`bg-[#386a20] text-white px-8 py-4 rounded-full font-bold shadow-md transition-all flex items-center justify-center gap-2 mx-auto ${(!recorded || isLoading) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#2d561a]'}`}
+          className={`bg-primary text-on-primary px-8 py-4 rounded-full font-bold shadow-md transition-all flex items-center justify-center gap-2 mx-auto ${(!recorded || isLoading) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-fixed-variant hover:shadow-lg hover:-translate-y-0.5'}`}
           disabled={!recorded || isLoading}
           onClick={onComplete}
         >
           <CheckCircle size={20} /> {isLoading ? 'Đang nộp...' : 'Hoàn thành bài test'}
         </button>
         {!recorded && (
-          <p className="text-sm text-[#42493c] mt-4 opacity-80">
+          <p className="font-body-sm text-on-surface-variant mt-4 opacity-80">
             Bạn cần ghi âm ít nhất 2 phút trước khi hoàn thành.
           </p>
         )}
@@ -376,13 +376,13 @@ function ProcessingPhase() {
 
   return (
     <div className="max-w-[500px] mx-auto text-center py-20 px-4 animate-scale-in">
-      <div className="w-16 h-16 border-4 border-[#e0e4da] border-t-[#386a20] rounded-full animate-spin mx-auto mb-8"></div>
-      <h2 className="text-3xl font-bold mb-4 text-[#191d17]">Hệ thống đang phân tích</h2>
-      <p className="text-[#42493c] mb-8">{statusText}</p>
-      <div className="w-full bg-[#e0e4da] h-2 rounded-full overflow-hidden mb-6">
-        <div className="bg-[#386a20] h-full w-1/2 animate-pulse rounded-full"></div>
+      <div className="w-16 h-16 border-4 border-surface-container-high border-t-primary rounded-full animate-spin mx-auto mb-8"></div>
+      <h2 className="font-display-sm font-bold mb-4 text-on-surface">Hệ thống đang phân tích</h2>
+      <p className="font-body-lg text-on-surface-variant mb-8">{statusText}</p>
+      <div className="w-full bg-surface-container-high h-2 rounded-full overflow-hidden mb-6">
+        <div className="bg-primary h-full w-1/2 animate-pulse rounded-full"></div>
       </div>
-      <p className="text-sm text-[#42493c] opacity-80">
+      <p className="font-body-sm text-on-surface-variant opacity-80">
         Dữ liệu đang được đánh giá bởi cả hệ thống AI và đội ngũ Chuyên gia GOODVIET.
       </p>
     </div>
@@ -397,27 +397,27 @@ function ResultsPhase() {
     if (result) updateUser({ assessmentCompleted: true, currentPathwayId: result.recommendedPathwayId });
   }, [result, updateUser]);
 
-  if (!result) return <div className="text-center p-12">Đang tải kết quả...</div>;
+  if (!result) return <div className="text-center p-12 font-body-lg">Đang tải kết quả...</div>;
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-[#386a20]';
+    if (score >= 80) return 'text-primary';
     if (score >= 60) return 'text-[#006e1c]';
-    return 'text-red-600';
+    return 'text-error';
   };
 
   return (
     <div className="max-w-[800px] mx-auto py-12 px-4 animate-fade-in-up">
       <div className="text-center mb-12">
         <div className="text-5xl mb-6">📊</div>
-        <h2 className="text-3xl font-bold text-[#191d17] mb-2">Kết quả <span className="text-[#386a20]">GOODVIET Check</span></h2>
-        <p className="text-[#42493c]">Kết quả phân tích từ AI</p>
+        <h2 className="font-display-md font-bold text-on-surface mb-2">Kết quả <span className="text-primary">GOODVIET Check</span></h2>
+        <p className="font-body-lg text-on-surface-variant">Kết quả phân tích từ AI</p>
       </div>
 
-      <div className="bg-white rounded-3xl p-10 text-center shadow-sm border border-[#e0e4da] mb-8">
-        <div className={`text-7xl font-bold mb-2 ${getScoreColor(result.overallScore)}`}>
+      <div className="bg-surface-lowest rounded-3xl p-10 text-center shadow-sm border border-outline-variant/20 mb-8 organic-curve">
+        <div className={`font-display-lg text-[80px] font-bold mb-2 leading-none ${getScoreColor(result.overallScore)}`}>
           {result.overallScore}
         </div>
-        <div className="text-[#42493c] font-medium">Điểm tổng thể / 100</div>
+        <div className="font-label-lg text-on-surface-variant">Điểm tổng thể / 100</div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -427,46 +427,48 @@ function ResultsPhase() {
           { label: 'Tốc độ nói', value: `${result.speechRate} wpm` },
           { label: 'Mức tự tin', value: result.confidenceLevel === 'high' ? 'Cao' : result.confidenceLevel === 'medium' ? 'Trung bình' : 'Thấp' },
         ].map((s, i) => (
-          <div key={i} className="bg-white p-6 rounded-2xl border border-[#e0e4da] text-center shadow-sm">
-            <div className="text-sm text-[#42493c] mb-2">{s.label}</div>
-            <div className="text-2xl font-bold text-[#191d17]">{s.value}</div>
+          <div key={i} className="bg-surface-lowest p-6 rounded-2xl border border-outline-variant/20 text-center shadow-sm hover:-translate-y-1 transition-transform cursor-default">
+            <div className="font-label-md text-on-surface-variant mb-2">{s.label}</div>
+            <div className="font-headline-md font-bold text-on-surface">{s.value}</div>
           </div>
         ))}
       </div>
 
-      <div className="bg-white rounded-3xl p-8 border border-[#e0e4da] shadow-sm mb-8">
+      <div className="bg-surface-lowest rounded-3xl p-8 border border-outline-variant/20 shadow-sm mb-8 organic-curve">
         <div className="flex items-center gap-3 mb-6">
-          <AlertTriangle size={24} className="text-[#ba1a1a]" />
-          <span className="text-xl font-bold text-[#191d17]">Các vấn đề phát âm phát hiện</span>
+          <div className="w-10 h-10 rounded-full bg-error-container text-on-error-container flex items-center justify-center">
+             <AlertTriangle size={20} />
+          </div>
+          <span className="font-headline-sm font-bold text-on-surface">Các vấn đề phát âm phát hiện</span>
         </div>
         <div className="flex flex-col gap-4">
           {result.pronunciationIssues.map((issue, i) => (
-            <div key={i} className="flex items-center justify-between p-4 bg-[#f2f5eb] rounded-xl border border-[#e0e4da]">
+            <div key={i} className="flex items-center justify-between p-5 bg-surface-container-low rounded-2xl border border-outline-variant/20 hover:shadow-sm transition-shadow">
               <div>
-                <div className="font-bold text-[#191d17]">Phụ âm {issue.phoneme.toUpperCase()}</div>
-                <div className="text-sm text-[#42493c] mt-1">{issue.description}</div>
+                <div className="font-title-md font-bold text-on-surface mb-1">Phụ âm {issue.phoneme.toUpperCase()}</div>
+                <div className="font-body-sm text-on-surface-variant">{issue.description}</div>
               </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                issue.severity === 'severe' ? 'bg-[#ffdad6] text-[#410002]' : 
-                issue.severity === 'moderate' ? 'bg-[#ffdf99] text-[#261900]' : 
-                'bg-[#c4ecd0] text-[#00210e]'
+              <span className={`px-4 py-1.5 rounded-full font-label-md font-bold ${
+                issue.severity === 'severe' ? 'bg-error-container text-on-error-container' : 
+                issue.severity === 'moderate' ? 'bg-tertiary-container text-on-tertiary-container' : 
+                'bg-primary-container text-on-primary-container'
               }`}>
                 {issue.severity === 'severe' ? 'Nặng' : issue.severity === 'moderate' ? 'Trung bình' : 'Nhẹ'}
               </span>
             </div>
           ))}
           {result.pronunciationIssues.length === 0 && (
-             <div className="text-center text-[#42493c] p-4">Tuyệt vời! Không phát hiện lỗi phát âm nghiêm trọng.</div>
+             <div className="text-center font-body-md text-on-surface-variant p-4">Tuyệt vời! Không phát hiện lỗi phát âm nghiêm trọng.</div>
           )}
         </div>
       </div>
 
-      <div className="bg-[#191d17] rounded-3xl p-10 text-white text-center shadow-lg">
-        <h3 className="text-2xl font-bold mb-4">🎯 Lộ trình được đề xuất</h3>
-        <p className="text-gray-300 mb-8 max-w-[500px] mx-auto">
+      <div className="bg-inverse-surface rounded-3xl p-10 text-inverse-on-surface text-center shadow-lg organic-curve">
+        <h3 className="font-headline-md font-bold mb-4">🎯 Lộ trình được đề xuất</h3>
+        <p className="font-body-md text-inverse-on-surface/80 mb-8 max-w-[500px] mx-auto">
           Dựa trên kết quả phân tích, chúng tôi đã tạo lộ trình cá nhân hóa cho bạn.
         </p>
-        <button className="bg-[#b8f398] text-[#0b2000] px-8 py-4 rounded-full font-bold hover:bg-[#a2db84] transition-colors" onClick={() => { window.location.href = '/pathway'; }}>
+        <button className="bg-primary text-on-primary px-8 py-4 rounded-full font-bold shadow-md hover:bg-primary-fixed-variant hover:shadow-lg hover:-translate-y-0.5 transition-all" onClick={() => { window.location.href = '/pathway'; }}>
           Bắt đầu lộ trình luyện tập →
         </button>
       </div>
