@@ -262,7 +262,7 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: As
   const user = useAuthStore(s => s.user);
   const { addRecording, assessmentId } = useAssessmentStore();
   
-  const mainPrompt = sentences[0]?.text || "Hãy kể về một ngày của bạn";
+  const mainPrompt = "Hôm nay của bạn thế nào? Hãy kể về một việc bạn thấy thú vị nhất hôm nay (nên kể khoảng 1-2 phút).";
 
   const handleRecordComplete = useCallback(async (blob: Blob, duration: number) => {
     const url = URL.createObjectURL(blob);
@@ -304,13 +304,21 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: As
         Giai đoạn III — Kể chuyện tự do
       </h2>
       <p className="font-body-lg text-on-surface-variant mb-10">
-        Hãy kể về câu chuyện hàng ngày của bạn. Chúng tôi sẽ đánh giá phát âm, hơi thở, âm điệu và sự tự tin.
+        Hãy kể một câu chuyện sinh hoạt hằng ngày của bạn (vui lòng chia sẻ chi tiết một chút). Chúng tôi sẽ đánh giá chuyên sâu về phát âm, hơi thở, âm điệu, giọng chuyển và mức độ tự tin.
       </p>
 
       <div className="bg-surface-lowest organic-curve p-10 shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-transparent mb-10">
-        <p className="font-headline-md italic text-on-surface leading-relaxed">
+        <p className="font-headline-md italic text-on-surface leading-relaxed mb-4">
           "{mainPrompt}"
         </p>
+        <div className="text-body-md text-on-surface-variant text-left bg-surface-container-low p-4 rounded-xl inline-block max-w-[500px]">
+          <p className="font-bold mb-2">Gợi ý mở rộng:</p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Bạn đã gặp ai và trò chuyện về điều gì?</li>
+            <li>Cảm xúc của bạn lúc đó ra sao?</li>
+            <li>Bạn rút ra được điều gì từ sự việc đó?</li>
+          </ul>
+        </div>
       </div>
 
       <div className="bg-surface-lowest organic-curve p-8 shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-transparent mb-10">
@@ -378,13 +386,11 @@ function ProcessingPhase() {
     <div className="max-w-[500px] mx-auto text-center py-20 px-4 animate-scale-in">
       <div className="w-16 h-16 border-4 border-surface-container-high border-t-primary rounded-full animate-spin mx-auto mb-8"></div>
       <h2 className="font-display-sm font-bold mb-4 text-on-surface">Hệ thống đang phân tích</h2>
-      <p className="font-body-lg text-on-surface-variant mb-8">{statusText}</p>
+      <p className="font-body-lg text-on-surface-variant mb-2">Vui lòng đợi kết quả sàng lọc khoảng 2-3 phút...</p>
+      <p className="font-body-sm text-on-surface-variant opacity-80 mb-8">(Hệ thống AI và Chuyên gia đang tiến hành đánh giá chuyên sâu. Hiện trạng thái: {statusText})</p>
       <div className="w-full bg-surface-container-high h-2 rounded-full overflow-hidden mb-6">
         <div className="bg-primary h-full w-1/2 animate-pulse rounded-full"></div>
       </div>
-      <p className="font-body-sm text-on-surface-variant opacity-80">
-        Dữ liệu đang được đánh giá bởi cả hệ thống AI và đội ngũ Chuyên gia GOODVIET.
-      </p>
     </div>
   );
 }
@@ -410,8 +416,15 @@ function ResultsPhase() {
       <div className="text-center mb-12">
         <div className="text-5xl mb-6">📊</div>
         <h2 className="font-display-lg font-bold tracking-tight text-on-surface mb-2">Kết quả <span className="text-primary">GOODVIET Check</span></h2>
-        <p className="font-body-lg text-on-surface-variant">Kết quả phân tích từ AI</p>
+        <p className="font-body-lg text-on-surface-variant">Kết quả phân tích từ AI và Chuyên gia</p>
       </div>
+
+      {result.audioUrl && (
+        <div className="bg-surface-lowest organic-curve p-6 mb-8 border border-transparent shadow-[0_4px_12px_rgba(0,0,0,0.03)] flex flex-col items-center">
+           <h3 className="font-headline-sm font-bold text-on-surface mb-4">Đoạn ghi âm của bạn</h3>
+           <audio controls src={result.audioUrl} className="w-full max-w-[400px]" />
+        </div>
+      )}
 
       <div className="bg-surface-lowest organic-curve p-10 text-center shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-transparent mb-8">
         <div className={`font-display-lg text-[80px] font-bold mb-2 leading-none ${getScoreColor(result.overallScore)}`}>

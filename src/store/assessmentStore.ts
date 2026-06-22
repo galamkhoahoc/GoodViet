@@ -70,7 +70,12 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
 
         const response: any = await assessmentApi.completePhase(assessmentId, phase);
         
-        if (response.nextPhase) {
+        if (response.nextPhase === 'restart') {
+          // Trigger restart
+          alert(response.message || 'Cần làm lại bài test từ đầu do có mâu thuẫn trong kết quả đánh giá.');
+          get().reset();
+          return;
+        } else if (response.nextPhase) {
           set({ 
             phase: response.nextPhase as AssessmentPhase,
             sentences: response.sentences || [],

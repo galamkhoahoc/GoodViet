@@ -61,7 +61,10 @@ export class AssessmentController {
         { id: "p1-9", text: "Trâu trắng ăn cỏ trốn trong chuồng trại" },
         { id: "p1-10", text: "Chú chó chê chim chích chòe chảnh chọe" },
         { id: "p1-11", text: "Mùa xuân sang sáo sậu sổ lồng sải cánh bay xa" },
-        { id: "p1-12", text: "Xuân sang xem chim sẻ xào xạc trong lùm xộp" }
+        { id: "p1-12", text: "Xuân sang xem chim sẻ xào xạc trong lùm xộp" },
+        { id: "p1-13", text: "Mẹ mua một mớ cá mú mập mạp" },
+        { id: "p1-14", text: "Giận dỗi chi dạ, dằn vặt cho đau" },
+        { id: "p1-15", text: "Hoa huệ thơm hây hẩy trong hoàng hôn" }
       ];
 
       res.status(201).json({
@@ -147,17 +150,36 @@ export class AssessmentController {
           detectedErrors: ['L/N', 'TR/CH'],
           sentences: [
             { id: "p2-1", text: "Lúa nếp là lúa nếp làng", isRetry: true },
-            { id: "p2-2", text: "Trời trong xanh, trăng tròn trĩnh", isRetry: true },
-            { id: "p2-3", text: "Bà ba béo bán bánh bèo bên bờ biển", isRetry: false },
+            { id: "p2-2", text: "Lúa lên lớp lớp lòng nàng lâng lâng", isRetry: true },
+            { id: "p2-3", text: "Năm nay lũ lớn ngập lụt xóm làng", isRetry: true },
+            { id: "p2-4", text: "Chị nhặt rau rồi luộc, em ăn cơm xong rửa bát", isRetry: true },
+            { id: "p2-5", text: "Lên non mới biết non cao", isRetry: false },
+            { id: "p2-6", text: "Nước chảy đá mòn", isRetry: false },
+            { id: "p2-7", text: "Làm lẽ mọn khóc nỉ non", isRetry: false },
+            { id: "p2-8", text: "Nắng chói chang trên nón lá", isRetry: false },
+            { id: "p2-9", text: "Cái nồi đồng nấu ốc, cái nồi đất nấu ếch", isRetry: false },
+            { id: "p2-10", text: "Ông Nông sao lầm lì nín lặng", isRetry: false }
           ]
         });
       } else if (phase === 'phase_2') {
-        assessment.phase = 'phase_3';
-        await assessment.save();
-        
-        res.status(200).json({
-          nextPhase: 'phase_3'
-        });
+        // Mock cross-validation: 50% chance they passed Phase 2 despite failing Phase 1 (requires restart)
+        const isConflict = Math.random() > 0.5;
+        if (isConflict) {
+          // Restart logic
+          assessment.phase = 'not_started'; 
+          await assessment.save();
+          res.status(200).json({
+            nextPhase: 'restart',
+            message: 'Phát hiện mâu thuẫn trong kết quả đánh giá (bạn đọc sai ở Phần I nhưng lại đúng ở Phần II). Vui lòng làm lại từ đầu để hệ thống hiệu chuẩn.'
+          });
+        } else {
+          assessment.phase = 'phase_3';
+          await assessment.save();
+          
+          res.status(200).json({
+            nextPhase: 'phase_3'
+          });
+        }
       } else if (phase === 'phase_3') {
         assessment.phase = 'processing';
         await assessment.save();
@@ -280,7 +302,7 @@ export class AssessmentController {
                console.error('Fallback failed', fallbackErr);
             }
           }
-        }, 0);
+        }, 30000); // 30 seconds mock wait time so user doesn't wait full 2 minutes during test
 
         res.status(202).json({
           message: 'Analysis started',
@@ -341,6 +363,8 @@ export class AssessmentController {
       const userId = req.userId;
       if (!userId) throw new AppError(401, 'Unauthorized');
 
+      const { AudioRecording } = await import('../models/AudioRecording');
+
       const assessment = await Assessment.findOne({ 
         userId, 
         phase: 'completed' 
@@ -348,6 +372,16 @@ export class AssessmentController {
 
       if (!assessment) {
         throw new AppError(404, 'Chưa có kết quả đánh giá');
+      }
+
+      // Fetch the audio recording for phase 3 to display in results
+      const recording = await AudioRecording.findOne({ assessmentId: assessment._id, phase: 'phase_3' });
+      let audioUrl = undefined;
+      if (recording && recording.fileUrl) {
+        const fileIdStr = recording.fileUrl.split('://')[1];
+        if (fileIdStr) {
+          audioUrl = `/api/audio/stream/${fileIdStr}`;
+        }
       }
 
       res.status(200).json({
@@ -359,6 +393,7 @@ export class AssessmentController {
         speechRate: assessment.speechRate,
         confidenceLevel: assessment.confidenceLevel,
         pronunciationIssues: assessment.pronunciationIssues,
+        audioUrl,
         recommendedPathway: {
           id: assessment.recommendedPathwayId,
           name: 'Khắc phục lỗi L/N cơ bản',

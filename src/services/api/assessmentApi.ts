@@ -29,6 +29,7 @@ export interface Assessment {
   completedAt?: string;
   createdAt: string;
   updatedAt: string;
+  audioUrl?: string;
 }
 
 export interface AssessmentSentence {
