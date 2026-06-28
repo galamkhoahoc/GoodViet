@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useAssessmentStore } from '../store/assessmentStore';
 import { AudioRecorder } from '../components/audio/AudioRecorder';
@@ -396,6 +397,7 @@ function ProcessingPhase() {
 }
 
 function ResultsPhase() {
+  const navigate = useNavigate();
   const { result } = useAssessmentStore();
   const updateUser = useAuthStore(s => s.updateUser);
   
@@ -481,7 +483,7 @@ function ResultsPhase() {
         <p className="font-body-md text-inverse-on-surface/80 mb-8 max-w-[500px] mx-auto">
           Dựa trên kết quả phân tích, chúng tôi đã tạo lộ trình cá nhân hóa cho bạn.
         </p>
-        <button className="bg-primary text-on-primary px-8 py-4 rounded-full font-bold shadow-md hover:bg-primary-fixed-variant hover:shadow-lg hover:-translate-y-0.5 transition-all" onClick={() => { window.location.href = '/pathway'; }}>
+        <button className="bg-primary text-on-primary px-8 py-4 rounded-full font-bold shadow-md hover:bg-primary-fixed-variant hover:shadow-lg hover:-translate-y-0.5 transition-all" onClick={() => navigate('/pathway')}>
           Bắt đầu lộ trình luyện tập →
         </button>
       </div>
