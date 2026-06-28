@@ -27,7 +27,7 @@ export function DashboardPage() {
         {/* Hero Banner / Inspiration */}
         <div className="relative w-full h-[240px] organic-curve overflow-hidden shadow-sm flex items-end p-8 soft-bounce group cursor-pointer">
           <div 
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" 
+            className="absolute inset-0 bg-cover bg-[center_25%] transition-transform duration-700 group-hover:scale-105" 
             style={{ backgroundImage: `url('/images/hero_banner.png')` }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-on-background/80 via-on-background/40 to-transparent"></div>
