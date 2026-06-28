@@ -83,10 +83,12 @@ export function NavigationRail({ activeTab = 'dashboard', onTabChange }: Navigat
 
       {/* Footer Section */}
       <div className="mt-auto mb-6 flex flex-col items-center gap-6 w-full">
+        {/* Nút Join Community tạm ẩn cho đến khi có kế hoạch cụ thể
         <button className="w-12 h-12 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md hover:scale-105 transition-transform group relative">
           <span className="material-symbols-outlined text-[24px]">group_add</span>
           <div className="absolute left-full ml-4 px-3 py-1 bg-inverse-surface text-inverse-on-surface text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Join Community</div>
         </button>
+        */}
         <div className="flex flex-col items-center gap-6">
           <button onClick={() => handleNavClick('/guide', 'guide')} className={`flex flex-col items-center gap-1 transition-colors group relative ${activeTab === 'guide' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'}`}>
              <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: activeTab === 'guide' ? "'FILL' 1" : "'FILL' 0" }}>help_center</span>
