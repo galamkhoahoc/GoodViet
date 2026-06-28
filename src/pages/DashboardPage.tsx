@@ -11,7 +11,7 @@ export function DashboardPage() {
         {/* Page Header */}
         <div className="flex justify-between items-end">
           <div>
-            <p className="font-title-md text-title-md text-on-surface-variant mb-1">Chào mừng {user?.name || 'bạn'} đến với nền tảng</p>
+            <p className="font-title-md text-title-md text-on-surface-variant mb-1">Chào mừng {user?.fullName || 'bạn'} đến với nền tảng</p>
             <h2 className="font-display-lg text-display-lg text-on-background font-bold tracking-tight">Phát hiện sớm, can thiệp, đồng hành</h2>
           </div>
           <div className="flex items-center gap-4">

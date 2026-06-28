@@ -41,10 +41,10 @@ export function Sidebar() {
 
       <div className="sidebar-user">
         <div className="sidebar-avatar">
-          {user?.name?.charAt(0) || 'U'}
+          {user?.fullName?.charAt(0) || 'U'}
         </div>
         <div className="sidebar-user-info">
-          <div className="sidebar-user-name">{user?.name || 'Người dùng'}</div>
+          <div className="sidebar-user-name">{user?.fullName || 'Người dùng'}</div>
           <div className="sidebar-user-email">{user?.email || ''}</div>
         </div>
         <button className="btn btn-ghost btn-icon" onClick={logout} title="Đăng xuất">
