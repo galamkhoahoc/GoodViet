@@ -16,21 +16,42 @@ powershell -ExecutionPolicy Bypass -File tools/erax-browser-model/export_erax_mo
 ```
 
 Script khóa converter ở Transformers.js 3.8.1 và PyTorch 2.6.0 để khớp package frontend, tạo
-các biến thể quantized (bao gồm Q8 cho WASM và FP16 khi converter hỗ trợ), rồi
+biến thể Q8 dành cho WASM, rồi
 xác nhận đủ graph Q8 encoder/decoder mà cấu hình mặc định sử dụng. Model
 gốc được tải vào Hugging Face cache trên máy; script không chứa token và không
 tự upload.
 
-## Phát hành artifact
+## Artifact đã phát hành
+
+Bản Q8 đã kiểm thử được phát hành công khai tại:
+
+`galamkhoahoc/EraX-WoW-Turbo-V1.1-ONNX`
+
+Commit bất biến đang dùng trong frontend:
+
+`9f6a17dd2de6ca0ab33a3f41c608cded527f106f`
+
+Frontend đã có giá trị mặc định này nên người dùng không cần cấu hình hoặc đăng
+nhập Hugging Face. Các biến môi trường bên dưới chỉ dùng để ghi đè khi phát hành
+một phiên bản model mới.
+
+## Phát hành lại artifact
 
 Sau khi kiểm thử output ở
-`tools/erax-browser-model/dist/EraX-WoW-Turbo-V1.1`, tạo một model repository mà
+`tools/erax-browser-model/dist/erax-ai/EraX-WoW-Turbo-V1.1`, tạo một model repository mà
 bạn có quyền quản lý rồi upload toàn bộ thư mục. Không commit các file model lớn
 vào Git của website.
 
+Nếu terminal gặp khó khăn khi dán token ẩn, dùng helper kiểm tra độ dài và tiền
+tố mà không in token ra màn hình:
+
+```powershell
+tools/erax-browser-model/.venv/Scripts/python.exe tools/erax-browser-model/secure_hf_login.py
+```
+
 ```powershell
 hf auth login
-hf upload TEN_TAI_KHOAN/EraX-WoW-Turbo-V1.1-ONNX tools/erax-browser-model/dist/EraX-WoW-Turbo-V1.1 . --repo-type model
+hf upload TEN_TAI_KHOAN/EraX-WoW-Turbo-V1.1-ONNX tools/erax-browser-model/dist/erax-ai/EraX-WoW-Turbo-V1.1 . --repo-type model
 ```
 
 Đặt cấu hình frontend bằng repository và commit SHA sau khi upload:

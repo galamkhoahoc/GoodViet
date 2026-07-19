@@ -51,7 +51,7 @@ New-Item -ItemType Directory -Force -Path $OutputParent | Out-Null
 Write-Host "[4/5] Exporting and quantizing $ModelId. This downloads about 1.62 GB and can take a long time..."
 Push-Location $ConverterRoot
 try {
-  & $Python -m scripts.convert --model_id $ModelId --quantize --output_parent_dir $OutputParent
+  & $Python -m scripts.convert --model_id $ModelId --quantize --modes q8 --output_parent_dir $OutputParent
   if ($LASTEXITCODE -ne 0) { throw 'EraX ONNX conversion failed.' }
 } finally {
   Pop-Location

@@ -36,6 +36,12 @@ export default defineConfig({
     },
   },
   test: {
-    exclude: ['backend/**', 'node_modules/**', 'dist/**'],
+    exclude: [
+      'backend/**',
+      'node_modules/**',
+      'dist/**',
+      'tools/erax-browser-model/.transformers-js-v3.8.1/**',
+      'tools/erax-browser-model/.venv/**',
+    ],
   },
 })
