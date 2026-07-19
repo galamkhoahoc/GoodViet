@@ -7,25 +7,6 @@
 
 import type { User } from '../data/mockUsers';
 
-interface OldUserFormat {
-  userId: string;
-  email: string;
-  name: string; // OLD
-  age: number;
-  phone?: string; // OLD
-  speechDescription: string; // OLD
-  createdAt: string;
-  lastLoginAt: string;
-  isActive: boolean;
-  verifiedEmail: boolean;
-  assessmentCompleted: boolean;
-  currentPathwayId?: string;
-  totalRecordings: number;
-  totalPracticeTime: number;
-  currentStreak: number;
-  longestStreak: number;
-}
-
 /**
  * Migrate old user data format to new format
  */

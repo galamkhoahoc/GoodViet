@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useAssessmentStore } from '../store/assessmentStore';
@@ -6,10 +6,12 @@ import { AudioRecorder } from '../components/audio/AudioRecorder';
 import { AudioPlayer } from '../components/audio/AudioPlayer';
 import { indexedDBService } from '../services/storage/indexedDB';
 import { toast } from '../components/common/Toast';
-import { Play, ChevronRight, CheckCircle, AlertTriangle, Mic, Square, Volume2, Info, RotateCcw, Languages } from 'lucide-react';
+import { Play, CheckCircle, AlertTriangle } from 'lucide-react';
 import { config } from '../config/env';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { WaveformVisualizer } from '../components/audio/WaveformVisualizer';
+import type { AssessmentSentence } from '../services/api/assessmentApi';
+import '../styles/assessment-page.css';
 
 function IntroPhase({ onStart, isLoading }: { onStart: () => void, isLoading: boolean }) {
   return (
@@ -55,7 +57,7 @@ function IntroPhase({ onStart, isLoading }: { onStart: () => void, isLoading: bo
 }
 
 function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, phaseKey }: {
-  sentences: { id: string; text: string }[];
+  sentences: AssessmentSentence[];
   title: string;
   subtitle: string;
   onComplete: () => void;
@@ -66,12 +68,18 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
   const [recordings, setRecordings] = useState<Map<number, { blob: Blob; duration: number; url: string }>>(new Map());
   const { addRecording, assessmentId } = useAssessmentStore();
   const user = useAuthStore(s => s.user);
+  const completionHandlerRef = useRef<((blob: Blob, duration: number) => void) | null>(null);
+  const recordingsRef = useRef(recordings);
+  const handleRecorderComplete = useCallback((blob: Blob, recordingDuration: number) => {
+    completionHandlerRef.current?.(blob, recordingDuration);
+  }, []);
 
   const {
-    isRecording, duration, audioBlob, audioUrl, analyserNode,
+    isRecording, analyserNode,
     startRecording, stopRecording, resetRecording
   } = useAudioRecorder({
     maxDuration: config.audio.maxDurationSeconds,
+    onComplete: handleRecorderComplete,
   });
 
   const handleRecordComplete = useCallback(async (blob: Blob, dur: number) => {
@@ -85,7 +93,7 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
     });
 
     addRecording({
-      sentenceId: sentences[currentIdx].id,
+      sentenceId: sentences[currentIdx].sentenceId,
       blob,
       duration: dur,
       timestamp: new Date().toISOString(),
@@ -95,7 +103,7 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
       await indexedDBService.saveRecording(blob, {
         userId: user?.userId || 'anonymous',
         assessmentId: assessmentId || '',
-        sentenceId: sentences[currentIdx].id,
+        sentenceId: sentences[currentIdx].sentenceId,
         phase: phaseKey,
         duration: dur,
         format: blob.type || 'audio/webm',
@@ -115,16 +123,21 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
   }, [currentIdx, sentences, addRecording, user, assessmentId, phaseKey, resetRecording]);
 
   useEffect(() => {
-    if (audioBlob && !isRecording) {
-      handleRecordComplete(audioBlob, duration);
-    }
-  }, [audioBlob, isRecording, handleRecordComplete, duration]);
+    completionHandlerRef.current = handleRecordComplete;
+    return () => {
+      completionHandlerRef.current = null;
+    };
+  }, [handleRecordComplete]);
+
+  useEffect(() => {
+    recordingsRef.current = recordings;
+  }, [recordings]);
 
   useEffect(() => {
     return () => {
-      recordings.forEach(r => URL.revokeObjectURL(r.url));
+      recordingsRef.current.forEach(r => URL.revokeObjectURL(r.url));
     };
-  }, [recordings]);
+  }, []);
 
   const goToSentence = (idx: number) => {
     setCurrentIdx(idx);
@@ -137,125 +150,123 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
 
   const allDone = recordings.size === sentences.length;
 
+  const idleWaveform = [16, 32, 20, 48, 24, 8, 32, 16, 4, 20, 40, 12, 32, 24, 16, 28];
+
   return (
-    <div className="flex flex-col w-full max-w-[1200px] mx-auto gap-8 h-full">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <div className="inline-flex items-center gap-1 px-3 py-1 bg-teal-800 text-teal-100 rounded-full text-xs font-medium uppercase tracking-wider mb-4">
-            <span className="material-symbols-outlined text-[14px]">headphones</span>
+    <div className="assessment-workflow">
+      <header className="assessment-header">
+        <div className="assessment-header__copy">
+          <div className="assessment-status">
+            <span className="material-symbols-outlined" aria-hidden="true">headphones</span>
             Đang tiến hành
           </div>
-          <h2 className="font-display-lg text-display-lg text-on-background font-bold tracking-tight mb-2">{title}</h2>
-          <p className="text-body-lg text-on-surface-variant max-w-2xl">{subtitle}</p>
+          <h1>Đánh giá Phát âm</h1>
+          <p>{subtitle} Hãy đảm bảo bạn đang ở môi trường yên tĩnh.</p>
         </div>
-        <div className="bg-surface-lowest px-6 py-4 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col items-end">
-           <div className="font-label-lg text-on-surface mb-2">Tiến độ {title} <span className="font-bold text-primary ml-2">{recordings.size}/{sentences.length}</span></div>
-           <div className="w-48 h-2 bg-surface-container-high rounded-full overflow-hidden flex">
-              <div className="bg-primary h-full transition-all duration-300" style={{ width: `${(recordings.size / sentences.length) * 100}%` }}></div>
-           </div>
-        </div>
-      </div>
 
-      <div className="flex flex-1 gap-8 mt-4 h-[600px]">
-        {/* List of Sentences */}
-        <div className="w-[380px] flex flex-col gap-4 overflow-y-auto pr-2 pb-12">
+        <div className="assessment-progress" aria-label={`${recordings.size} trên ${sentences.length} câu đã hoàn thành`}>
+          <div className="assessment-progress__label">
+            <span>Tiến độ {title}</span>
+            <strong>{recordings.size}/{sentences.length}</strong>
+          </div>
+          <div className="assessment-progress__track">
+            <span style={{ width: `${(recordings.size / sentences.length) * 100}%` }} />
+          </div>
+        </div>
+      </header>
+
+      <div className="assessment-grid">
+        <aside className="assessment-sentences" aria-label="Danh sách câu đánh giá">
           {sentences.map((sent, idx) => {
             const recorded = recordings.has(idx);
             const active = currentIdx === idx;
 
-            if (active) {
-              return (
-                <div key={sent.id} onClick={() => goToSentence(idx)} className="bg-surface-lowest p-5 rounded-2xl border-2 border-primary shadow-md flex items-center gap-4 relative cursor-pointer">
-                   <div className="absolute top-1/2 -left-3 -translate-y-1/2 w-1.5 h-12 bg-primary rounded-r-md"></div>
-                   <div className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold shrink-0">
-                     {idx + 1}
-                   </div>
-                   <div className="flex-1">
-                     <p className="font-title-md font-bold text-on-surface mb-1">{sent.text}</p>
-                     <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded font-medium">Đang thực hiện</span>
-                   </div>
-                </div>
-              );
-            }
-
-            if (recorded) {
-              return (
-                <div key={sent.id} onClick={() => goToSentence(idx)} className="bg-surface-lowest p-5 rounded-xl border border-outline-variant/20 flex items-center gap-4 opacity-70 cursor-pointer hover:opacity-100 transition-opacity">
-                   <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface shrink-0">
-                     <span className="material-symbols-outlined text-[16px]">check</span>
-                   </div>
-                   <p className="text-body-md text-on-surface flex-1 line-clamp-2">{sent.text}</p>
-                </div>
-              );
-            }
-
             return (
-              <div key={sent.id} onClick={() => goToSentence(idx)} className="bg-surface-lowest p-5 rounded-xl border border-outline-variant/20 flex items-center gap-4 opacity-50 cursor-pointer hover:opacity-80 transition-opacity">
-                 <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-on-surface-variant shrink-0">
-                   {idx + 1}
-                 </div>
-                 <p className="text-body-md text-on-surface-variant flex-1 line-clamp-2">{sent.text}</p>
-              </div>
+              <button
+                type="button"
+                key={sent.sentenceId}
+                onClick={() => goToSentence(idx)}
+                className={`assessment-sentence${active ? ' is-active' : ''}${recorded && !active ? ' is-complete' : ''}`}
+                aria-current={active ? 'step' : undefined}
+              >
+                <span className="assessment-sentence__number">
+                  {recorded && !active ? (
+                    <span className="material-symbols-outlined" aria-hidden="true">check</span>
+                  ) : idx + 1}
+                </span>
+                <span className="assessment-sentence__content">
+                  <span className="assessment-sentence__text">{sent.text}</span>
+                  {active && <span className="assessment-sentence__state">Đang thực hiện</span>}
+                </span>
+              </button>
             );
           })}
-        </div>
+        </aside>
 
-        {/* Active View */}
-        <div className="flex-1 bg-surface-lowest organic-curve shadow-sm border border-outline-variant/20 flex flex-col p-10 relative">
-           <div className="flex justify-between items-center w-full mb-16">
-             <span className="font-headline-sm font-bold">Câu số {currentIdx + 1}</span>
-             <button className="text-primary font-label-md flex items-center gap-1 hover:underline">
-               <span className="material-symbols-outlined text-[18px]">help</span> Hướng dẫn
-             </button>
-           </div>
-           
-           <div className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto text-center w-full gap-8">
-              <h3 className="font-display-md text-display-md leading-tight text-on-surface">"{sentences[currentIdx].text}"</h3>
-              
-              <div className="w-full bg-surface-container-low rounded-2xl h-24 mt-8 flex items-center justify-center relative overflow-hidden">
-                 {isRecording ? (
-                    <WaveformVisualizer analyserNode={analyserNode} isActive={isRecording} width={400} height={48} barColor="#3b6990" />
-                 ) : (
-                    <span className="mx-4 text-sm font-medium text-on-surface-variant uppercase tracking-widest">Sẵn sàng ghi âm</span>
-                 )}
-              </div>
+        <section className="assessment-recorder" aria-labelledby="current-sentence-heading">
+          <div className="assessment-recorder__topbar">
+            <h2 id="current-sentence-heading">Câu số {currentIdx + 1}</h2>
+            <button type="button" className="assessment-help">
+              <span className="material-symbols-outlined" aria-hidden="true">help</span>
+              Hướng dẫn
+            </button>
+          </div>
 
-              <div className="flex items-center justify-center gap-6 mt-8">
-                <button className="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-surface-container transition-colors shadow-sm">
-                   <span className="material-symbols-outlined text-[24px]">volume_up</span>
-                </button>
-                <button 
-                  onClick={isRecording ? stopRecording : startRecording}
-                  className={`w-20 h-20 rounded-full flex items-center justify-center text-on-primary shadow-lg hover:scale-105 transition-transform group ${isRecording ? 'bg-error' : 'bg-primary'}`}
-                >
-                   {isRecording ? <span className="material-symbols-outlined text-[32px]">square</span> : <span className="material-symbols-outlined text-[32px] group-hover:animate-pulse">mic</span>}
-                </button>
-                <button 
-                  onClick={() => currentIdx < sentences.length - 1 ? goToSentence(currentIdx + 1) : null}
-                  disabled={currentIdx === sentences.length - 1}
-                  className="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-surface-container transition-colors shadow-sm disabled:opacity-50"
-                >
-                   <span className="material-symbols-outlined text-[24px]">skip_next</span>
-                </button>
-              </div>
-           </div>
+          <div className="assessment-recorder__body">
+            <h3>“{sentences[currentIdx].text}”</h3>
 
-           {/* Complete Button Overlay if all done */}
-           {allDone && currentIdx === sentences.length - 1 && (
-              <div className="absolute bottom-10 right-10 z-10 animate-fade-in-up">
-                 <button onClick={onComplete} disabled={isLoading} className="bg-primary text-on-primary px-8 py-4 rounded-full font-bold shadow-lg hover:bg-primary-fixed-variant transition-colors flex items-center gap-2">
-                    {isLoading ? 'Đang gửi...' : 'Hoàn thành giai đoạn'} <span className="material-symbols-outlined">check_circle</span>
-                 </button>
-              </div>
-           )}
-        </div>
+            <div className="assessment-phonetic">
+              <span className="material-symbols-outlined" aria-hidden="true">translate</span>
+              /moj ɓwoj saŋ, toj tʰwəŋ uoŋ mot tat ka fe noŋ/
+            </div>
+
+            <div className={`assessment-waveform${isRecording ? ' is-recording' : ''}`}>
+              {isRecording ? (
+                <WaveformVisualizer analyserNode={analyserNode} isActive={isRecording} width={430} height={54} barColor="#33618d" />
+              ) : (
+                <>
+                  {idleWaveform.slice(0, 8).map((height, idx) => <i key={`before-${idx}`} style={{ height }} />)}
+                  <span>Sẵn sàng ghi âm</span>
+                  {idleWaveform.slice(8).map((height, idx) => <i key={`after-${idx}`} style={{ height }} />)}
+                </>
+              )}
+            </div>
+
+            <div className="assessment-controls">
+              <button type="button" className="assessment-control" aria-label="Nghe câu mẫu">
+                <span className="material-symbols-outlined" aria-hidden="true">volume_up</span>
+              </button>
+              <button
+                type="button"
+                onClick={isRecording ? stopRecording : startRecording}
+                className={`assessment-record${isRecording ? ' is-recording' : ''}`}
+                aria-label={isRecording ? 'Dừng ghi âm' : 'Bắt đầu ghi âm'}
+              >
+                <span className="material-symbols-outlined" aria-hidden="true">{isRecording ? 'square' : 'mic'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => currentIdx < sentences.length - 1 ? goToSentence(currentIdx + 1) : null}
+                disabled={currentIdx === sentences.length - 1}
+                className="assessment-control"
+                aria-label="Bỏ qua câu này"
+              >
+                <span className="material-symbols-outlined" aria-hidden="true">skip_next</span>
+              </button>
+            </div>
+          </div>
+
+          {allDone && currentIdx === sentences.length - 1 && (
+            <button type="button" onClick={onComplete} disabled={isLoading} className="assessment-complete">
+              {isLoading ? 'Đang gửi...' : 'Hoàn thành giai đoạn'}
+              <span className="material-symbols-outlined" aria-hidden="true">check_circle</span>
+            </button>
+          )}
+        </section>
       </div>
     </div>
   );
 }
-
-import type { AssessmentSentence } from '../services/api/assessmentApi';
 
 function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: AssessmentSentence[], onComplete: () => void, isLoading: boolean }) {
   const [recorded, setRecorded] = useState(false);
@@ -271,7 +282,7 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: As
     setRecorded(true);
 
     addRecording({
-      sentenceId: sentences[0]?.id || 'phase_3_storytelling',
+      sentenceId: sentences[0]?.sentenceId || 'phase_3_storytelling',
       blob,
       duration,
       timestamp: new Date().toISOString(),
@@ -281,7 +292,7 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: As
       await indexedDBService.saveRecording(blob, {
         userId: user?.userId || 'anonymous',
         assessmentId: assessmentId || '',
-        sentenceId: sentences[0]?.id || 'phase_3_storytelling',
+        sentenceId: sentences[0]?.sentenceId || 'phase_3_storytelling',
         phase: 'phase_3',
         duration,
         format: blob.type || 'audio/webm',
@@ -413,6 +424,9 @@ function ResultsPhase() {
     return 'text-error';
   };
 
+  const overallScore = result.overallScore ?? 0;
+  const pronunciationIssues = result.pronunciationIssues ?? [];
+
   return (
     <div className="max-w-[800px] mx-auto py-12 px-4 animate-fade-in-up">
       <div className="text-center mb-12">
@@ -429,18 +443,18 @@ function ResultsPhase() {
       )}
 
       <div className="bg-surface-lowest organic-curve p-10 text-center shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-transparent mb-8">
-        <div className={`font-display-lg text-[80px] font-bold mb-2 leading-none ${getScoreColor(result.overallScore)}`}>
-          {result.overallScore}
+        <div className={`font-display-lg text-[80px] font-bold mb-2 leading-none ${getScoreColor(overallScore)}`}>
+          {overallScore}
         </div>
         <div className="font-label-lg text-on-surface-variant">Điểm tổng thể / 100</div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Phát âm rõ ràng', value: result.clarityScore },
-          { label: 'Độ trôi chảy', value: result.fluencyScore },
-          { label: 'Tốc độ nói', value: `${result.speechRate} wpm` },
-          { label: 'Mức tự tin', value: result.confidenceLevel === 'high' ? 'Cao' : result.confidenceLevel === 'medium' ? 'Trung bình' : 'Thấp' },
+          { label: 'Phát âm rõ ràng', value: result.clarityScore ?? 0 },
+          { label: 'Độ trôi chảy', value: result.fluencyScore ?? 0 },
+          { label: 'Tốc độ nói', value: `${result.speechRate ?? 0} wpm` },
+          { label: 'Mức tự tin', value: result.confidenceLevel === 'high' ? 'Cao' : result.confidenceLevel === 'medium' ? 'Trung bình' : result.confidenceLevel === 'low' ? 'Thấp' : 'Chưa xác định' },
         ].map((s, i) => (
           <div key={i} className="bg-surface-lowest organic-curve p-6 border border-transparent text-center shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:-translate-y-1 transition-transform cursor-default">
             <div className="font-label-md text-on-surface-variant mb-2">{s.label}</div>
@@ -457,7 +471,7 @@ function ResultsPhase() {
           <span className="font-headline-sm font-bold text-on-surface">Các vấn đề phát âm phát hiện</span>
         </div>
         <div className="flex flex-col gap-4">
-          {result.pronunciationIssues.map((issue, i) => (
+          {pronunciationIssues.map((issue, i) => (
             <div key={i} className="flex items-center justify-between p-5 bg-surface-container-low organic-curve border border-transparent hover:shadow-[0_4px_12px_rgba(0,0,0,0.03)] transition-shadow">
               <div>
                 <div className="font-title-md font-bold text-on-surface mb-1">Phụ âm {issue.phoneme.toUpperCase()}</div>
@@ -472,7 +486,7 @@ function ResultsPhase() {
               </span>
             </div>
           ))}
-          {result.pronunciationIssues.length === 0 && (
+          {pronunciationIssues.length === 0 && (
              <div className="text-center font-body-md text-on-surface-variant p-4">Tuyệt vời! Không phát hiện lỗi phát âm nghiêm trọng.</div>
           )}
         </div>
@@ -517,8 +531,8 @@ export function AssessmentPage() {
   }
 
   return (
-    <main className="flex-1 ml-nav-rail-width min-h-screen pb-12 pt-0 bg-background">
-      <div className="max-w-[1200px] mx-auto p-12 flex flex-col gap-8 h-screen">
+    <main className="assessment-page flex-1 ml-nav-rail-width min-h-screen bg-background">
+      <div className="assessment-page__content">
         {(phase === 'not_started' || phase === 'intro') && (
           <div className="pt-20">
              <IntroPhase onStart={startAssessment} isLoading={isLoading} />

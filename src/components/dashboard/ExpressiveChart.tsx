@@ -12,7 +12,6 @@ const data = [
 
 export function ExpressiveChart() {
   const maxVal = 15;
-  const targetVal = 10;
   
   return (
     <div style={{ 

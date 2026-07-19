@@ -1,157 +1,134 @@
-import React, { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useAuthStore } from '../store/authStore';
+import '../styles/login-page.css';
 
 export function LoginPage() {
-  const login = useAuthStore(s => s.login);
+  const login = useAuthStore((state) => state.login);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setError('');
-    if (!email || !password) { 
-      setError('Vui lòng điền đầy đủ thông tin'); 
-      return; 
+
+    if (!email.trim() || !password) {
+      setError('Vui lòng điền đầy đủ email và mật khẩu.');
+      return;
     }
-    
+
     setIsLoading(true);
-    const success = await login(email, password);
+    const success = await login(email.trim(), password);
     setIsLoading(false);
-    
+
     if (!success) {
-      setError('Email hoặc mật khẩu không đúng. Hãy đăng ký nếu chưa có tài khoản.');
+      setError('Email hoặc mật khẩu không đúng. Vui lòng kiểm tra và thử lại.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-surface flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="w-20 h-20 bg-primary-container text-on-primary-container rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm rotate-3">
-           <span className="material-symbols-outlined text-[40px]">communication</span>
-        </div>
-        <h2 className="mt-6 text-center text-display-sm font-display-sm font-bold text-on-surface tracking-tight">
-          Chào mừng trở lại
-        </h2>
-        <p className="mt-2 text-center text-body-md text-on-surface-variant">
-          Đăng nhập để tiếp tục hành trình của bạn
-        </p>
-      </div>
+    <main className="gv-login">
+      <section className="gv-login__card" aria-labelledby="login-title">
+        <div className="gv-login__form-panel">
+          <div className="gv-login__brand" aria-label="GoodViet">
+            <span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>
+            <strong>GoodViet</strong>
+          </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-surface-lowest py-8 px-4 shadow-[0_4px_12px_rgba(0,0,0,0.03)] organic-curve border border-outline-variant/20 sm:px-10">
-          <form className="space-y-6" onSubmit={handleLogin}>
-            <div>
-              <label htmlFor="email" className="block text-label-md font-medium text-on-surface mb-2">
-                Địa chỉ Email
-              </label>
-              <div className="mt-1">
+          <div className="gv-login__form-wrap">
+            <header className="gv-login__heading">
+              <h1 id="login-title">Đăng nhập</h1>
+              <p>Để tiếp tục đến không gian của bạn.</p>
+            </header>
+
+            <form className="gv-login__form" onSubmit={handleLogin} noValidate>
+              <div className="gv-login__field">
+                <label htmlFor="login-email">Email hoặc tên đăng nhập</label>
                 <input
-                  id="email"
+                  id="login-email"
                   name="email"
                   type="text"
                   autoComplete="username"
-                  required
+                  inputMode="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3 border border-outline-variant/50 rounded-xl shadow-sm placeholder-on-surface-variant/50 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-surface-container-low text-on-surface"
-                  placeholder="name@example.com"
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="Email hoặc username"
+                  aria-invalid={Boolean(error)}
                 />
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="password" className="block text-label-md font-medium text-on-surface mb-2">
-                Mật khẩu
-              </label>
-              <div className="mt-1">
+              <div className="gv-login__field gv-login__password-field">
+                <label htmlFor="login-password">Mật khẩu</label>
                 <input
-                  id="password"
+                  id="login-password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
-                  required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3 border border-outline-variant/50 rounded-xl shadow-sm placeholder-on-surface-variant/50 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-surface-container-low text-on-surface"
-                  placeholder="••••••••"
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Mật khẩu"
+                  aria-invalid={Boolean(error)}
                 />
-              </div>
-            </div>
-
-            {error && (
-              <div className="w-full bg-error-container border border-error rounded-xl p-3 text-sm text-on-error-container">
-                {error}
-              </div>
-            )}
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-primary focus:ring-primary border-outline-variant rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-body-sm text-on-surface-variant">
-                  Ghi nhớ đăng nhập
-                </label>
+                <button
+                  className="gv-login__visibility"
+                  type="button"
+                  onClick={() => setShowPassword((visible) => !visible)}
+                  aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  aria-pressed={showPassword}
+                >
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    {showPassword ? 'visibility' : 'visibility_off'}
+                  </span>
+                </button>
               </div>
 
-              <div className="text-body-sm">
-                <a href="#" className="font-medium text-primary hover:text-primary/80">
-                  Quên mật khẩu?
-                </a>
-              </div>
-            </div>
+              {error && (
+                <p className="gv-login__error" role="alert">
+                  <span className="material-symbols-outlined" aria-hidden="true">error</span>
+                  {error}
+                </p>
+              )}
 
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-label-lg font-medium text-on-primary bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-70"
-              >
+              <div className="gv-login__help">
+                <strong>Cần hỗ trợ?</strong>
+                <p>Nếu quên mật khẩu, vui lòng liên hệ giáo viên của bạn để được cấp lại tài khoản.</p>
+              </div>
+
+              <button className="gv-login__submit" type="submit" disabled={isLoading}>
                 {isLoading ? (
-                  <span className="material-symbols-outlined animate-spin">refresh</span>
+                  <>
+                    <span className="material-symbols-outlined gv-login__spinner" aria-hidden="true">progress_activity</span>
+                    Đang xử lý
+                  </>
                 ) : (
-                  'Đăng nhập'
+                  <>
+                    Tiếp tục
+                    <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                  </>
                 )}
               </button>
-            </div>
-          </form>
+            </form>
+          </div>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-outline-variant/30" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-surface-lowest text-on-surface-variant">Hoặc tiếp tục với</span>
-              </div>
-            </div>
+          <p className="gv-login__credit">Một dự án của Phú Quý &amp; TCG Science</p>
+        </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <div>
-                <button
-                  type="button"
-                  className="w-full inline-flex justify-center py-2.5 px-4 border border-outline-variant/30 rounded-xl shadow-sm bg-surface-lowest text-label-md font-medium text-on-surface hover:bg-surface-container-low transition-colors"
-                >
-                  <img className="h-5 w-5" src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" />
-                </button>
-              </div>
-              <div>
-                <button
-                  type="button"
-                  className="w-full inline-flex justify-center py-2.5 px-4 border border-outline-variant/30 rounded-xl shadow-sm bg-surface-lowest text-label-md font-medium text-on-surface hover:bg-surface-container-low transition-colors"
-                >
-                  <img className="h-5 w-5" src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" />
-                </button>
+        <div className="gv-login__art-panel" aria-hidden="true">
+          <div className="gv-login__orbit gv-login__orbit--outer">
+            <span className="gv-login__shape gv-login__shape--sparkle">✦</span>
+            <span className="gv-login__shape gv-login__shape--diamond" />
+            <span className="gv-login__shape gv-login__shape--triangle" />
+            <span className="gv-login__shape gv-login__shape--star">✧</span>
+            <div className="gv-login__orbit gv-login__orbit--inner">
+              <div className="gv-login__orbit gv-login__orbit--core">
+                <span className="material-symbols-outlined gv-login__book">auto_stories</span>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

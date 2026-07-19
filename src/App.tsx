@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { useAuthStore } from './store/authStore';
 import { Layout } from './components/layout/Layout';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
@@ -84,11 +84,19 @@ export default function App() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
   const initSync = useSyncStore(s => s.init);
   const destroySync = useSyncStore(s => s.destroy);
+  const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     // Run migration before loading user data
     autoMigrateOnLoad();
-    loadFromStorage();
+    loadFromStorage().finally(() => {
+      if (isMounted) setIsAuthReady(true);
+    });
+
+    return () => {
+      isMounted = false;
+    };
   }, [loadFromStorage]);
 
   // Initialize sync manager when authenticated
@@ -98,6 +106,8 @@ export default function App() {
       return () => destroySync();
     }
   }, [isAuthenticated, initSync, destroySync]);
+
+  if (!isAuthReady) return <PageLoader />;
 
   return (
     <ErrorBoundary>

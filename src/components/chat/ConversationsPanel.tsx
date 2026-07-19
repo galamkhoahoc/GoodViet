@@ -3,7 +3,7 @@ import { useChatStore } from '../../store/chatStore';
 import { Plus } from 'lucide-react';
 
 export function ConversationsPanel() {
-  const { sessions, activeSessionId, loadSessions, createSession, switchSession, deleteSession } = useChatStore();
+  const { sessions, activeSessionId, loadSessions, createSession, switchSession } = useChatStore();
 
   useEffect(() => {
     loadSessions();

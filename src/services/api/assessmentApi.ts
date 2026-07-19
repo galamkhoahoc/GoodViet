@@ -20,6 +20,8 @@ export interface Assessment {
   overallScore?: number;
   clarityScore?: number;
   fluencyScore?: number;
+  speechRate?: number;
+  confidenceLevel?: 'low' | 'medium' | 'high';
   pronunciationIssues?: Array<{
     phoneme: string;
     severity: 'mild' | 'moderate' | 'severe';

@@ -6,12 +6,21 @@ interface NavigationRailProps {
   onTabChange?: (tab: string) => void;
 }
 
+const navigationItems = [
+  { id: 'dashboard', path: '/dashboard', icon: 'home', label: 'Trang chủ' },
+  { id: 'pathway', path: '/pathway', icon: 'auto_stories', label: 'Lộ trình' },
+  { id: 'assessment', path: '/assessment', icon: 'fact_check', label: 'Đánh giá' },
+  { id: 'chat', path: '/chat', icon: 'forum', label: 'Tin nhắn & Chuyên gia' },
+  { id: 'profile', path: '/profile', icon: 'person', label: 'Hồ sơ' },
+  { id: 'settings', path: '/settings', icon: 'settings', label: 'Cài đặt' },
+] as const;
+
 export function NavigationRail({ activeTab = 'dashboard', onTabChange }: NavigationRailProps) {
   const navigate = useNavigate();
   const logout = useAuthStore(s => s.logout);
 
-  const handleNavClick = (path: string, id: string) => {
-    if (onTabChange) onTabChange(id);
+  const goTo = (path: string, id: string) => {
+    onTabChange?.(id);
     navigate(path);
   };
 
@@ -21,86 +30,64 @@ export function NavigationRail({ activeTab = 'dashboard', onTabChange }: Navigat
   };
 
   return (
-    <nav className="flex flex-col h-screen fixed left-0 top-0 py-6 bg-surface-container-low w-nav-rail-width z-50 items-center border-r border-outline-variant/20">
-      <div className="mb-10 cursor-pointer flex justify-center w-full px-2" onClick={() => handleNavClick('/dashboard', 'dashboard')}>
-        <img 
-          src="/logo.png" 
-          alt="GoodViet Logo" 
-          className="w-24 h-24 object-contain hover:opacity-80 transition-opacity drop-shadow-sm" 
-        />
-      </div>
-      
-      <div className="flex-1 flex flex-col gap-6 w-full px-2">
-        <button onClick={() => handleNavClick('/dashboard', 'dashboard')} className="flex flex-col items-center gap-1 group">
-          <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${activeTab === 'dashboard' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-variant'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: activeTab === 'dashboard' ? "'FILL' 1" : "'FILL' 0" }}>home</span>
-          </div>
-          <span className={`font-label-md text-[11px] ${activeTab === 'dashboard' ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>Trang chủ</span>
-        </button>
+    <nav className="gv-navigation" aria-label="Điều hướng chính">
+      <button
+        type="button"
+        className="gv-navigation__brand"
+        onClick={() => goTo('/dashboard', 'dashboard')}
+        aria-label="Về trang chủ GoodViet"
+      >
+        <span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>
+      </button>
 
-        <button onClick={() => handleNavClick('/assessment', 'assessment')} className="flex flex-col items-center gap-1 group">
-          <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${activeTab === 'assessment' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-variant'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: activeTab === 'assessment' ? "'FILL' 1" : "'FILL' 0" }}>grid_view</span>
-          </div>
-          <span className={`font-label-md text-[11px] ${activeTab === 'assessment' ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>Đánh giá</span>
-        </button>
+      <div className="gv-navigation__items">
+        {navigationItems.map(item => {
+          const isActive = activeTab === item.id;
 
-        <button onClick={() => handleNavClick('/pathway', 'pathway')} className="flex flex-col items-center gap-1 group">
-          <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${activeTab === 'pathway' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-variant'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: activeTab === 'pathway' ? "'FILL' 1" : "'FILL' 0" }}>auto_stories</span>
-          </div>
-          <span className={`font-label-md text-[11px] ${activeTab === 'pathway' ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>Lộ trình</span>
-        </button>
-
-        <button onClick={() => handleNavClick('/chat', 'chat')} className="flex flex-col items-center gap-1 group">
-          <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${activeTab === 'chat' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-variant'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: activeTab === 'chat' ? "'FILL' 1" : "'FILL' 0" }}>forum</span>
-          </div>
-          <span className={`font-label-md text-[11px] ${activeTab === 'chat' ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>Chatbot</span>
-        </button>
-
-        <button onClick={() => handleNavClick('/experts', 'experts')} className="flex flex-col items-center gap-1 group">
-          <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${activeTab === 'experts' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-variant'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: activeTab === 'experts' ? "'FILL' 1" : "'FILL' 0" }}>diversity_3</span>
-          </div>
-          <span className={`font-label-md text-[11px] min-w-max ${activeTab === 'experts' ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>Chuyên gia</span>
-        </button>
-
-        <button onClick={() => handleNavClick('/profile', 'profile')} className="flex flex-col items-center gap-1 group">
-          <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${activeTab === 'profile' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-variant'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: activeTab === 'profile' ? "'FILL' 1" : "'FILL' 0" }}>person</span>
-          </div>
-          <span className={`font-label-md text-[11px] ${activeTab === 'profile' ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>Hồ sơ</span>
-        </button>
-
-        <button onClick={() => handleNavClick('/settings', 'settings')} className="flex flex-col items-center gap-1 group">
-          <div className={`w-14 h-8 rounded-full flex items-center justify-center transition-colors ${activeTab === 'settings' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-variant'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: activeTab === 'settings' ? "'FILL' 1" : "'FILL' 0" }}>settings</span>
-          </div>
-          <span className={`font-label-md text-[11px] ${activeTab === 'settings' ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>Cài đặt</span>
-        </button>
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className={`gv-navigation__item${isActive ? ' is-active' : ''}`}
+              onClick={() => goTo(item.path, item.id)}
+              aria-current={isActive ? 'page' : undefined}
+              title={item.label}
+            >
+              <span className="gv-navigation__indicator">
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
+                  aria-hidden="true"
+                >
+                  {item.icon}
+                </span>
+              </span>
+              <span className="gv-navigation__label">{item.label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Footer Section */}
-      <div className="mt-auto mb-6 flex flex-col items-center gap-6 w-full">
-        {/* Nút Join Community tạm ẩn cho đến khi có kế hoạch cụ thể
-        <button className="w-12 h-12 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md hover:scale-105 transition-transform group relative">
-          <span className="material-symbols-outlined text-[24px]">group_add</span>
-          <div className="absolute left-full ml-4 px-3 py-1 bg-inverse-surface text-inverse-on-surface text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Join Community</div>
+      <div className="gv-navigation__footer">
+        <button
+          type="button"
+          className="gv-navigation__community"
+          onClick={() => goTo('/experts', 'experts')}
+          aria-label="Kết nối chuyên gia"
+          title="Kết nối chuyên gia"
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">group_add</span>
         </button>
-        */}
-        <div className="flex flex-col items-center gap-6">
-          <button onClick={() => handleNavClick('/guide', 'guide')} className={`flex flex-col items-center gap-1 transition-colors group relative ${activeTab === 'guide' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'}`}>
-             <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: activeTab === 'guide' ? "'FILL' 1" : "'FILL' 0" }}>help_center</span>
-             <div className="absolute left-full ml-4 px-3 py-1 bg-inverse-surface text-inverse-on-surface text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Hướng dẫn sử dụng</div>
+
+        <div className="gv-navigation__utility">
+          <button type="button" onClick={() => goTo('/guide', 'guide')} aria-label="Hướng dẫn" title="Hướng dẫn">
+            <span className="material-symbols-outlined" aria-hidden="true">help</span>
           </button>
-          <button onClick={handleLogout} className="flex flex-col items-center gap-1 text-on-surface-variant hover:text-error transition-colors group relative">
-             <span className="material-symbols-outlined text-[20px]">logout</span>
-             <div className="absolute left-full ml-4 px-3 py-1 bg-inverse-surface text-inverse-on-surface text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Đăng xuất</div>
+          <button type="button" onClick={handleLogout} aria-label="Đăng xuất" title="Đăng xuất">
+            <span className="material-symbols-outlined" aria-hidden="true">logout</span>
           </button>
         </div>
       </div>
     </nav>
   );
 }
-

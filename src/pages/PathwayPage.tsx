@@ -1,162 +1,281 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  ArrowRight,
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  Flame,
+  Headphones,
+  Languages,
+  MessageSquareText,
+  Mic,
+  Play,
+  Sparkles,
+  Target,
+  X,
+} from 'lucide-react';
+import '../styles/pathway-page.css';
+
+type Exercise = {
+  id: 'reading' | 'listening' | 'speaking';
+  icon: 'book' | 'headphones' | 'mic';
+  status: 'Chưa làm' | 'Đang làm';
+  title: string;
+  description: string;
+  progress: number;
+};
+
+const EXERCISES: Exercise[] = [
+  {
+    id: 'reading',
+    icon: 'book',
+    status: 'Chưa làm',
+    title: 'Đọc hiểu: Văn hóa Trà',
+    description: 'Tìm hiểu về nghệ thuật thưởng trà truyền thống của người Việt qua góc nhìn hiện đại.',
+    progress: 0,
+  },
+  {
+    id: 'listening',
+    icon: 'headphones',
+    status: 'Đang làm',
+    title: 'Nghe: Podcast Lịch sử',
+    description: 'Lắng nghe câu chuyện về triều đại nhà Trần và những chiến công hiển hách.',
+    progress: 45,
+  },
+  {
+    id: 'speaking',
+    icon: 'mic',
+    status: 'Chưa làm',
+    title: 'Nói: Giao tiếp hàng ngày',
+    description: 'Luyện tập phát âm và ngữ điệu qua các tình huống giao tiếp tại chợ truyền thống.',
+    progress: 0,
+  },
+];
+
+const COMPLETED_DAYS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+
+function ExerciseIcon({ type }: { type: Exercise['icon'] }) {
+  if (type === 'headphones') return <Headphones size={22} />;
+  if (type === 'mic') return <Mic size={22} />;
+  return <BookOpen size={22} />;
+}
 
 export function PathwayPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [activeLesson, setActiveLesson] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [currentMonth, setCurrentMonth] = useState(() => new Date(2024, 9, 1));
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
-  const categories = {
-    'daily': {
-      title: 'Giao tiếp hàng ngày',
-      icon: 'receipt_long',
-      color: 'bg-primary-container text-on-primary-container',
-      lessons: [
-        { id: 'd1', name: 'Bài 1: Chào hỏi cơ bản', duration: '5 phút' },
-        { id: 'd2', name: 'Bài 2: Mua sắm ở chợ', duration: '8 phút' },
-        { id: 'd3', name: 'Bài 3: Hỏi đường đi', duration: '6 phút' },
-      ]
-    },
-    'culture': {
-      title: 'Văn hóa & Lịch sử',
-      icon: 'museum',
-      color: 'bg-tertiary-container text-on-tertiary-container',
-      lessons: [
-        { id: 'c1', name: 'Bài 1: Tết Nguyên Đán', duration: '10 phút' },
-        { id: 'c2', name: 'Bài 2: Áo dài truyền thống', duration: '7 phút' },
-      ]
-    },
-    'work': {
-      title: 'Tiếng Việt Công sở',
-      icon: 'business_center',
-      color: 'bg-secondary-container text-on-secondary-container',
-      lessons: [
-        { id: 'w1', name: 'Bài 1: Viết email chuyên nghiệp', duration: '12 phút' },
-        { id: 'w2', name: 'Bài 2: Thuyết trình cuộc họp', duration: '15 phút' },
-      ]
-    }
-  };
+  const calendarDays = useMemo(() => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const mondayBasedFirstDay = (new Date(year, month, 1).getDay() + 6) % 7;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const cells: Array<number | null> = Array.from({ length: mondayBasedFirstDay }, () => null);
 
-  const handleOpenCategory = (id: string) => {
-    setSelectedCategory(id);
-    setActiveLesson(null);
-  };
+    for (let day = 1; day <= daysInMonth; day += 1) cells.push(day);
+    while (cells.length % 7 !== 0) cells.push(null);
+    return cells;
+  }, [currentMonth]);
+
+  useEffect(() => {
+    if (!selectedExercise) return undefined;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedExercise(null);
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [selectedExercise]);
+
+  const isReferenceMonth = currentMonth.getFullYear() === 2024 && currentMonth.getMonth() === 9;
 
   return (
-    <main className="flex-1 ml-nav-rail-width min-h-screen pb-12 pt-0 bg-background text-on-background relative">
-      <div className="max-w-[1200px] mx-auto p-12">
-        <h2 className="font-display-lg text-display-lg font-bold tracking-tight mb-8">Thư viện luyện tập</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div onClick={() => handleOpenCategory('daily')} className="bg-surface-lowest organic-curve p-6 shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-transparent hover:border-outline-variant/30 soft-bounce cursor-pointer group">
-             <div className="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-6 overflow-hidden">
-                <span className="material-symbols-outlined text-[28px]">receipt_long</span>
-             </div>
-             <h3 className="font-title-lg font-bold mb-2 text-on-surface">Giao tiếp hàng ngày</h3>
-             <p className="font-body-md text-on-surface-variant mb-6 line-clamp-2">Luyện tập các mẫu câu phổ biến khi đi chợ, mua sắm và đi lại hàng ngày.</p>
-             <div className="flex justify-between items-center">
-               <span className="font-label-sm bg-surface-container-low px-3 py-1 rounded-full text-on-surface-variant font-medium">24 Bài học</span>
-               <button className="text-primary group-hover:translate-x-1 transition-transform">
-                 <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
-               </button>
-             </div>
+    <main className="gv-pathway flex-1 ml-nav-rail-width min-h-screen">
+      <div className="gv-pathway__content">
+        <header className="gv-pathway__header">
+          <div>
+            <p>Thứ Năm, 24 Tháng 10</p>
+            <h1>Tiến độ hôm nay</h1>
+          </div>
+          <button type="button" className="gv-pathway__avatar" onClick={() => navigate('/profile')} aria-label="Mở hồ sơ">
+            <img src="/images/pathway-avatar.png" alt="Ảnh đại diện người dùng" />
+          </button>
+        </header>
+
+        <section className="gv-pathway__quote" aria-label="Trích dẫn trong ngày">
+          <img src="/images/pathway-quote-banner.png" alt="Bình hoa và bộ trà trong không gian Việt" />
+          <div className="gv-pathway__quote-overlay" />
+          <div className="gv-pathway__quote-copy">
+            <span>TRÍCH DẪN TRONG NGÀY</span>
+            <blockquote>“Học tập là hạt giống của kiến thức, kiến thức là hạt giống của hạnh phúc.”</blockquote>
+          </div>
+        </section>
+
+        <section className="gv-pathway__metrics" aria-label="Tổng quan tiến độ">
+          <article className="gv-pathway__streak">
+            <div className="gv-pathway__metric-heading">
+              <span>Chuỗi ngày học</span>
+              <span className="gv-pathway__round-icon"><Flame size={20} /></span>
+            </div>
+            <strong>14 <small>Ngày</small></strong>
+            <p>Tuyệt vời! Tiếp tục duy trì nhé.</p>
+          </article>
+
+          <article className="gv-pathway__goal">
+            <div className="gv-pathway__metric-heading">
+              <span>Mục tiêu hôm nay</span>
+              <Target size={22} />
+            </div>
+            <div className="gv-pathway__goal-body">
+              <div className="gv-pathway__ring" aria-label="Đã hoàn thành 75 phần trăm">
+                <svg viewBox="0 0 74 74" aria-hidden="true">
+                  <circle cx="37" cy="37" r="29" />
+                  <circle className="gv-pathway__ring-progress" cx="37" cy="37" r="29" />
+                </svg>
+                <strong>75%</strong>
+              </div>
+              <p>Còn lại 15 phút để hoàn thành mục tiêu.</p>
+            </div>
+          </article>
+
+          <article className="gv-pathway__week">
+            <div className="gv-pathway__metric-heading">
+              <span>Tiến độ tuần</span>
+              <span className="gv-pathway__week-pill">4/7 Ngày</span>
+            </div>
+            <div className="gv-pathway__bars" aria-label="Bốn trên bảy ngày đã hoàn thành">
+              {[34, 48, 72, 56, 28].map((height, index) => (
+                <span
+                  key={height}
+                  className={index === 2 ? 'is-current' : index === 3 ? 'is-complete' : ''}
+                  style={{ height: `${height}px` }}
+                />
+              ))}
+            </div>
+          </article>
+        </section>
+
+        <section className="gv-pathway__exercises" aria-labelledby="today-exercises-title">
+          <div className="gv-pathway__section-heading">
+            <h2 id="today-exercises-title">Bài tập hôm nay</h2>
+            <button type="button" onClick={() => setSelectedExercise(EXERCISES[0])}>
+              Xem tất cả <ArrowRight size={16} />
+            </button>
           </div>
 
-          <div onClick={() => handleOpenCategory('culture')} className="bg-surface-lowest organic-curve p-6 shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-transparent hover:border-outline-variant/30 soft-bounce cursor-pointer group">
-             <div className="w-14 h-14 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center mb-6 overflow-hidden">
-                <span className="material-symbols-outlined text-[28px]">museum</span>
-             </div>
-             <h3 className="font-title-lg font-bold mb-2 text-on-surface">Văn hóa & Lịch sử</h3>
-             <p className="font-body-md text-on-surface-variant mb-6 line-clamp-2">Nâng cao từ vựng qua các câu chuyện thú vị về truyền thống văn hóa Việt Nam.</p>
-             <div className="flex justify-between items-center">
-               <span className="font-label-sm bg-surface-container-low px-3 py-1 rounded-full text-on-surface-variant font-medium">12 Bài học</span>
-               <button className="text-primary group-hover:translate-x-1 transition-transform">
-                 <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
-               </button>
-             </div>
+          <div className="gv-pathway__exercise-grid">
+            {EXERCISES.map(exercise => (
+              <button
+                key={exercise.id}
+                className="gv-pathway__exercise-card"
+                type="button"
+                onClick={() => setSelectedExercise(exercise)}
+              >
+                <span className={`gv-pathway__exercise-icon gv-pathway__exercise-icon--${exercise.id}`}>
+                  <ExerciseIcon type={exercise.icon} />
+                </span>
+                <span className={`gv-pathway__status ${exercise.status === 'Đang làm' ? 'is-active' : ''}`}>
+                  {exercise.status}
+                </span>
+                <strong>{exercise.title}</strong>
+                <p>{exercise.description}</p>
+                <span className="gv-pathway__progress" aria-label={`${exercise.progress}% hoàn thành`}>
+                  <span style={{ width: `${exercise.progress}%` }} />
+                </span>
+              </button>
+            ))}
           </div>
-          
-          <div onClick={() => handleOpenCategory('work')} className="bg-surface-lowest organic-curve p-6 shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-transparent hover:border-outline-variant/30 soft-bounce cursor-pointer group">
-             <div className="w-14 h-14 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mb-6 overflow-hidden">
-                <span className="material-symbols-outlined text-[28px]">business_center</span>
-             </div>
-             <h3 className="font-title-lg font-bold mb-2 text-on-surface">Tiếng Việt Công sở</h3>
-             <p className="font-body-md text-on-surface-variant mb-6 line-clamp-2">Từ vựng trang trọng và ngữ điệu phù hợp cho môi trường làm việc chuyên nghiệp.</p>
-             <div className="flex justify-between items-center">
-               <span className="font-label-sm bg-surface-container-low px-3 py-1 rounded-full text-on-surface-variant font-medium">8 Bài học</span>
-               <button className="text-primary group-hover:translate-x-1 transition-transform">
-                 <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
-               </button>
-             </div>
-          </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Experimental Prototype Modal */}
-      {selectedCategory && categories[selectedCategory as keyof typeof categories] && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-surface-lowest w-full max-w-2xl organic-curve p-8 shadow-xl border border-outline-variant/20 m-4 max-h-[90vh] overflow-y-auto">
-            
-            <div className="flex justify-between items-start mb-6">
-               <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${categories[selectedCategory as keyof typeof categories].color}`}>
-                     <span className="material-symbols-outlined text-[24px]">{categories[selectedCategory as keyof typeof categories].icon}</span>
-                  </div>
-                  <div>
-                    <h3 className="font-display-sm font-bold text-on-surface">{categories[selectedCategory as keyof typeof categories].title}</h3>
-                    <p className="text-body-sm text-on-surface-variant">Bản thử nghiệm (Prototype)</p>
-                  </div>
-               </div>
-               <button onClick={() => setSelectedCategory(null)} className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
-                  <span className="material-symbols-outlined">close</span>
-               </button>
+        <section className="gv-pathway__bottom-grid">
+          <article className="gv-pathway__recommendations">
+            <h2><Sparkles size={25} /> Gợi ý cho bạn</h2>
+            <p>Dựa trên kết quả bài kiểm tra gần nhất, chúng tôi đề xuất các chủ đề này để cải thiện kỹ năng của bạn.</p>
+
+            <button type="button" onClick={() => setSelectedExercise(EXERCISES[0])}>
+              <span className="gv-pathway__recommendation-icon"><Languages size={24} /></span>
+              <span><strong>Ngữ pháp cơ bản</strong><small>Củng cố cấu trúc câu</small></span>
+              <span className="gv-pathway__play"><Play size={15} fill="currentColor" /></span>
+            </button>
+            <button type="button" onClick={() => setSelectedExercise(EXERCISES[1])}>
+              <span className="gv-pathway__recommendation-icon gv-pathway__recommendation-icon--secondary"><MessageSquareText size={22} /></span>
+              <span><strong>Mở rộng từ vựng</strong><small>Chủ đề: Ẩm thực đường phố</small></span>
+              <span className="gv-pathway__play"><Play size={15} fill="currentColor" /></span>
+            </button>
+          </article>
+
+          <article className="gv-pathway__calendar">
+            <div className="gv-pathway__calendar-heading">
+              <h2>Tháng {currentMonth.getMonth() + 1}, {currentMonth.getFullYear()}</h2>
+              <div>
+                <button
+                  type="button"
+                  aria-label="Tháng trước"
+                  onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Tháng sau"
+                  onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
             </div>
 
-            {activeLesson ? (
-              <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 animate-in slide-in-from-right-4">
-                 <button onClick={() => setActiveLesson(null)} className="flex items-center gap-2 text-primary font-label-md mb-4 hover:opacity-80">
-                    <span className="material-symbols-outlined text-[18px]">arrow_back</span> Quay lại danh sách
-                 </button>
-                 <h4 className="font-title-lg font-bold mb-4">{categories[selectedCategory as keyof typeof categories].lessons.find(l => l.id === activeLesson)?.name}</h4>
-                 
-                 <div className="bg-surface-container p-6 rounded-xl text-center mb-6">
-                    <span className="material-symbols-outlined text-[48px] text-primary mb-2 opacity-50">record_voice_over</span>
-                    <p className="font-body-md text-on-surface-variant">Chế độ luyện tập tương tác sẽ xuất hiện ở đây.</p>
-                 </div>
-                 
-                 <div className="flex justify-center gap-4">
-                    <button className="px-6 py-2 bg-primary text-on-primary rounded-full font-label-md shadow-sm hover:scale-105 transition-transform flex items-center gap-2">
-                       <span className="material-symbols-outlined text-[18px]">play_arrow</span> Nghe mẫu
-                    </button>
-                    <button className="px-6 py-2 bg-secondary-container text-on-secondary-container rounded-full font-label-md shadow-sm hover:scale-105 transition-transform flex items-center gap-2">
-                       <span className="material-symbols-outlined text-[18px]">mic</span> Ghi âm thử
-                    </button>
-                 </div>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {categories[selectedCategory as keyof typeof categories].lessons.map(lesson => (
-                  <div key={lesson.id} className="flex items-center justify-between p-4 bg-surface-lowest border border-outline-variant/30 rounded-2xl hover:border-primary/50 hover:bg-surface-container-lowest transition-colors group cursor-pointer" onClick={() => setActiveLesson(lesson.id)}>
-                     <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors">
-                           <span className="material-symbols-outlined text-[20px]">play_lesson</span>
-                        </div>
-                        <div>
-                          <p className="font-title-md font-bold text-on-surface group-hover:text-primary transition-colors">{lesson.name}</p>
-                          <p className="text-body-sm text-on-surface-variant">{lesson.duration}</p>
-                        </div>
-                     </div>
-                     <button className="text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span className="material-symbols-outlined">chevron_right</span>
-                     </button>
-                  </div>
-                ))}
-                
-                <div className="p-4 border border-dashed border-outline-variant/40 rounded-2xl text-center text-on-surface-variant text-body-sm mt-2">
-                   Các bài học khác đang được cập nhật...
-                </div>
-              </div>
-            )}
-            
-          </div>
+            <div className="gv-pathway__weekdays" aria-hidden="true">
+              {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map(day => <span key={day}>{day}</span>)}
+            </div>
+            <div className="gv-pathway__calendar-days">
+              {calendarDays.map((day, index) => {
+                const isToday = isReferenceMonth && day === 24;
+                const isCompleted = isReferenceMonth && day !== null && COMPLETED_DAYS.includes(day);
+                return (
+                  <span
+                    key={`${day ?? 'empty'}-${index}`}
+                    className={`${isToday ? 'is-today' : ''} ${isCompleted ? 'is-completed' : ''}`}
+                  >
+                    {day}
+                  </span>
+                );
+              })}
+            </div>
+          </article>
+        </section>
+      </div>
+
+      {selectedExercise && (
+        <div className="gv-pathway__modal-backdrop" role="presentation" onMouseDown={() => setSelectedExercise(null)}>
+          <section
+            className="gv-pathway__modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="pathway-lesson-title"
+            onMouseDown={event => event.stopPropagation()}
+          >
+            <button className="gv-pathway__modal-close" type="button" aria-label="Đóng" onClick={() => setSelectedExercise(null)}>
+              <X size={20} />
+            </button>
+            <span className={`gv-pathway__exercise-icon gv-pathway__exercise-icon--${selectedExercise.id}`}>
+              <ExerciseIcon type={selectedExercise.icon} />
+            </span>
+            <span className="gv-pathway__modal-kicker">Bài luyện tập hôm nay</span>
+            <h2 id="pathway-lesson-title">{selectedExercise.title}</h2>
+            <p>{selectedExercise.description}</p>
+            <div className="gv-pathway__modal-meta">
+              <span>Khoảng 10 phút</span>
+              <span>{selectedExercise.progress}% hoàn thành</span>
+            </div>
+            <button
+              className="gv-pathway__modal-action"
+              type="button"
+              onClick={() => selectedExercise.id === 'speaking' ? navigate('/assessment') : setSelectedExercise(null)}
+            >
+              <Play size={17} fill="currentColor" /> {selectedExercise.progress > 0 ? 'Tiếp tục bài học' : 'Bắt đầu bài học'}
+            </button>
+          </section>
         </div>
       )}
     </main>

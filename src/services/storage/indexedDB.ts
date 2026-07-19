@@ -6,6 +6,7 @@ export interface StoredRecording {
   blob: Blob;
   metadata: {
     userId: string;
+    assessmentId?: string;
     sentenceId?: string;
     exerciseId?: string;
     phase?: string;
