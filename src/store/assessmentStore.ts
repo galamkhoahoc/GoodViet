@@ -68,7 +68,7 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
         const { useSyncStore } = await import('../services/storage/syncManager');
         await useSyncStore.getState().syncNow();
 
-        const response: any = await assessmentApi.completePhase(assessmentId, phase);
+        const response = await assessmentApi.completePhase(assessmentId, phase);
         
         if (response.nextPhase === 'restart') {
           // Trigger restart
@@ -97,8 +97,7 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
     if (!assessmentId) return;
     
     try {
-      const { apiClient } = await import('../services/api/apiClient');
-      const res: any = await apiClient.get(`/api/assessments/${assessmentId}/status`);
+      const res = await assessmentApi.getStatus(assessmentId);
       if (res.status === 'completed') {
         set({ phase: 'results', completed: true });
         await get().loadResult();

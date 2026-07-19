@@ -28,9 +28,9 @@ function IntroPhase({ onStart, isLoading }: { onStart: () => void, isLoading: bo
       
       <div className="flex flex-col gap-4 text-left max-w-[500px] mx-auto mb-8">
         {[
-          { num: 'I', text: 'Đọc 12 câu văn ngắn kiểm tra các lỗi phát âm cơ bản' },
-          { num: 'II', text: 'Đọc lại các câu bị sai + câu bổ sung để xác nhận lỗi' },
-          { num: 'III', text: 'Kể chuyện tự do để đánh giá toàn diện giọng nói' },
+          { num: 'I', text: 'Đọc 10 câu sàng lọc các cặp âm L/N, S/X, TR/CH, V/D/GI và thanh hỏi/ngã' },
+          { num: 'II', text: 'Đọc 5 câu dài để đo tốc độ, độ rõ, hơi thở và nhịp điệu' },
+          { num: 'III', text: 'Trả lời một tình huống mở để đánh giá khả năng diễn đạt tự nhiên' },
         ].map(item => (
           <div key={item.num} className="p-4 flex gap-4 items-center bg-surface-container-low rounded-2xl">
             <span className="font-label-lg px-3 py-1 bg-primary-container text-on-primary-container rounded-full shrink-0">
@@ -320,7 +320,7 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: As
     } catch (err) {
       console.error('Failed to save offline', err);
     }
-    toast.success('Ghi âm hoàn tất!', 'Bài kể chuyện của bạn đã được lưu.');
+    toast.success('Ghi âm hoàn tất!', 'Phần trình bày của bạn đã được lưu.');
   }, [addRecording, user, assessmentId, sentences]);
 
   useEffect(() => {
@@ -332,10 +332,10 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: As
   return (
     <div className="max-w-[800px] mx-auto text-center py-12 px-4">
       <h2 className="font-display-lg font-bold tracking-tight mb-4 text-on-surface">
-        Giai đoạn III — Kể chuyện tự do
+        Giai đoạn III — Trình bày tự do
       </h2>
       <p className="font-body-lg text-on-surface-variant mb-10">
-        Hãy kể một câu chuyện sinh hoạt hằng ngày của bạn (vui lòng chia sẻ chi tiết một chút). Chúng tôi sẽ đánh giá chuyên sâu về phát âm, hơi thở, âm điệu, giọng chuyển và mức độ tự tin.
+        Hãy trả lời tình huống dưới đây bằng trải nghiệm thật của bạn. Chúng tôi sẽ đánh giá phát âm, hơi thở, ngữ điệu, độ trôi chảy và mức độ tự tin.
       </p>
 
       <div className="bg-surface-lowest organic-curve p-10 shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-transparent mb-10">
@@ -345,9 +345,9 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: As
         <div className="text-body-md text-on-surface-variant text-left bg-surface-container-low p-4 rounded-xl inline-block max-w-[500px]">
           <p className="font-bold mb-2">Gợi ý mở rộng:</p>
           <ul className="list-disc list-inside space-y-1">
-            <li>Bạn đã gặp ai và trò chuyện về điều gì?</li>
-            <li>Cảm xúc của bạn lúc đó ra sao?</li>
-            <li>Bạn rút ra được điều gì từ sự việc đó?</li>
+            <li>Bối cảnh của tình huống diễn ra như thế nào?</li>
+            <li>Bạn đã suy nghĩ và hành động ra sao?</li>
+            <li>Kết quả hoặc bài học bạn nhận được là gì?</li>
           </ul>
         </div>
       </div>
@@ -363,7 +363,7 @@ function StorytellingPhase({ sentences, onComplete, isLoading }: { sentences: As
 
       {recorded && audioUrl && (
         <div className="mb-10 animate-fade-in">
-          <AudioPlayer src={audioUrl} label="Bài kể chuyện của bạn" />
+          <AudioPlayer src={audioUrl} label="Phần trình bày của bạn" />
         </div>
       )}
 
@@ -563,7 +563,7 @@ export function AssessmentPage() {
           <SentenceRecording
             sentences={sentences}
             title="Giai đoạn I"
-            subtitle="Đọc to và rõ ràng các câu dưới đây. Hệ thống sẽ phân tích ngữ điệu và độ chính xác của bạn."
+            subtitle="Đọc to và rõ ràng 10 câu dưới đây. Hệ thống sẽ sàng lọc các cặp âm và thanh điệu thường gặp."
             onComplete={completeCurrentPhase}
             isLoading={isLoading}
             phaseKey="phase_1"
@@ -574,7 +574,7 @@ export function AssessmentPage() {
           <SentenceRecording
             sentences={sentences}
             title="Giai đoạn II"
-            subtitle="Đọc lại các câu có lỗi phát hiện ở Giai đoạn I để xác nhận"
+            subtitle="Đọc 5 câu dài để hệ thống đo tốc độ, độ rõ, hơi thở và nhịp điệu của bạn."
             onComplete={completeCurrentPhase}
             isLoading={isLoading}
             phaseKey="phase_2"

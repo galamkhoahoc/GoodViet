@@ -328,6 +328,15 @@
   cursor: pointer;
 }
 
+.gv-pathway__lesson-count {
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: var(--gv-path-primary);
+  background: #e5edf5;
+  font-size: 11px;
+  font-weight: 650;
+}
+
 .gv-pathway__exercise-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -335,7 +344,7 @@
 }
 
 .gv-pathway__exercise-card {
-  height: 268px;
+  min-height: 286px;
   padding: 24px;
   border: 1px solid rgba(195, 198, 207, 0.23);
   border-radius: 28px;
@@ -367,12 +376,14 @@
   background: #edf0f4;
 }
 
-.gv-pathway__exercise-icon--listening {
+.gv-pathway__exercise-icon--listening,
+.gv-pathway__exercise-icon--headphones {
   color: #355a7b;
   background: #d7e6f6;
 }
 
-.gv-pathway__exercise-icon--speaking {
+.gv-pathway__exercise-icon--speaking,
+.gv-pathway__exercise-icon--mic {
   color: #5a4664;
   background: #eee5f2;
 }
@@ -640,7 +651,9 @@
 
 .gv-pathway__modal {
   position: relative;
-  width: min(500px, 100%);
+  width: min(760px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
   padding: 34px;
   border: 1px solid rgba(195, 198, 207, 0.45);
   border-radius: 28px;
@@ -690,6 +703,22 @@
   line-height: 1.6;
 }
 
+.gv-pathway__focus-list {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.gv-pathway__focus-list span {
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: var(--gv-path-primary);
+  background: #e8eef5;
+  font-size: 11px;
+  font-weight: 600;
+}
+
 .gv-pathway__modal-meta {
   margin-top: 22px;
   padding: 14px 16px;
@@ -701,6 +730,70 @@
   background: #f1f3f7;
   font-size: 12px;
   font-weight: 600;
+}
+
+.gv-pathway__mode-tabs {
+  margin-top: 22px;
+  padding: 4px;
+  border-radius: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  background: #f0f2f6;
+}
+
+.gv-pathway__mode-tabs button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 11px;
+  color: var(--gv-path-muted);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.gv-pathway__mode-tabs button.is-selected {
+  color: var(--gv-path-primary);
+  background: #ffffff;
+  box-shadow: 0 3px 10px rgba(35, 46, 56, 0.08);
+}
+
+.gv-pathway__practice-list {
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  list-style: none;
+}
+
+.gv-pathway__practice-list li {
+  padding: 14px 16px;
+  border: 1px solid rgba(195, 198, 207, 0.35);
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 12px;
+  color: var(--gv-path-ink);
+  background: #fbfcfe;
+}
+
+.gv-pathway__practice-list li > span {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--gv-path-primary);
+  background: #e5edf5;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.gv-pathway__practice-list p {
+  margin: 2px 0 0;
+  color: #404751;
+  font-size: 13px;
+  line-height: 1.65;
 }
 
 .gv-pathway__modal-action {
@@ -760,7 +853,7 @@
   }
 
   .gv-pathway__exercise-card {
-    height: 280px;
+    min-height: 286px;
     padding: 20px;
   }
 
@@ -858,7 +951,7 @@
   }
 
   .gv-pathway__exercise-card {
-    height: 270px;
+    min-height: 270px;
   }
 
   .gv-pathway__recommendations,
@@ -883,5 +976,20 @@
 
   .gv-pathway__modal {
     padding: 28px 22px;
+  }
+
+  .gv-pathway__modal h2 {
+    font-size: 23px;
+    line-height: 30px;
+  }
+
+  .gv-pathway__modal-meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .gv-pathway__practice-list li {
+    padding: 12px;
+    grid-template-columns: 28px minmax(0, 1fr);
   }
 }
