@@ -9,7 +9,9 @@ import { toast } from '../components/common/Toast';
 import { Play, CheckCircle, AlertTriangle } from 'lucide-react';
 import { config } from '../config/env';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
+import { useLocalVoiceModel } from '../hooks/useLocalVoiceModel';
 import { WaveformVisualizer } from '../components/audio/WaveformVisualizer';
+import { LocalVoiceCheck } from '../components/audio/LocalVoiceCheck';
 import type { AssessmentSentence } from '../services/api/assessmentApi';
 import '../styles/assessment-page.css';
 
@@ -265,6 +267,23 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
         </section>
       </div>
     </div>
+  );
+}
+
+function LocalUploadAssessment() {
+  const localModel = useLocalVoiceModel();
+
+  return (
+    <LocalVoiceCheck
+      status={localModel.status}
+      progress={localModel.progress}
+      result={localModel.result}
+      error={localModel.error}
+      isCached={localModel.isCached}
+      onAnalyze={localModel.analyze}
+      onRetry={localModel.retry}
+      onReset={localModel.reset}
+    />
   );
 }
 
@@ -536,6 +555,7 @@ export function AssessmentPage() {
         {(phase === 'not_started' || phase === 'intro') && (
           <div className="pt-20">
              <IntroPhase onStart={startAssessment} isLoading={isLoading} />
+             <LocalUploadAssessment />
           </div>
         )}
 

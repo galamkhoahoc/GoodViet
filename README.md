@@ -1,5 +1,17 @@
 # React + TypeScript + Vite
 
+## Kiểm tra giọng nói cục bộ
+
+Trang `/assessment` hỗ trợ tải bản ghi, chuẩn hóa audio về mono 16 kHz và chạy
+Wav2Vec2 CTC trong Web Worker. Frontend ưu tiên WebGPU/FP16, tự chuyển sang
+WebAssembly/Q8 khi cần, và dùng Browser Cache API để lưu model sau lần tải đầu.
+Tệp âm thanh không được gửi lên backend.
+
+Checkpoint nguồn chưa chứa ONNX. Xem
+[`tools/voice-model/README.md`](tools/voice-model/README.md) để xuất, kiểm tra và
+đăng các artifact dành cho trình duyệt, sau đó cấu hình `VITE_VOICE_MODEL_ID` và
+`VITE_VOICE_MODEL_REVISION`.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
