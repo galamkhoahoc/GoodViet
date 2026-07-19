@@ -1,7 +1,26 @@
 {
   "buildCommand": "npm run build",
   "framework": "vite",
+  "headers": [
+    {
+      "source": "/ai-runtime/gemma-4-e2b.js",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
   "rewrites": [
+    {
+      "source": "/ai-runtime/gemma-4-e2b.js",
+      "destination": "https://huggingface.co/api/resolve-cache/spaces/webml-community/gemma-4-webgpu-kernels/cc7145c0c0c3351c8d2852a2e1cc45edaa2a9e80/gemma-4-e2b.js"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"

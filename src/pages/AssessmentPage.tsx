@@ -9,9 +9,10 @@ import { toast } from '../components/common/Toast';
 import { Play, CheckCircle, AlertTriangle } from 'lucide-react';
 import { config } from '../config/env';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
-import { useLocalVoiceModel } from '../hooks/useLocalVoiceModel';
 import { WaveformVisualizer } from '../components/audio/WaveformVisualizer';
-import { LocalVoiceCheck } from '../components/audio/LocalVoiceCheck';
+import { SentenceEvaluationPanel } from '../components/audio/SentenceEvaluationPanel';
+import { useLocalSentenceEvaluation } from '../hooks/useLocalSentenceEvaluation';
+import type { SentenceEvaluationResult } from '../services/ml/sentenceEvaluation';
 import type { AssessmentSentence } from '../services/api/assessmentApi';
 import '../styles/assessment-page.css';
 
@@ -68,6 +69,11 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
 }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [recordings, setRecordings] = useState<Map<number, { blob: Blob; duration: number; url: string }>>(new Map());
+  const [evaluationResults, setEvaluationResults] = useState<Map<number, SentenceEvaluationResult>>(new Map());
+  const [evaluatingIndex, setEvaluatingIndex] = useState<number | null>(null);
+  const [lastEvaluationIndex, setLastEvaluationIndex] = useState<number | null>(null);
+  const evaluation = useLocalSentenceEvaluation();
+  const analyzeSentence = evaluation.analyze;
   const { addRecording, assessmentId } = useAssessmentStore();
   const user = useAuthStore(s => s.user);
   const completionHandlerRef = useRef<((blob: Blob, duration: number) => void) | null>(null);
@@ -83,6 +89,20 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
     maxDuration: config.audio.maxDurationSeconds,
     onComplete: handleRecorderComplete,
   });
+
+  const runEvaluation = useCallback(async (sentenceIndex: number, blob: Blob) => {
+    setEvaluatingIndex(sentenceIndex);
+    setLastEvaluationIndex(sentenceIndex);
+    try {
+      const result = await analyzeSentence(blob, sentences[sentenceIndex].text);
+      setEvaluationResults(previous => new Map(previous).set(sentenceIndex, result));
+      toast.success(`Điểm câu ${sentenceIndex + 1}: ${result.score}/100`, result.feedback);
+    } catch (error) {
+      console.error('Local sentence evaluation failed', error);
+    } finally {
+      setEvaluatingIndex(null);
+    }
+  }, [analyzeSentence, sentences]);
 
   const handleRecordComplete = useCallback(async (blob: Blob, dur: number) => {
     const url = URL.createObjectURL(blob);
@@ -114,15 +134,9 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
     } catch (err) {
       console.error('Failed to save offline', err);
     }
-    toast.success('Ghi âm thành công!', `Câu ${currentIdx + 1} đã được ghi.`);
-    
-    if (currentIdx < sentences.length - 1) {
-       setTimeout(() => {
-         setCurrentIdx(i => i + 1);
-         resetRecording();
-       }, 500);
-    }
-  }, [currentIdx, sentences, addRecording, user, assessmentId, phaseKey, resetRecording]);
+    toast.success('Ghi âm thành công!', `Đang chấm câu ${currentIdx + 1} ngay trên thiết bị.`);
+    await runEvaluation(currentIdx, blob);
+  }, [currentIdx, sentences, addRecording, user, assessmentId, phaseKey, runEvaluation]);
 
   useEffect(() => {
     completionHandlerRef.current = handleRecordComplete;
@@ -142,15 +156,20 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
   }, []);
 
   const goToSentence = (idx: number) => {
+    if (evaluatingIndex !== null) return;
     setCurrentIdx(idx);
     resetRecording();
+    evaluation.reset();
   };
 
   if (!sentences || sentences.length === 0) {
     return <div className="text-center p-8">Đang tải dữ liệu câu hỏi...</div>;
   }
 
-  const allDone = recordings.size === sentences.length;
+  const allDone = evaluationResults.size === sentences.length;
+  const savedEvaluation = evaluationResults.get(currentIdx) ?? null;
+  const visibleStage = savedEvaluation ? 'complete' : lastEvaluationIndex === currentIdx ? evaluation.stage : 'idle';
+  const currentRecording = recordings.get(currentIdx);
 
   const idleWaveform = [16, 32, 20, 48, 24, 8, 32, 16, 4, 20, 40, 12, 32, 24, 16, 28];
 
@@ -166,13 +185,13 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
           <p>{subtitle} Hãy đảm bảo bạn đang ở môi trường yên tĩnh.</p>
         </div>
 
-        <div className="assessment-progress" aria-label={`${recordings.size} trên ${sentences.length} câu đã hoàn thành`}>
+        <div className="assessment-progress" aria-label={`${evaluationResults.size} trên ${sentences.length} câu đã hoàn thành`}>
           <div className="assessment-progress__label">
             <span>Tiến độ {title}</span>
-            <strong>{recordings.size}/{sentences.length}</strong>
+            <strong>{evaluationResults.size}/{sentences.length}</strong>
           </div>
           <div className="assessment-progress__track">
-            <span style={{ width: `${(recordings.size / sentences.length) * 100}%` }} />
+            <span style={{ width: `${(evaluationResults.size / sentences.length) * 100}%` }} />
           </div>
         </div>
       </header>
@@ -180,7 +199,7 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
       <div className="assessment-grid">
         <aside className="assessment-sentences" aria-label="Danh sách câu đánh giá">
           {sentences.map((sent, idx) => {
-            const recorded = recordings.has(idx);
+            const recorded = evaluationResults.has(idx);
             const active = currentIdx === idx;
 
             return (
@@ -188,6 +207,7 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
                 type="button"
                 key={sent.sentenceId}
                 onClick={() => goToSentence(idx)}
+                disabled={evaluatingIndex !== null}
                 className={`assessment-sentence${active ? ' is-active' : ''}${recorded && !active ? ' is-complete' : ''}`}
                 aria-current={active ? 'step' : undefined}
               >
@@ -241,6 +261,7 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
               <button
                 type="button"
                 onClick={isRecording ? stopRecording : startRecording}
+                disabled={evaluatingIndex !== null}
                 className={`assessment-record${isRecording ? ' is-recording' : ''}`}
                 aria-label={isRecording ? 'Dừng ghi âm' : 'Bắt đầu ghi âm'}
               >
@@ -249,13 +270,22 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
               <button
                 type="button"
                 onClick={() => currentIdx < sentences.length - 1 ? goToSentence(currentIdx + 1) : null}
-                disabled={currentIdx === sentences.length - 1}
+                disabled={currentIdx === sentences.length - 1 || evaluatingIndex !== null || !savedEvaluation}
                 className="assessment-control"
                 aria-label="Bỏ qua câu này"
               >
                 <span className="material-symbols-outlined" aria-hidden="true">skip_next</span>
               </button>
             </div>
+
+            <SentenceEvaluationPanel
+              stage={visibleStage}
+              progress={evaluation.progress}
+              detail={evaluation.detail}
+              result={savedEvaluation || (lastEvaluationIndex === currentIdx ? evaluation.result : null)}
+              error={lastEvaluationIndex === currentIdx ? evaluation.error : null}
+              onRetry={currentRecording ? () => void runEvaluation(currentIdx, currentRecording.blob) : undefined}
+            />
           </div>
 
           {allDone && currentIdx === sentences.length - 1 && (
@@ -271,19 +301,49 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
 }
 
 function LocalUploadAssessment() {
-  const localModel = useLocalVoiceModel();
+  const evaluation = useLocalSentenceEvaluation();
+  const [targetText, setTargetText] = useState('Xin chào, hôm nay thời tiết rất đẹp.');
+  const [file, setFile] = useState<File | null>(null);
 
   return (
-    <LocalVoiceCheck
-      status={localModel.status}
-      progress={localModel.progress}
-      result={localModel.result}
-      error={localModel.error}
-      isCached={localModel.isCached}
-      onAnalyze={localModel.analyze}
-      onRetry={localModel.retry}
-      onReset={localModel.reset}
-    />
+    <section className="assessment-upload-local">
+      <div className="assessment-upload-local__heading">
+        <span><span className="material-symbols-outlined">shield_lock</span> 100% trên thiết bị</span>
+        <h2>Kiểm tra một bản ghi có sẵn</h2>
+        <p>Chọn audio và nhập câu mẫu. EraX chuyển giọng nói thành chữ, LingWav2Vec2 nhận dạng âm vị, sau đó Gemma 4 tạo điểm và nhận xét.</p>
+      </div>
+      <label>
+        <span>Câu mẫu</span>
+        <input value={targetText} onChange={(event) => setTargetText(event.target.value)} />
+      </label>
+      <label className="assessment-upload-local__file">
+        <span>Bản ghi</span>
+        <input
+          type="file"
+          accept="audio/wav,audio/mpeg,audio/mp4,audio/webm,audio/ogg,.wav,.mp3,.m4a,.webm,.ogg"
+          onChange={(event) => {
+            setFile(event.target.files?.[0] ?? null);
+            evaluation.reset();
+          }}
+        />
+      </label>
+      <button
+        type="button"
+        disabled={!file || !targetText.trim() || evaluation.stage === 'speech' || evaluation.stage === 'feedback'}
+        onClick={() => file && void evaluation.analyze(file, targetText.trim()).catch(() => undefined)}
+      >
+        <span className="material-symbols-outlined">neurology</span>
+        Phân tích cục bộ
+      </button>
+      <SentenceEvaluationPanel
+        stage={evaluation.stage}
+        progress={evaluation.progress}
+        detail={evaluation.detail}
+        result={evaluation.result}
+        error={evaluation.error}
+        onRetry={file ? () => void evaluation.analyze(file, targetText.trim()).catch(() => undefined) : undefined}
+      />
+    </section>
   );
 }
 

@@ -642,6 +642,62 @@
   background: #fff;
 }
 
+.gv-chat-local-model {
+  min-height: 35px;
+  margin: -4px 2px 9px;
+  padding: 5px 11px;
+  border-radius: 12px;
+  color: #535f70;
+  background: #f1f4f8;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.gv-chat-local-model > svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  color: var(--gv-chat-primary);
+}
+
+.gv-chat-local-model > span {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gv-chat-local-model strong {
+  flex: 0 0 auto;
+  color: #334254;
+  font-size: 11px;
+}
+
+.gv-chat-local-model small {
+  overflow: hidden;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gv-chat-local-model > b {
+  color: var(--gv-chat-primary);
+  font-size: 11px;
+}
+
+.gv-chat-local-model.is-ready {
+  color: #43645b;
+  background: #eaf2ee;
+}
+
+.gv-chat-local-model.is-error,
+.gv-chat-local-model.is-unsupported {
+  color: #8e2632;
+  background: #fff0f1;
+}
+
 .gv-chat-suggestions {
   margin-bottom: 11px;
   overflow-x: auto;
@@ -1060,6 +1116,8 @@
   .gv-chat-composer-wrap {
     padding: 11px 12px 12px;
   }
+
+  .gv-chat-local-model small { display: none; }
 
   .gv-chat-suggestions {
     margin-bottom: 8px;

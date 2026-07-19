@@ -27,7 +27,8 @@ function PageLoader() {
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  const allowDevPreview = import.meta.env.DEV && import.meta.env.VITE_DEV_PREVIEW === 'true';
+  if (!isAuthenticated && !allowDevPreview) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 

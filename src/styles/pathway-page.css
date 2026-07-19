@@ -815,6 +815,55 @@
   cursor: pointer;
 }
 
+.gv-pathway__practice-runner {
+  margin-top: 22px;
+}
+
+.gv-pathway__practice-progress {
+  color: var(--gv-path-secondary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.gv-pathway__practice-progress > div {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e2e8ef;
+  flex: 1;
+}
+
+.gv-pathway__practice-progress > div > span {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gv-path-primary);
+  display: block;
+  transition: width 180ms ease;
+}
+
+.gv-pathway__practice-runner blockquote {
+  margin: 18px 0;
+  padding: 20px;
+  border: 1px solid #e0e5eb;
+  border-radius: 18px;
+  color: var(--gv-path-ink);
+  background: #f9f9ff;
+  font-size: 20px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.gv-pathway__practice-runner .recorder {
+  padding: 12px 0 2px;
+}
+
+.gv-pathway__practice-runner .sentence-evaluation {
+  margin-top: 16px;
+}
+
 @keyframes gv-pathway-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }

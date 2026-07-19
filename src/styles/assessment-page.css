@@ -11,6 +11,50 @@
   padding: 48px;
 }
 
+.assessment-upload-local {
+  width: min(700px, calc(100% - 32px));
+  margin: 34px auto 70px;
+  padding: 28px;
+  border: 1px solid #e0e5eb;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: 0 12px 35px rgba(35, 52, 72, 0.06);
+}
+
+.assessment-upload-local__heading > span {
+  color: #33618d;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.assessment-upload-local__heading > span .material-symbols-outlined { font-size: 17px; }
+.assessment-upload-local__heading h2 { margin: 8px 0 4px; color: #20242a; font-size: 24px; }
+.assessment-upload-local__heading p { margin: 0 0 20px; color: #657180; font-size: 14px; line-height: 1.55; }
+.assessment-upload-local > label { margin-top: 13px; display: block; }
+.assessment-upload-local > label > span { margin-bottom: 6px; color: #475364; display: block; font-size: 12px; font-weight: 700; }
+.assessment-upload-local > label > input { width: 100%; min-height: 46px; padding: 10px 13px; border: 1px solid #ccd4de; border-radius: 13px; color: #252b34; background: #f9f9ff; }
+.assessment-upload-local__file input { padding: 8px !important; }
+.assessment-upload-local > button {
+  min-height: 45px;
+  margin-top: 17px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: #33618d;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.assessment-upload-local > button:disabled { opacity: .5; cursor: not-allowed; }
+
 .assessment-workflow {
   display: flex;
   width: 100%;

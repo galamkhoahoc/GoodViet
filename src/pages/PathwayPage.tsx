@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BookOpen,
+  CheckCircle,
   ChevronLeft,
   ChevronRight,
   Flame,
@@ -19,6 +20,10 @@ import {
   practiceSummary,
   type PracticeLesson,
 } from '../data/mockPractice';
+import { AudioRecorder } from '../components/audio/AudioRecorder';
+import { SentenceEvaluationPanel } from '../components/audio/SentenceEvaluationPanel';
+import { useLocalSentenceEvaluation } from '../hooks/useLocalSentenceEvaluation';
+import type { SentenceEvaluationResult } from '../services/ml/sentenceEvaluation';
 import '../styles/pathway-page.css';
 
 const COMPLETED_DAYS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
@@ -50,6 +55,11 @@ export function PathwayPage() {
   const [selectedLesson, setSelectedLesson] = useState<PracticeLesson | null>(null);
   const [lessonMode, setLessonMode] = useState<LessonMode>('short');
   const [startedLessons, setStartedLessons] = useState<Set<string>>(() => new Set());
+  const [isPracticeActive, setIsPracticeActive] = useState(false);
+  const [practiceIndex, setPracticeIndex] = useState(0);
+  const [practiceResults, setPracticeResults] = useState<Map<number, SentenceEvaluationResult>>(new Map());
+  const practiceEvaluation = useLocalSentenceEvaluation();
+  const resetPracticeEvaluation = practiceEvaluation.reset;
 
   const calendarDays = useMemo(() => {
     const year = currentMonth.getFullYear();
@@ -66,21 +76,62 @@ export function PathwayPage() {
   useEffect(() => {
     if (!selectedLesson) return undefined;
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setSelectedLesson(null);
+      if (event.key === 'Escape') {
+        resetPracticeEvaluation();
+        setSelectedLesson(null);
+      }
     };
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
-  }, [selectedLesson]);
+  }, [resetPracticeEvaluation, selectedLesson]);
 
   const openLesson = (lesson: PracticeLesson) => {
     setLessonMode('short');
+    setIsPracticeActive(false);
+    setPracticeIndex(0);
+    setPracticeResults(new Map());
+    practiceEvaluation.reset();
     setSelectedLesson(lesson);
   };
 
   const startLesson = () => {
     if (!selectedLesson) return;
     setStartedLessons((current) => new Set(current).add(selectedLesson.id));
+    setPracticeIndex(0);
+    setPracticeResults(new Map());
+    practiceEvaluation.reset();
+    setIsPracticeActive(true);
+  };
+
+  const closeLesson = () => {
+    practiceEvaluation.reset();
+    setIsPracticeActive(false);
     setSelectedLesson(null);
+  };
+
+  const practiceTexts = selectedLesson
+    ? lessonMode === 'short' ? selectedLesson.shortSentences : selectedLesson.longPassages
+    : [];
+
+  const handlePracticeRecording = async (blob: Blob) => {
+    const sentenceIndex = practiceIndex;
+    const target = practiceTexts[sentenceIndex];
+    if (!target) return;
+    try {
+      const result = await practiceEvaluation.analyze(blob, target);
+      setPracticeResults(previous => new Map(previous).set(sentenceIndex, result));
+    } catch (error) {
+      console.error('Practice sentence evaluation failed', error);
+    }
+  };
+
+  const continuePractice = () => {
+    if (practiceIndex < practiceTexts.length - 1) {
+      practiceEvaluation.reset();
+      setPracticeIndex(index => index + 1);
+      return;
+    }
+    closeLesson();
   };
 
   const isReferenceMonth = currentMonth.getFullYear() === 2024 && currentMonth.getMonth() === 9;
@@ -253,7 +304,7 @@ export function PathwayPage() {
       </div>
 
       {selectedLesson && (
-        <div className="gv-pathway__modal-backdrop" role="presentation" onMouseDown={() => setSelectedLesson(null)}>
+        <div className="gv-pathway__modal-backdrop" role="presentation" onMouseDown={closeLesson}>
           <section
             className="gv-pathway__modal"
             role="dialog"
@@ -261,7 +312,7 @@ export function PathwayPage() {
             aria-labelledby="pathway-lesson-title"
             onMouseDown={(event) => event.stopPropagation()}
           >
-            <button className="gv-pathway__modal-close" type="button" aria-label="Đóng" onClick={() => setSelectedLesson(null)}>
+            <button className="gv-pathway__modal-close" type="button" aria-label="Đóng" onClick={closeLesson}>
               <X size={20} />
             </button>
             <span className={`gv-pathway__exercise-icon gv-pathway__exercise-icon--${getLessonIcon(selectedLesson)}`}>
@@ -273,49 +324,88 @@ export function PathwayPage() {
             <h2 id="pathway-lesson-title">{selectedLesson.title}</h2>
             <p className="gv-pathway__modal-goal">{selectedLesson.goal}</p>
 
-            <div className="gv-pathway__focus-list" aria-label="Trọng tâm bài học">
-              {selectedLesson.focus.map((focus) => <span key={focus}>{focus}</span>)}
-            </div>
+            {!isPracticeActive ? (
+              <>
+                <div className="gv-pathway__focus-list" aria-label="Trọng tâm bài học">
+                  {selectedLesson.focus.map((focus) => <span key={focus}>{focus}</span>)}
+                </div>
 
-            <div className="gv-pathway__modal-meta">
-              <span>Khoảng {selectedLesson.estimatedMinutes} phút</span>
-              <span>6 nội dung luyện đọc</span>
-            </div>
+                <div className="gv-pathway__modal-meta">
+                  <span>Khoảng {selectedLesson.estimatedMinutes} phút</span>
+                  <span>{practiceTexts.length} nội dung luyện đọc</span>
+                </div>
 
-            <div className="gv-pathway__mode-tabs" role="tablist" aria-label="Chọn độ dài nội dung">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={lessonMode === 'short'}
-                className={lessonMode === 'short' ? 'is-selected' : ''}
-                onClick={() => setLessonMode('short')}
-              >
-                Câu ngắn
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={lessonMode === 'long'}
-                className={lessonMode === 'long' ? 'is-selected' : ''}
-                onClick={() => setLessonMode('long')}
-              >
-                Đoạn dài
-              </button>
-            </div>
+                <div className="gv-pathway__mode-tabs" role="tablist" aria-label="Chọn độ dài nội dung">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={lessonMode === 'short'}
+                    className={lessonMode === 'short' ? 'is-selected' : ''}
+                    onClick={() => setLessonMode('short')}
+                  >
+                    Câu ngắn
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={lessonMode === 'long'}
+                    className={lessonMode === 'long' ? 'is-selected' : ''}
+                    onClick={() => setLessonMode('long')}
+                  >
+                    Đoạn dài
+                  </button>
+                </div>
 
-            <ol className="gv-pathway__practice-list">
-              {(lessonMode === 'short' ? selectedLesson.shortSentences : selectedLesson.longPassages).map((text, index) => (
-                <li key={text}>
-                  <span>{String(index + 1).padStart(2, '0')}</span>
-                  <p>{text}</p>
-                </li>
-              ))}
-            </ol>
+                <ol className="gv-pathway__practice-list">
+                  {practiceTexts.map((text, index) => (
+                    <li key={text}>
+                      <span>{String(index + 1).padStart(2, '0')}</span>
+                      <p>{text}</p>
+                    </li>
+                  ))}
+                </ol>
 
-            <button className="gv-pathway__modal-action" type="button" onClick={startLesson}>
-              <Play size={17} fill="currentColor" />
-              {getStatusLabel(selectedLesson, startedLessons) === 'Chưa làm' ? 'Bắt đầu luyện tập' : 'Tiếp tục luyện tập'}
-            </button>
+                <button className="gv-pathway__modal-action" type="button" onClick={startLesson}>
+                  <Play size={17} fill="currentColor" />
+                  {getStatusLabel(selectedLesson, startedLessons) === 'Chưa làm' ? 'Bắt đầu luyện tập' : 'Tiếp tục luyện tập'}
+                </button>
+              </>
+            ) : (
+              <div className="gv-pathway__practice-runner">
+                <div className="gv-pathway__practice-progress">
+                  <span>Câu {practiceIndex + 1}/{practiceTexts.length}</span>
+                  <div><span style={{ width: `${((practiceIndex + (practiceResults.has(practiceIndex) ? 1 : 0)) / Math.max(1, practiceTexts.length)) * 100}%` }} /></div>
+                </div>
+
+                <blockquote>{practiceTexts[practiceIndex]}</blockquote>
+
+                {practiceEvaluation.stage !== 'speech' && practiceEvaluation.stage !== 'feedback' && !practiceResults.has(practiceIndex) && (
+                  <AudioRecorder
+                    key={`${selectedLesson.id}-${lessonMode}-${practiceIndex}`}
+                    compact
+                    maxDuration={30}
+                    minDuration={1}
+                    showPlayback={false}
+                    onRecordingComplete={(blob) => void handlePracticeRecording(blob)}
+                  />
+                )}
+
+                <SentenceEvaluationPanel
+                  stage={practiceResults.has(practiceIndex) ? 'complete' : practiceEvaluation.stage}
+                  progress={practiceEvaluation.progress}
+                  detail={practiceEvaluation.detail}
+                  result={practiceResults.get(practiceIndex) || practiceEvaluation.result}
+                  error={practiceEvaluation.error}
+                />
+
+                {practiceResults.has(practiceIndex) && (
+                  <button className="gv-pathway__modal-action" type="button" onClick={continuePractice}>
+                    {practiceIndex === practiceTexts.length - 1 ? <CheckCircle size={17} /> : <ChevronRight size={17} />}
+                    {practiceIndex === practiceTexts.length - 1 ? 'Hoàn thành bài luyện' : 'Câu tiếp theo'}
+                  </button>
+                )}
+              </div>
+            )}
           </section>
         </div>
       )}

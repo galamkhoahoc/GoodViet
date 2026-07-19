@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { apiClient } from '../services/api/apiClient';
+import { localGemma } from '../services/ml/localGemma';
+import type { GemmaRuntimeStatus } from '../services/ml/gemma.types';
 
 export interface ChatMessage {
   _id?: string;
@@ -15,17 +16,66 @@ export interface ChatSession {
   lastMessageAt: string;
 }
 
+interface StoredChat {
+  sessions: ChatSession[];
+  messagesBySession: Record<string, ChatMessage[]>;
+}
+
 interface ChatState {
   sessions: ChatSession[];
   activeSessionId: string | null;
   messages: ChatMessage[];
   isTyping: boolean;
+  modelStatus: GemmaRuntimeStatus;
+  modelProgress: number;
+  modelDetail: string;
+  modelError: string | null;
   loadSessions: () => Promise<void>;
   createSession: (title?: string) => Promise<string | null>;
   switchSession: (sessionId: string | null) => void;
   deleteSession: (sessionId: string) => Promise<void>;
   sendMessage: (content: string) => Promise<void>;
   loadMessages: () => Promise<void>;
+  preloadModel: () => Promise<void>;
+}
+
+const STORAGE_KEY = 'goodviet:local-gemma-chat:v1';
+
+function newId(prefix: string) {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return `${prefix}-${crypto.randomUUID()}`;
+  return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function readStoredChat(): StoredChat {
+  if (typeof localStorage === 'undefined') return { sessions: [], messagesBySession: {} };
+  try {
+    const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') as Partial<StoredChat>;
+    return {
+      sessions: Array.isArray(value.sessions) ? value.sessions : [],
+      messagesBySession: value.messagesBySession && typeof value.messagesBySession === 'object'
+        ? value.messagesBySession
+        : {},
+    };
+  } catch {
+    return { sessions: [], messagesBySession: {} };
+  }
+}
+
+function writeStoredChat(value: StoredChat) {
+  if (typeof localStorage === 'undefined') return;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+}
+
+function sessionTitle(content: string) {
+  const compact = content.replace(/\s+/g, ' ').trim();
+  return compact.length > 34 ? `${compact.slice(0, 34)}…` : compact || 'Cuộc trò chuyện mới';
+}
+
+function persistState(state: Pick<ChatState, 'sessions' | 'activeSessionId' | 'messages'>) {
+  const stored = readStoredChat();
+  if (state.activeSessionId) stored.messagesBySession[state.activeSessionId] = state.messages;
+  stored.sessions = state.sessions;
+  writeStoredChat(stored);
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -33,143 +83,150 @@ export const useChatStore = create<ChatState>((set, get) => ({
   activeSessionId: null,
   messages: [],
   isTyping: false,
+  modelStatus: localGemma.getState().status,
+  modelProgress: localGemma.getState().progress,
+  modelDetail: localGemma.getState().detail,
+  modelError: null,
 
   loadSessions: async () => {
-    try {
-      const response: any = await apiClient.get('/api/chat/sessions');
-      if (response && response.sessions) {
-        set({ sessions: response.sessions });
-        
-        // If no active session and we have sessions, maybe auto-select the first one?
-        // Or if there are legacy messages, we might want to stay on the "legacy" view (null session).
-        const currentActive = get().activeSessionId;
-        if (!currentActive && response.sessions.length > 0 && !response.hasLegacyMessages) {
-          set({ activeSessionId: response.sessions[0]._id });
-          get().loadMessages();
-        }
-      }
-    } catch (err) {
-      console.error('Failed to load chat sessions:', err);
-    }
+    const stored = readStoredChat();
+    const current = get().activeSessionId;
+    const activeSessionId = current && stored.sessions.some(session => session._id === current)
+      ? current
+      : stored.sessions[0]?._id ?? null;
+    set({
+      sessions: stored.sessions,
+      activeSessionId,
+      messages: activeSessionId ? stored.messagesBySession[activeSessionId] ?? [] : [],
+    });
   },
 
-  createSession: async (title?: string) => {
-    try {
-      const response: any = await apiClient.post('/api/chat/sessions', { title });
-      if (response && response.session) {
-        set(state => ({
-          sessions: [response.session, ...state.sessions],
-          activeSessionId: response.session._id,
-          messages: [] // Clear messages for new session
-        }));
-        return response.session._id;
-      }
-    } catch (err) {
-      console.error('Failed to create session:', err);
-    }
-    return null;
+  createSession: async (title = 'Cuộc trò chuyện mới') => {
+    const now = new Date().toISOString();
+    const session: ChatSession = { _id: newId('local-chat'), title, lastMessageAt: now };
+    set(state => ({
+      sessions: [session, ...state.sessions],
+      activeSessionId: session._id,
+      messages: [],
+    }));
+    const state = get();
+    persistState(state);
+    return session._id;
   },
 
-  switchSession: (sessionId: string | null) => {
-    set({ activeSessionId: sessionId });
-    get().loadMessages();
+  switchSession: (sessionId) => {
+    const stored = readStoredChat();
+    set({ activeSessionId: sessionId, messages: sessionId ? stored.messagesBySession[sessionId] ?? [] : [] });
   },
 
-  deleteSession: async (sessionId: string) => {
-    try {
-      await apiClient.delete(`/api/chat/sessions/${sessionId}`);
-      set(state => {
-        const newSessions = state.sessions.filter(s => s._id !== sessionId);
-        const newActiveId = state.activeSessionId === sessionId 
-          ? (newSessions.length > 0 ? newSessions[0]._id : null) 
-          : state.activeSessionId;
-        
-        return {
-          sessions: newSessions,
-          activeSessionId: newActiveId,
-          messages: state.activeSessionId === sessionId ? [] : state.messages
-        };
-      });
-      
-      if (get().activeSessionId) {
-        get().loadMessages();
-      }
-    } catch (err) {
-      console.error('Failed to delete session:', err);
-    }
+  deleteSession: async (sessionId) => {
+    const stored = readStoredChat();
+    delete stored.messagesBySession[sessionId];
+    stored.sessions = stored.sessions.filter(session => session._id !== sessionId);
+    writeStoredChat(stored);
+    const nextActiveId = get().activeSessionId === sessionId
+      ? stored.sessions[0]?._id ?? null
+      : get().activeSessionId;
+    set({
+      sessions: stored.sessions,
+      activeSessionId: nextActiveId,
+      messages: nextActiveId ? stored.messagesBySession[nextActiveId] ?? [] : [],
+    });
   },
 
   loadMessages: async () => {
+    const { activeSessionId } = get();
+    const stored = readStoredChat();
+    set({ messages: activeSessionId ? stored.messagesBySession[activeSessionId] ?? [] : [] });
+  },
+
+  preloadModel: async () => {
     try {
-      const { activeSessionId } = get();
-      const url = activeSessionId 
-        ? `/api/chat/history?sessionId=${activeSessionId}` 
-        : '/api/chat/history';
-        
-      const response: any = await apiClient.get(url);
-      if (response && response.messages) {
-        // Map backend history to frontend format
-        const msgs = response.messages.map((m: any) => ({
-          messageId: m._id,
-          senderType: m.senderType,
-          content: m.content,
-          timestamp: m.timestamp,
-        })).reverse(); // show oldest first
-        set({ messages: msgs });
-      }
-    } catch (err) {
-      console.error('Failed to load chat history:', err);
+      await localGemma.preload();
+    } catch {
+      // The runtime subscription exposes the actionable error in the chat UI.
     }
   },
 
-  sendMessage: async (content: string) => {
-    let { activeSessionId } = get();
-    
-    // If no active session, create one first before sending message
-    if (!activeSessionId) {
-      // Create a session using the first few words of the message as title
-      const title = content.length > 30 ? content.substring(0, 30) + '...' : content;
-      activeSessionId = await get().createSession(title);
-      if (!activeSessionId) {
-        console.error('Failed to auto-create session');
-        return;
-      }
-    }
+  sendMessage: async (content) => {
+    const text = content.trim();
+    if (!text || get().isTyping) return;
 
-    const userMsg: ChatMessage = {
-      messageId: 'temp-' + Date.now(),
+    let activeSessionId = get().activeSessionId;
+    if (!activeSessionId) activeSessionId = await get().createSession(sessionTitle(text));
+    if (!activeSessionId) return;
+
+    const now = new Date().toISOString();
+    const userMessage: ChatMessage = {
+      messageId: newId('user'),
       senderType: 'user',
-      content,
-      timestamp: new Date().toISOString(),
+      content: text,
+      timestamp: now,
+    };
+    set(state => ({
+      messages: [...state.messages, userMessage],
+      isTyping: true,
+      modelError: null,
+      sessions: state.sessions.map(session => session._id === activeSessionId
+        ? { ...session, title: state.messages.length === 0 ? sessionTitle(text) : session.title, lastMessageAt: now }
+        : session),
+    }));
+    persistState(get());
+
+    const replyId = newId('gemma');
+    let replyAdded = false;
+    const updateReply = (reply: string) => {
+      set(state => {
+        if (!replyAdded) {
+          replyAdded = true;
+          return {
+            messages: [...state.messages, {
+              messageId: replyId,
+              senderType: 'bot',
+              content: reply,
+              timestamp: new Date().toISOString(),
+            }],
+          };
+        }
+        return {
+          messages: state.messages.map(message => message.messageId === replyId ? { ...message, content: reply } : message),
+        };
+      });
     };
 
-    const { messages } = get();
-    set({ messages: [...messages, userMsg], isTyping: true });
-
     try {
-      const response: any = await apiClient.post('/api/chat/messages', { 
-        content, 
-        sessionId: activeSessionId 
-      });
-      if (response && response.botMessage) {
-        const botMsg: ChatMessage = {
-          messageId: response.botMessage._id,
-          senderType: 'bot',
-          content: response.botMessage.content,
-          timestamp: response.botMessage.timestamp,
-        };
-        // Update temporary user message with real ID if needed, and add bot message
-        const allMsgs = [...get().messages];
-        // Replace temp msg with real one if you want, but for now just add bot msg
-        allMsgs.push(botMsg);
-        set({ messages: allMsgs, isTyping: false });
-        
-        // Refresh sessions to update lastMessageAt
-        get().loadSessions();
-      }
-    } catch (err) {
-      console.error('Failed to send message:', err);
+      const history = get().messages.slice(-14).map(message => ({
+        role: message.senderType === 'user' ? 'user' as const : 'assistant' as const,
+        content: message.content,
+      }));
+      const response = await localGemma.generate([
+        {
+          role: 'user',
+          content: 'Bạn là GoodBot của GOODVIET, một trợ lý thân thiện hỗ trợ người Việt luyện phát âm. Trả lời bằng tiếng Việt, rõ ràng, ngắn gọn; không tự chẩn đoán y khoa và khuyên gặp chuyên gia khi phù hợp.',
+        },
+        {
+          role: 'assistant',
+          content: 'Mình là GoodBot. Mình sẽ hỗ trợ bằng tiếng Việt, ưu tiên hướng dẫn thực tế và an toàn.',
+        },
+        ...history,
+      ], { maxNewTokens: 600, onText: updateReply });
+      updateReply(response || 'Mình chưa tạo được câu trả lời rõ ràng. Bạn thử diễn đạt lại câu hỏi nhé.');
       set({ isTyping: false });
+      persistState(get());
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Gemma 4 cục bộ chưa thể trả lời.';
+      updateReply(`Mình chưa thể chạy Gemma 4 trên thiết bị này. ${message}`);
+      set({ isTyping: false, modelError: message });
+      persistState(get());
     }
   },
 }));
+
+localGemma.subscribe((runtime) => {
+  useChatStore.setState({
+    modelStatus: runtime.status,
+    modelProgress: runtime.progress,
+    modelDetail: runtime.detail,
+    modelError: runtime.error,
+  });
+});

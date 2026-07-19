@@ -1,0 +1,85 @@
+.sentence-evaluation {
+  width: min(100%, 680px);
+  margin: 22px auto 0;
+  border: 1px solid #e1e6ec;
+  border-radius: 22px;
+  color: #242830;
+  background: #f9f9ff;
+}
+
+.sentence-evaluation--idle {
+  padding: 13px 17px;
+  color: #535f70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-size: 13px;
+}
+
+.sentence-evaluation--idle svg { color: #33618d; }
+
+.sentence-evaluation--loading { padding: 16px 18px; }
+
+.sentence-evaluation__status {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.sentence-evaluation__status > svg { color: #33618d; }
+.sentence-evaluation__status > span { min-width: 0; flex: 1; display: flex; flex-direction: column; text-align: left; }
+.sentence-evaluation__status strong { font-size: 14px; }
+.sentence-evaluation__status small { margin-top: 2px; overflow: hidden; color: #687383; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.sentence-evaluation__status b { color: #33618d; font-size: 13px; }
+
+.sentence-evaluation__track {
+  height: 6px;
+  margin-top: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e1e8f0;
+}
+.sentence-evaluation__track span { height: 100%; border-radius: inherit; background: #33618d; display: block; transition: width 180ms ease; }
+
+.sentence-evaluation--error {
+  padding: 16px 18px;
+  border-color: #f0c7c7;
+  color: #8e2632;
+  background: #fff7f7;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-align: left;
+}
+.sentence-evaluation--error > span { min-width: 0; flex: 1; display: flex; flex-direction: column; }
+.sentence-evaluation--error small { margin-top: 3px; line-height: 1.4; }
+.sentence-evaluation--error button { padding: 7px 12px; border: 1px solid currentColor; border-radius: 999px; color: inherit; background: #fff; cursor: pointer; }
+
+.sentence-evaluation--result { padding: 20px; text-align: left; box-shadow: 0 8px 25px rgba(36, 55, 75, 0.06); }
+.sentence-evaluation__score { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.sentence-evaluation__score > span { color: #33618d; display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 700; }
+.sentence-evaluation__score > strong { color: #33618d; font-size: 35px; line-height: 1; }
+.sentence-evaluation__score > strong small { margin-left: 2px; color: #788493; font-size: 13px; font-weight: 500; }
+.sentence-evaluation__metrics { margin-top: 14px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+.sentence-evaluation__metric { padding: 10px 12px; border-radius: 13px; background: #edf2f8; display: flex; align-items: center; justify-content: space-between; }
+.sentence-evaluation__metric small { color: #5d6877; }
+.sentence-evaluation__metric strong { color: #33618d; }
+.sentence-evaluation__transcript { margin-top: 13px; padding: 12px 14px; border-radius: 14px; background: #fff; }
+.sentence-evaluation__transcript small { color: #6c7683; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+.sentence-evaluation__transcript p { margin: 4px 0 0; font-size: 14px; line-height: 1.45; }
+.sentence-evaluation__feedback { margin-top: 12px; color: #2f3742; display: flex; align-items: flex-start; gap: 9px; }
+.sentence-evaluation__feedback svg { margin-top: 2px; flex: 0 0 auto; color: #6b5778; }
+.sentence-evaluation__feedback p { margin: 0; font-size: 14px; line-height: 1.55; }
+.sentence-evaluation__tips { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 7px; }
+.sentence-evaluation__tips span { padding: 6px 10px; border-radius: 999px; color: #6b5778; background: #f0eaf4; font-size: 12px; }
+.sentence-evaluation__tips .is-good { color: #315f54; background: #e7f1ec; }
+.sentence-evaluation details { margin-top: 13px; color: #697482; font-size: 12px; }
+.sentence-evaluation summary { cursor: pointer; }
+.sentence-evaluation details p { margin: 6px 0 0; overflow-wrap: anywhere; }
+
+@media (max-width: 620px) {
+  .sentence-evaluation--result { padding: 16px; }
+  .sentence-evaluation__metrics { grid-template-columns: 1fr; }
+  .sentence-evaluation--error { align-items: flex-start; flex-wrap: wrap; }
+}
