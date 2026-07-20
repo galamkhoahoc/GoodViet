@@ -231,11 +231,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
       } catch (generateError) {
         console.warn('WebGPU failed, falling back to cloud chat API', generateError);
         const { apiClient } = await import('../services/api/apiClient');
-        const apiResponse = await apiClient.post<any>('/api/chat/messages', {
-          content: text,
-          sessionId: activeSessionId
+        const apiResponse = await apiClient.post<any>('/api/chat/evaluate', {
+          prompt: text,
+          history: [
+            {
+              role: 'user',
+              content: 'Bạn là GoodBot của GOODVIET, một trợ lý thân thiện hỗ trợ người Việt luyện phát âm. Trả lời bằng tiếng Việt, rõ ràng, ngắn gọn; không tự chẩn đoán y khoa và khuyên gặp chuyên gia khi phù hợp.',
+            },
+            {
+              role: 'assistant',
+              content: 'Mình là GoodBot. Mình sẽ hỗ trợ bằng tiếng Việt, ưu tiên hướng dẫn thực tế và an toàn.',
+            },
+            ...history,
+          ]
         });
-        response = apiResponse.botMessage.content;
+        response = apiResponse.result;
       }
       
       if (requestGeneration !== chatGeneration) return;
