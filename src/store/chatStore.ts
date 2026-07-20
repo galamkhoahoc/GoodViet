@@ -37,9 +37,11 @@ interface ChatState {
   sendMessage: (content: string) => Promise<void>;
   loadMessages: () => Promise<void>;
   preloadModel: () => Promise<void>;
+  reset: () => void;
 }
 
 const STORAGE_KEY = 'goodviet:local-gemma-chat:v1';
+let chatGeneration = 0;
 
 function newId(prefix: string) {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return `${prefix}-${crypto.randomUUID()}`;
@@ -148,6 +150,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
+  reset: () => {
+    chatGeneration += 1;
+    if (typeof localStorage !== 'undefined') localStorage.removeItem(STORAGE_KEY);
+    set({
+      sessions: [],
+      activeSessionId: null,
+      messages: [],
+      isTyping: false,
+      modelError: null,
+    });
+  },
+
   sendMessage: async (content) => {
     const text = content.trim();
     if (!text || get().isTyping) return;
@@ -173,9 +187,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }));
     persistState(get());
 
+    const requestGeneration = chatGeneration;
     const replyId = newId('gemma');
     let replyAdded = false;
     const updateReply = (reply: string) => {
+      if (requestGeneration !== chatGeneration) return;
       set(state => {
         if (!replyAdded) {
           replyAdded = true;
@@ -210,10 +226,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
         },
         ...history,
       ], { maxNewTokens: 600, onText: updateReply });
+      if (requestGeneration !== chatGeneration) return;
       updateReply(response || 'Mình chưa tạo được câu trả lời rõ ràng. Bạn thử diễn đạt lại câu hỏi nhé.');
       set({ isTyping: false });
       persistState(get());
     } catch (error) {
+      if (requestGeneration !== chatGeneration) return;
       const message = error instanceof Error ? error.message : 'Gemma 4 cục bộ chưa thể trả lời.';
       updateReply(`Mình chưa thể chạy Gemma 4 trên thiết bị này. ${message}`);
       set({ isTyping: false, modelError: message });

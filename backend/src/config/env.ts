@@ -10,7 +10,14 @@ dotenv.config();
 const envSchema = z.object({
   // Server
   PORT: z.string().default('3000').transform(Number),
-  NODE_ENV: z.enum(['development', 'staging', 'production']).default('development'),
+  NODE_ENV: z.enum(['development', 'test', 'staging', 'production']).default('development'),
+  API_BASE_URL: z.string()
+    .url()
+    .refine((value) => ['http:', 'https:'].includes(new URL(value).protocol), {
+      message: 'API_BASE_URL must use http:// or https://',
+    })
+    .transform((value) => value.replace(/\/+$/, ''))
+    .optional(),
   
   // Database
   MONGODB_URI: z.string().url(),
@@ -36,6 +43,25 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
   SMTP_FROM: z.string().optional(),
+}).superRefine((config, context) => {
+  if (['staging', 'production'].includes(config.NODE_ENV) && !config.API_BASE_URL) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['API_BASE_URL'],
+      message: 'API_BASE_URL is required outside development/test for signed audio URLs',
+    });
+  }
+  if (
+    config.NODE_ENV === 'production'
+    && config.API_BASE_URL
+    && new URL(config.API_BASE_URL).protocol !== 'https:'
+  ) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['API_BASE_URL'],
+      message: 'API_BASE_URL must use HTTPS in production',
+    });
+  }
 });
 
 /**

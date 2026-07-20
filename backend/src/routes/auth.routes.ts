@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { AuthController } from '../controllers/auth.controller';
 import { validateRequest, validationSchemas } from '../middleware/validation.middleware';
 import { loginLimiter, registerLimiter } from '../middleware/rateLimit.middleware';
+import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -33,6 +34,7 @@ router.post(
  */
 router.post(
   '/logout',
+  authMiddleware,
   AuthController.logout
 );
 

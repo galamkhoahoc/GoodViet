@@ -23,7 +23,7 @@ router.post(
 /**
  * GET /api/audio/:fileId
  * Stream audio file
- * Public endpoint (for playback)
+ * Playback endpoint protected by an expiring, file-scoped HMAC token.
  */
 router.get(
   '/stream/:fileId',

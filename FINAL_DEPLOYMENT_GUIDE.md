@@ -28,13 +28,13 @@ Click **"Environment Variables"**, thêm **7 biến** này:
 
 ```
 Name: MONGODB_URI
-Value: mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true&w=majority
+Value: mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
 
 Name: JWT_SECRET
-Value: goodviet-super-secret-jwt-key-change-in-production-2024
+Value: replace-with-at-least-32-random-characters
 
 Name: GEMINI_API_KEY
-Value: AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q
+Value: your-gemini-api-key
 
 Name: AI_SERVICE
 Value: gemini

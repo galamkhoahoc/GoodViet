@@ -5,6 +5,7 @@ import { PracticeProgress } from '../models/PracticeProgress';
 import { PracticeSession } from '../models/PracticeSession';
 import { User } from '../models/User';
 import { AppError } from '../middleware/error.middleware';
+import { runWithRequestSessionWrite } from '../middleware/auth.middleware';
 
 export class PracticeController {
   /**
@@ -68,16 +69,18 @@ export class PracticeController {
         return;
       }
 
-      // Create new progress
-      progress = await PracticeProgress.create({
-        userId: new mongoose.Types.ObjectId(userId),
-        pathwayId: new mongoose.Types.ObjectId(pathwayId),
-        currentWeek: 1,
-        currentDay: 1,
-      });
+      // Create progress and update its profile pointer while reset is excluded.
+      progress = await runWithRequestSessionWrite(req, async () => {
+        const createdProgress = await PracticeProgress.create({
+          userId: new mongoose.Types.ObjectId(userId),
+          pathwayId: new mongoose.Types.ObjectId(pathwayId),
+          currentWeek: 1,
+          currentDay: 1,
+        });
 
-      // Update user profile
-      await User.findByIdAndUpdate(userId, { currentPathwayId: pathwayId });
+        await User.findByIdAndUpdate(userId, { currentPathwayId: pathwayId });
+        return createdProgress;
+      });
 
       res.status(201).json({
         progressId: progress._id,
@@ -203,14 +206,6 @@ export class PracticeController {
       const progress = await PracticeProgress.findOne({ userId });
       if (!progress) throw new AppError(404, 'Chưa có lộ trình nào được bắt đầu');
 
-      // Create session
-      const session = await PracticeSession.create({
-        progressId: progress._id,
-        week,
-        day,
-        exercisesCompleted,
-      });
-
       // Update streaks
       const now = new Date();
       let newStreak = progress.currentStreak;
@@ -250,7 +245,16 @@ export class PracticeController {
         progress.currentDay = 1;
       }
 
-      await progress.save();
+      const session = await runWithRequestSessionWrite(req, async () => {
+        const createdSession = await PracticeSession.create({
+          progressId: progress._id,
+          week,
+          day,
+          exercisesCompleted,
+        });
+        await progress.save();
+        return createdSession;
+      });
 
       // Check milestones
       let milestoneAchieved = null;

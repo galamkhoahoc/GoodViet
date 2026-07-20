@@ -16,6 +16,7 @@ interface NotificationState {
   markAsRead: (id: string) => void;
   markAllRead: () => void;
   addNotification: (n: Omit<Notification, 'id' | 'read' | 'timestamp'>) => void;
+  reset: () => void;
 }
 
 const defaultNotifications: Notification[] = [
@@ -84,5 +85,10 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
     const updated = [newN, ...notifications];
     localStorage.setItem('goodviet_notifications', JSON.stringify(updated));
     set({ notifications: updated, unreadCount: updated.filter(x => !x.read).length });
+  },
+
+  reset: () => {
+    localStorage.setItem('goodviet_notifications', '[]');
+    set({ notifications: [], unreadCount: 0 });
   },
 }));

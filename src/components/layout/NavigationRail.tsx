@@ -24,8 +24,8 @@ export function NavigationRail({ activeTab = 'dashboard', onTabChange }: Navigat
     navigate(path);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 

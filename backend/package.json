@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "vercel-build": "echo 'Vercel build complete'",
+    "accounts:provision": "ts-node src/scripts/provision-accounts.ts",
     "test": "jest",
     "lint": "eslint src --ext .ts"
   },

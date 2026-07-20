@@ -76,10 +76,14 @@ class ApiClient {
       const response = await fetch(url, fetchOptions);
 
       if (response.status === 401) {
-        // Token expired or invalid - clear auth and redirect
-        localStorage.removeItem('goodviet_token');
-        localStorage.removeItem('goodviet_user');
-        window.location.href = '/login';
+        // A response can arrive after logout/login has installed a newer token.
+        // Only the request that used the still-current token may clear that
+        // session; a stale 401 must not erase or redirect a newer login.
+        if (this.getToken() === token) {
+          localStorage.removeItem('goodviet_token');
+          localStorage.removeItem('goodviet_user');
+          window.location.href = '/login';
+        }
         throw new ApiError(401, 'Unauthorized');
       }
 
@@ -131,13 +135,19 @@ class ApiClient {
     return this.request<T>('DELETE', path, undefined, options);
   }
 
-  async upload<T>(path: string, file: File | Blob, fieldName = 'file', extra?: Record<string, string>): Promise<T> {
+  async upload<T>(
+    path: string,
+    file: File | Blob,
+    fieldName = 'file',
+    extra?: Record<string, string>,
+    options?: RequestOptions,
+  ): Promise<T> {
     const formData = new FormData();
     formData.append(fieldName, file);
     if (extra) {
       Object.entries(extra).forEach(([k, v]) => formData.append(k, v));
     }
-    return this.request<T>('POST', path, formData);
+    return this.request<T>('POST', path, formData, options);
   }
 }
 

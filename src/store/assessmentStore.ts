@@ -32,6 +32,8 @@ interface AssessmentState {
   getRecordingForSentence: (sentenceId: string) => RecordingEntry | undefined;
 }
 
+let assessmentGeneration = 0;
+
 export const useAssessmentStore = create<AssessmentState>((set, get) => ({
   assessmentId: null,
   phase: 'not_started',
@@ -42,9 +44,11 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
   isLoading: false,
 
   startAssessment: async () => {
+    const requestGeneration = assessmentGeneration;
     set({ isLoading: true });
     try {
       const response = await assessmentApi.startAssessment();
+      if (requestGeneration !== assessmentGeneration) return;
       set({ 
         assessmentId: response.assessmentId, 
         phase: response.phase as AssessmentPhase,
@@ -53,11 +57,12 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       });
     } catch (err) {
       console.error('Failed to start assessment:', err);
-      set({ isLoading: false });
+      if (requestGeneration === assessmentGeneration) set({ isLoading: false });
     }
   },
 
   completeCurrentPhase: async () => {
+    const requestGeneration = assessmentGeneration;
     const { assessmentId, phase } = get();
     if (!assessmentId) return;
     
@@ -67,8 +72,10 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
         // Ensure all offline recordings are uploaded before completing phase
         const { useSyncStore } = await import('../services/storage/syncManager');
         await useSyncStore.getState().syncNow();
+        if (requestGeneration !== assessmentGeneration) return;
 
         const response = await assessmentApi.completePhase(assessmentId, phase);
+        if (requestGeneration !== assessmentGeneration) return;
         
         if (response.nextPhase === 'restart') {
           // Trigger restart
@@ -88,16 +95,18 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       }
     } catch (err) {
       console.error('Failed to complete phase:', err);
-      set({ isLoading: false });
+      if (requestGeneration === assessmentGeneration) set({ isLoading: false });
     }
   },
 
   checkStatus: async () => {
+    const requestGeneration = assessmentGeneration;
     const { assessmentId } = get();
     if (!assessmentId) return;
     
     try {
       const res = await assessmentApi.getStatus(assessmentId);
+      if (requestGeneration !== assessmentGeneration) return;
       if (res.status === 'completed') {
         set({ phase: 'results', completed: true });
         await get().loadResult();
@@ -110,13 +119,15 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
   },
 
   loadResult: async () => {
+    const requestGeneration = assessmentGeneration;
     try {
       set({ isLoading: true });
       const result = await assessmentApi.getResult();
+      if (requestGeneration !== assessmentGeneration) return;
       set({ result, completed: true, phase: 'results', isLoading: false });
     } catch (err) {
       console.error('Failed to load result:', err);
-      set({ isLoading: false });
+      if (requestGeneration === assessmentGeneration) set({ isLoading: false });
     }
   },
 
@@ -132,6 +143,7 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
   },
 
   reset: () => {
+    assessmentGeneration += 1;
     set({
       assessmentId: null,
       phase: 'not_started',

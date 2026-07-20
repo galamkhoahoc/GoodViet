@@ -2,13 +2,17 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User, IUser } from '../models/User';
 import { env } from '../config/env';
+import { TemporaryAccountService } from './temporary-account.service';
 
 /**
  * JWT payload interface
  */
-interface JWTPayload {
+export interface JWTPayload {
   userId: string;
   email: string;
+  role: 'user' | 'admin';
+  accountType: 'standard' | 'temporary';
+  sessionVersion: number;
 }
 
 /**
@@ -49,6 +53,9 @@ export class AuthService {
     const payload: JWTPayload = {
       userId: user._id.toString(),
       email: user.email,
+      role: user.role ?? 'user',
+      accountType: user.accountType ?? 'standard',
+      sessionVersion: user.sessionVersion ?? 0,
     };
 
     return jwt.sign(payload, env.JWT_SECRET, {
@@ -124,7 +131,7 @@ export class AuthService {
     password: string
   ): Promise<{ user: IUser; token: string }> {
     // Find user by email
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email }) as IUser | null;
     if (!user) {
       throw new Error('Invalid credentials');
     }
@@ -140,14 +147,70 @@ export class AuthService {
       throw new Error('Account is deactivated');
     }
 
-    // Update last login time
-    user.lastLoginAt = new Date();
-    await user.save();
+    // A temporary account is reset before every token issuance. This is the
+    // backstop for closed tabs, expired sessions, and failed logout requests.
+    if (user.accountType === 'temporary') {
+      const resetResult = await TemporaryAccountService.reset(user._id);
+      const resetUser = resetResult.user;
+
+      // Claim the freshly reset epoch with one conditional database write.
+      // A concurrent login/reset either runs after this update (and clears it)
+      // or changes the epoch first (and this update fails), so lastLoginAt can
+      // never be written after a newer reset has completed.
+      const claimedUser = await User.findOneAndUpdate(
+        {
+          _id: resetUser._id,
+          accountType: 'temporary',
+          sessionVersion: resetUser.sessionVersion,
+          resetInProgress: false,
+          isActive: true,
+        },
+        { $set: { lastLoginAt: new Date() } },
+        { new: true }
+      );
+      if (!claimedUser) {
+        throw new Error('Temporary account changed during login; please retry');
+      }
+      user = claimedUser;
+    } else {
+      // Standard accounts do not participate in temporary reset fencing.
+      user.lastLoginAt = new Date();
+      await user.save();
+    }
 
     // Generate token
     const token = this.generateToken(user);
 
     return { user, token };
+  }
+
+  /**
+   * End a session. Standard accounts keep their data; temporary accounts are
+   * fully reset and have all previously issued temporary JWTs invalidated.
+   */
+  static async logout(
+    userId: string,
+    expectedSessionVersion: number
+  ): Promise<{ dataReset: boolean }> {
+    const user = await User.findById(userId).select('+sessionVersion +resetInProgress');
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (user.accountType !== 'temporary') {
+      return { dataReset: false };
+    }
+
+    if (
+      !Number.isInteger(expectedSessionVersion)
+      || user.sessionVersion !== expectedSessionVersion
+    ) {
+      throw new Error('Temporary account session is no longer active');
+    }
+
+    await TemporaryAccountService.reset(user._id, expectedSessionVersion);
+    return { dataReset: true };
   }
 
   /**

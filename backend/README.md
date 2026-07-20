@@ -29,14 +29,16 @@ Create a `.env` file in the backend root directory:
 
 ```env
 # MongoDB Atlas
-MONGODB_URI=mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
 
 # Server
 PORT=3000
 NODE_ENV=development
+# Public backend origin used in signed GridFS playback URLs
+API_BASE_URL=http://localhost:3000
 
 # JWT Secret (CHANGE IN PRODUCTION!)
-JWT_SECRET=goodviet-super-secret-jwt-key-change-in-production-2024
+JWT_SECRET=replace-with-at-least-32-random-characters
 
 # CORS
 CORS_ORIGIN=http://localhost:5173
@@ -401,6 +403,33 @@ backend/
 ├── tsconfig.json
 └── README.md
 ```
+
+## Provision managed accounts
+
+Account passwords must not be committed. Copy `accounts.example.json`, provide
+each referenced password environment variable (or add a `password` field only
+in an ignored `accounts.local*.json` file), then run:
+
+```bash
+npm run accounts:provision -- accounts.local.json
+```
+
+The command is idempotent: it creates missing accounts and refreshes the
+password and account metadata for existing ones. Temporary accounts are reset
+during provisioning and on every login/logout.
+
+Temporary-account write fencing uses MongoDB transactions, so the deployment
+must use MongoDB Atlas or another replica-set/sharded MongoDB topology. GridFS
+playback URLs are file-scoped, signed, and expire; raw GridFS IDs are not public.
+Set `API_BASE_URL` to the externally reachable HTTP(S) origin in staging and
+production; production requires HTTPS. Signed-URL JSON responses and audio
+objects are served with private, no-store caching.
+
+When S3 storage is enabled, its IAM policy must allow `s3:ListBucket`,
+`s3:ListBucketVersions`, `s3:DeleteObject`, and `s3:DeleteObjectVersion` in
+addition to the upload/read permissions. Temporary-account reset permanently
+removes current objects, all historical versions, and delete markers below the
+account's `audio/<userId>/` prefix.
 
 ## Next Steps
 

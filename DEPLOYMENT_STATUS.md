@@ -37,11 +37,11 @@
 Vào: https://vercel.com/dashboard → Project Settings → Environment Variables
 
 ```
-MONGODB_URI = mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true&w=majority
+MONGODB_URI = mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
 
-JWT_SECRET = goodviet-super-secret-jwt-key-change-in-production-2024
+JWT_SECRET = replace-with-at-least-32-random-characters
 
-GEMINI_API_KEY = AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q
+GEMINI_API_KEY = your-gemini-api-key
 
 AI_SERVICE = gemini
 

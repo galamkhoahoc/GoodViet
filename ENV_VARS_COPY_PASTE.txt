@@ -19,7 +19,7 @@ Name:
 MONGODB_URI
 
 Value:
-mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true&w=majority
+mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
 
 ════════════════════════════════════════════════════════════════
 
@@ -29,7 +29,7 @@ Name:
 JWT_SECRET
 
 Value:
-goodviet-super-secret-jwt-key-change-in-production-2024
+replace-with-at-least-32-random-characters
 
 ════════════════════════════════════════════════════════════════
 
@@ -39,7 +39,7 @@ Name:
 GEMINI_API_KEY
 
 Value:
-AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q
+your-gemini-api-key
 
 ════════════════════════════════════════════════════════════════
 

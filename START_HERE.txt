@@ -64,7 +64,7 @@ Password: Demo123!
 1. Add Gemini Key vào Vercel:
    - https://vercel.com/dashboard
    - Project backend → Settings → Environment Variables
-   - Add: GEMINI_API_KEY = AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q
+   - Add: GEMINI_API_KEY = your-gemini-api-key
    - Add: AI_SERVICE = gemini
 
 2. Push code:

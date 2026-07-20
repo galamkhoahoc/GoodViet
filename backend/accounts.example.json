@@ -1,0 +1,82 @@
+{
+  "accounts": [
+    {
+      "email": "guest@goodviet.glkh.vn",
+      "fullName": "Guest",
+      "passwordEnv": "GOODVIET_PASSWORD_GUEST",
+      "role": "user",
+      "accountType": "temporary"
+    },
+    {
+      "email": "admin@goodviet.glkh.vn",
+      "fullName": "Admin",
+      "passwordEnv": "GOODVIET_PASSWORD_ADMIN",
+      "role": "admin"
+    },
+    {
+      "email": "dpquy@glkh.vn",
+      "fullName": "DP Quy",
+      "passwordEnv": "GOODVIET_PASSWORD_DPQUY_GLKH"
+    },
+    {
+      "email": "tkduy@glkh.vn",
+      "fullName": "TK Duy",
+      "passwordEnv": "GOODVIET_PASSWORD_TKDUY_GLKH"
+    },
+    {
+      "email": "pdxthien@glkh.vn",
+      "fullName": "PDX Thien",
+      "passwordEnv": "GOODVIET_PASSWORD_PDXTHIEN"
+    },
+    {
+      "email": "bqnhai@glkh.vn",
+      "fullName": "BQN Hai",
+      "passwordEnv": "GOODVIET_PASSWORD_BQNHAI"
+    },
+    {
+      "email": "dkbang@glkh.vn",
+      "fullName": "DK Bang",
+      "passwordEnv": "GOODVIET_PASSWORD_DKBANG"
+    },
+    {
+      "email": "tnanh@glkh.vn",
+      "fullName": "TN Anh",
+      "passwordEnv": "GOODVIET_PASSWORD_TNANH"
+    },
+    {
+      "email": "ndacuong@goodviet.glkh.vn",
+      "fullName": "NDA Cuong",
+      "passwordEnv": "GOODVIET_PASSWORD_NDACUONG"
+    },
+    {
+      "email": "npbnghi@goodviet.glkh.vn",
+      "fullName": "NPB Nghi",
+      "passwordEnv": "GOODVIET_PASSWORD_NPBNGHI"
+    },
+    {
+      "email": "ttanh@goodviet.glkh.vn",
+      "fullName": "TT Anh",
+      "passwordEnv": "GOODVIET_PASSWORD_TTANH"
+    },
+    {
+      "email": "ltathu@goodviet.glkh.vn",
+      "fullName": "LTA Thu",
+      "passwordEnv": "GOODVIET_PASSWORD_LTATHU"
+    },
+    {
+      "email": "lhphuc@goodviet.glkh.vn",
+      "fullName": "LH Phuc",
+      "passwordEnv": "GOODVIET_PASSWORD_LHPHUC"
+    },
+    {
+      "email": "tkduy@goodviet.glkh.vn",
+      "fullName": "TK Duy",
+      "passwordEnv": "GOODVIET_PASSWORD_TKDUY_GOODVIET"
+    },
+    {
+      "email": "dpquy@goodviet.glkh.vn",
+      "fullName": "DP Quy",
+      "passwordEnv": "GOODVIET_PASSWORD_DPQUY_GOODVIET"
+    }
+  ]
+}

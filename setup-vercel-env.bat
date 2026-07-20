@@ -22,13 +22,13 @@ echo.
 cd backend
 
 vercel env add MONGODB_URI production
-echo mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true^&w=majority
+echo mongodb+srv://USERNAME:PASSWORD@CLUSTER/DATABASE?retryWrites=true^&w=majority
 
 vercel env add JWT_SECRET production
-echo goodviet-super-secret-jwt-key-change-in-production-2024
+echo replace-with-at-least-32-random-characters
 
 vercel env add GEMINI_API_KEY production
-echo AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q
+echo your-gemini-api-key
 
 vercel env add AI_SERVICE production
 echo gemini

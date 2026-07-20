@@ -5,6 +5,7 @@ import mongoose, { Schema, Document } from 'mongoose';
  */
 export interface IAudioRecording extends Document {
   _id: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
   assessmentId?: mongoose.Types.ObjectId;
   practiceSessionId?: mongoose.Types.ObjectId;
   
@@ -22,6 +23,7 @@ export interface IAudioRecording extends Document {
   
   // Upload metadata
   uploadedAt: Date;
+  deletionPendingAt?: Date;
 }
 
 /**
@@ -29,6 +31,12 @@ export interface IAudioRecording extends Document {
  */
 const AudioRecordingSchema = new Schema<IAudioRecording>(
   {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      index: true,
+    },
     assessmentId: {
       type: Schema.Types.ObjectId,
       ref: 'Assessment',
@@ -82,6 +90,10 @@ const AudioRecordingSchema = new Schema<IAudioRecording>(
     uploadedAt: {
       type: Date,
       default: Date.now,
+      index: true,
+    },
+    deletionPendingAt: {
+      type: Date,
       index: true,
     },
   },

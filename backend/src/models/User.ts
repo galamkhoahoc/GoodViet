@@ -8,6 +8,12 @@ export interface IUser extends Document {
   email: string;
   passwordHash: string;
   fullName: string;
+  role: 'user' | 'admin';
+  accountType: 'standard' | 'temporary';
+  sessionVersion: number;
+  resetInProgress: boolean;
+  resetStartedAt?: Date;
+  temporaryWriteFence?: number;
   phoneNumber?: string;
   dateOfBirth?: Date;
   age?: number;
@@ -61,6 +67,34 @@ const UserSchema = new Schema<IUser>(
       trim: true,
       minlength: [2, 'Full name must be at least 2 characters'],
       maxlength: [100, 'Full name cannot exceed 100 characters'],
+    },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+      required: true,
+    },
+    accountType: {
+      type: String,
+      enum: ['standard', 'temporary'],
+      default: 'standard',
+      required: true,
+      index: true,
+    },
+    sessionVersion: {
+      type: Number,
+      default: 0,
+      required: true,
+    },
+    resetInProgress: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
+    resetStartedAt: Date,
+    temporaryWriteFence: {
+      type: Number,
+      default: 0,
     },
     phoneNumber: {
       type: String,

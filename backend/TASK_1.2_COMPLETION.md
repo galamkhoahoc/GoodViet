@@ -20,7 +20,7 @@ Task 1.2 has been successfully completed with the MongoDB Atlas cloud database a
 ### 1. Database Infrastructure ✅
 
 **MongoDB Atlas Cluster:**
-- **Connection String:** `mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet`
+- **Connection String:** `mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority`
 - **Database Name:** `goodviet`
 - **Cluster:** `glkh2.wtvyhjt.mongodb.net`
 - **Status:** Active and accessible

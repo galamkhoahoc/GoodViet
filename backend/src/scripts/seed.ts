@@ -6,7 +6,13 @@ import { Expert } from '../models/Expert';
 // Load env vars
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true&w=majority';
+const MONGODB_URI = (() => {
+  const value = process.env.MONGODB_URI;
+  if (!value) {
+    throw new Error('MONGODB_URI is required to run the database seed script');
+  }
+  return value;
+})();
 
 const pathways = [
   {

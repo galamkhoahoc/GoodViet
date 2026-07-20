@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { ChatMessage } from '../models/ChatMessage';
 import { ChatSession } from '../models/ChatSession';
 import { AppError } from '../middleware/error.middleware';
+import { runWithRequestSessionWrite } from '../middleware/auth.middleware';
 import { aiService } from '../services/ai.service';
 import { normalizeVietnamese, normalizeHistory } from '../utils/vietnamese.utils';
 import validator from 'validator';
@@ -94,18 +95,33 @@ export class ChatController {
         throw new AppError(400, 'Tin nhắn quá dài (tối đa 2000 ký tự)');
       }
 
-      // Save user message
-      const userMessage = await ChatMessage.create({
-        userId: new mongoose.Types.ObjectId(userId),
-        sessionId: sessionId ? new mongoose.Types.ObjectId(sessionId) : undefined,
-        senderType: 'user',
-        content,
-      });
+      // For session messages, the ownership decision, session write, and
+      // message create share one transaction. Updating the session document
+      // also creates a write conflict with a concurrent session deletion.
+      const userMessage = await runWithRequestSessionWrite(req, async () => {
+        if (sessionId) {
+          const ownedSession = await ChatSession.findOneAndUpdate(
+            { _id: sessionId, userId },
+            {
+              $set: { lastMessageAt: new Date() },
+              $inc: { mutationVersion: 1 },
+            },
+            { new: true }
+          );
+          if (!ownedSession) {
+            throw new AppError(404, 'Session not found');
+          }
+        }
 
-      // Update session lastMessageAt if sessionId is provided
-      if (sessionId) {
-        await ChatSession.findByIdAndUpdate(sessionId, { lastMessageAt: new Date() });
-      }
+        const createdMessage = await ChatMessage.create({
+          userId: new mongoose.Types.ObjectId(userId),
+          sessionId: sessionId ? new mongoose.Types.ObjectId(sessionId) : undefined,
+          senderType: 'user',
+          content,
+        });
+
+        return createdMessage;
+      }, { transactionForStandard: Boolean(sessionId) });
 
       // Fetch recent history for context (last 10 messages)
       // Requirements: 11.1, 11.2, 11.3, 11.4, 11.7
@@ -134,13 +150,30 @@ export class ChatController {
       // Generate response from AI service (Gemma4, Ollama, or Gemini)
       const botResponseContent = await aiService.generateChatResponse(content, normalizedHistory);
 
-      // Save bot message
-      const botMessage = await ChatMessage.create({
-        userId: new mongoose.Types.ObjectId(userId),
-        sessionId: sessionId ? new mongoose.Types.ObjectId(sessionId) : undefined,
-        senderType: 'bot',
-        content: botResponseContent,
-      });
+      // A reset may happen while the AI call is running, so acquire a fresh
+      // write transaction for the bot response rather than reusing the first one.
+      const botMessage = await runWithRequestSessionWrite(req, async () => {
+        if (sessionId) {
+          const ownedSession = await ChatSession.findOneAndUpdate(
+            { _id: sessionId, userId },
+            {
+              $set: { lastMessageAt: new Date() },
+              $inc: { mutationVersion: 1 },
+            },
+            { new: true }
+          );
+          if (!ownedSession) {
+            throw new AppError(404, 'Session not found');
+          }
+        }
+
+        return ChatMessage.create({
+          userId: new mongoose.Types.ObjectId(userId),
+          sessionId: sessionId ? new mongoose.Types.ObjectId(sessionId) : undefined,
+          senderType: 'bot',
+          content: botResponseContent,
+        });
+      }, { transactionForStandard: Boolean(sessionId) });
 
       res.status(201).json({
         success: true,
@@ -197,10 +230,10 @@ export class ChatController {
 
       const { title } = req.body;
 
-      const session = await ChatSession.create({
+      const session = await runWithRequestSessionWrite(req, () => ChatSession.create({
         userId: new mongoose.Types.ObjectId(userId),
         title: title || 'Cuộc trò chuyện mới'
-      });
+      }));
 
       res.status(201).json({
         success: true,
@@ -226,14 +259,17 @@ export class ChatController {
 
       const sessionId = req.params.id;
 
-      // Verify ownership
-      const session = await ChatSession.findOne({ _id: sessionId, userId });
-      if (!session) {
-        throw new AppError(404, 'Session not found');
-      }
+      await runWithRequestSessionWrite(req, async () => {
+        const deletedSession = await ChatSession.findOneAndDelete({
+          _id: sessionId,
+          userId,
+        });
+        if (!deletedSession) {
+          throw new AppError(404, 'Session not found');
+        }
 
-      await ChatSession.findByIdAndDelete(sessionId);
-      await ChatMessage.deleteMany({ sessionId });
+        await ChatMessage.deleteMany({ sessionId, userId });
+      }, { transactionForStandard: true });
 
       res.status(200).json({
         success: true,

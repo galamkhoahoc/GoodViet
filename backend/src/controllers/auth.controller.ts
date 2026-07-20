@@ -34,9 +34,14 @@ export class AuthController {
           id: user._id,
           email: user.email,
           fullName: user.fullName,
+          role: user.role,
+          accountType: user.accountType,
+          isActive: user.isActive,
+          verifiedEmail: user.verifiedEmail,
           phoneNumber: user.phoneNumber,
           age: user.age,
           targetGoals: user.targetGoals,
+          assessmentCompleted: user.assessmentCompleted,
           totalRecordings: user.totalRecordings,
           totalPracticeTime: user.totalPracticeTime,
           currentStreak: user.currentStreak,
@@ -75,6 +80,10 @@ export class AuthController {
           id: user._id,
           email: user.email,
           fullName: user.fullName,
+          role: user.role,
+          accountType: user.accountType,
+          isActive: user.isActive,
+          verifiedEmail: user.verifiedEmail,
           phoneNumber: user.phoneNumber,
           age: user.age,
           targetGoals: user.targetGoals,
@@ -109,14 +118,30 @@ export class AuthController {
     next: NextFunction
   ): Promise<void> {
     try {
-      // In JWT authentication, logout is handled client-side
-      // Server doesn't need to do anything
+      if (
+        !req.userId
+        || typeof req.sessionVersion !== 'number'
+        || !Number.isInteger(req.sessionVersion)
+      ) {
+        throw new AppError(401, 'Unauthorized');
+      }
+
+      const { dataReset } = await AuthService.logout(req.userId, req.sessionVersion);
+
       res.status(200).json({
         success: true,
+        dataReset,
         message: 'Đăng xuất thành công',
       });
     } catch (error) {
-      next(error);
+      if (
+        error instanceof Error
+        && error.message === 'Temporary account session is no longer active'
+      ) {
+        next(new AppError(401, 'This temporary account session is no longer active.'));
+      } else {
+        next(error);
+      }
     }
   }
 }

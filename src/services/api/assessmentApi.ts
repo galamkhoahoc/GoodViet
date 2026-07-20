@@ -130,6 +130,10 @@ const getMockResult = (): Assessment => ({
 });
 
 export const assessmentApi = {
+  resetMockState(): void {
+    mockAssessment = createMockAssessment();
+  },
+
   /** Start a new assessment (Phase I). */
   async startAssessment(): Promise<StartAssessmentResponse> {
     if (config.useMockApi) {

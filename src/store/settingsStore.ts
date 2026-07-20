@@ -7,18 +7,24 @@ export interface SettingsState {
   emailNotifications: boolean;
   pushNotifications: boolean;
   
-  updateSettings: (updates: Partial<Omit<SettingsState, 'updateSettings'>>) => void;
+  updateSettings: (updates: Partial<Omit<SettingsState, 'updateSettings' | 'reset'>>) => void;
+  reset: () => void;
 }
+
+const defaultSettings = {
+  language: 'vi' as const,
+  timezone: 'Asia/Ho_Chi_Minh',
+  emailNotifications: true,
+  pushNotifications: true,
+};
 
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
-      language: 'vi',
-      timezone: 'Asia/Ho_Chi_Minh',
-      emailNotifications: true,
-      pushNotifications: true,
+      ...defaultSettings,
       
       updateSettings: (updates) => set((state) => ({ ...state, ...updates })),
+      reset: () => set(defaultSettings),
     }),
     {
       name: 'goodviet_settings',

@@ -24,6 +24,7 @@ import { AudioRecorder } from '../components/audio/AudioRecorder';
 import { SentenceEvaluationPanel } from '../components/audio/SentenceEvaluationPanel';
 import { useLocalSentenceEvaluation } from '../hooks/useLocalSentenceEvaluation';
 import type { SentenceEvaluationResult } from '../services/ml/sentenceEvaluation';
+import { useAuthStore } from '../store/authStore';
 import '../styles/pathway-page.css';
 
 const COMPLETED_DAYS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
@@ -37,9 +38,13 @@ const getLessonIcon = (lesson: PracticeLesson): LessonIcon => {
   return 'book';
 };
 
-const getStatusLabel = (lesson: PracticeLesson, startedLessons: Set<string>) => {
-  if (lesson.status === 'completed') return 'Hoàn thành';
-  if (lesson.status === 'in_progress' || startedLessons.has(lesson.id)) return 'Đang làm';
+const getStatusLabel = (
+  lesson: PracticeLesson,
+  startedLessons: Set<string>,
+  ignoreSavedProgress = false,
+) => {
+  if (!ignoreSavedProgress && lesson.status === 'completed') return 'Hoàn thành';
+  if ((!ignoreSavedProgress && lesson.status === 'in_progress') || startedLessons.has(lesson.id)) return 'Đang làm';
   return 'Chưa làm';
 };
 
@@ -51,6 +56,7 @@ function LessonIconView({ type }: { type: LessonIcon }) {
 
 export function PathwayPage() {
   const navigate = useNavigate();
+  const isTemporaryAccount = useAuthStore(state => state.user?.accountType === 'temporary');
   const [currentMonth, setCurrentMonth] = useState(() => new Date(2024, 9, 1));
   const [selectedLesson, setSelectedLesson] = useState<PracticeLesson | null>(null);
   const [lessonMode, setLessonMode] = useState<LessonMode>('short');
@@ -136,9 +142,13 @@ export function PathwayPage() {
 
   const isReferenceMonth = currentMonth.getFullYear() === 2024 && currentMonth.getMonth() === 9;
   const recommendedLessons = [practiceLessons[3], practiceLessons[7]];
+  const displaySummary = isTemporaryAccount
+    ? { ...practiceSummary, currentStreak: 0, longestStreak: 0, completedLessons: 0, weeklyCompleted: 0 }
+    : practiceSummary;
   const goalPercentage = Math.round(
-    (practiceSummary.weeklyCompleted / practiceSummary.weeklyGoal) * 100
+    (displaySummary.weeklyCompleted / displaySummary.weeklyGoal) * 100
   );
+  const weeklyBars = isTemporaryAccount ? [18, 18, 18, 18, 18] : [34, 48, 72, 56, 28];
 
   return (
     <main className="gv-pathway flex-1 ml-nav-rail-width min-h-screen">
@@ -168,8 +178,8 @@ export function PathwayPage() {
               <span>Chuỗi ngày học</span>
               <span className="gv-pathway__round-icon"><Flame size={20} /></span>
             </div>
-            <strong>{practiceSummary.currentStreak} <small>Ngày</small></strong>
-            <p>Tuyệt vời! Tiếp tục duy trì nhé.</p>
+            <strong>{displaySummary.currentStreak} <small>Ngày</small></strong>
+            <p>{isTemporaryAccount ? 'Bắt đầu bài luyện đầu tiên của bạn nhé.' : 'Tuyệt vời! Tiếp tục duy trì nhé.'}</p>
           </article>
 
           <article className="gv-pathway__goal">
@@ -185,7 +195,7 @@ export function PathwayPage() {
                 </svg>
                 <strong>{goalPercentage}%</strong>
               </div>
-              <p>Còn 1 bài để hoàn thành mục tiêu tuần.</p>
+              <p>Còn {displaySummary.weeklyGoal - displaySummary.weeklyCompleted} bài để hoàn thành mục tiêu tuần.</p>
             </div>
           </article>
 
@@ -193,14 +203,14 @@ export function PathwayPage() {
             <div className="gv-pathway__metric-heading">
               <span>Tiến độ tuần</span>
               <span className="gv-pathway__week-pill">
-                {practiceSummary.weeklyCompleted}/{practiceSummary.weeklyGoal} Bài
+                {displaySummary.weeklyCompleted}/{displaySummary.weeklyGoal} Bài
               </span>
             </div>
-            <div className="gv-pathway__bars" aria-label="Ba trên bốn bài đã hoàn thành">
-              {[34, 48, 72, 56, 28].map((height, index) => (
+            <div className="gv-pathway__bars" aria-label={`${displaySummary.weeklyCompleted} trên ${displaySummary.weeklyGoal} bài đã hoàn thành`}>
+              {weeklyBars.map((height, index) => (
                 <span
                   key={`${height}-${index}`}
-                  className={index === 2 ? 'is-current' : index === 3 ? 'is-complete' : ''}
+                  className={!isTemporaryAccount && index === 2 ? 'is-current' : !isTemporaryAccount && index === 3 ? 'is-complete' : ''}
                   style={{ height: `${height}px` }}
                 />
               ))}
@@ -217,8 +227,10 @@ export function PathwayPage() {
           <div className="gv-pathway__exercise-grid">
             {practiceLessons.map((lesson) => {
               const icon = getLessonIcon(lesson);
-              const status = getStatusLabel(lesson, startedLessons);
-              const progress = lesson.progress || (startedLessons.has(lesson.id) ? 10 : 0);
+              const status = getStatusLabel(lesson, startedLessons, isTemporaryAccount);
+              const progress = isTemporaryAccount
+                ? (startedLessons.has(lesson.id) ? 10 : 0)
+                : lesson.progress || (startedLessons.has(lesson.id) ? 10 : 0);
 
               return (
                 <button
@@ -288,7 +300,7 @@ export function PathwayPage() {
             <div className="gv-pathway__calendar-days">
               {calendarDays.map((day, index) => {
                 const isToday = isReferenceMonth && day === 24;
-                const isCompleted = isReferenceMonth && day !== null && COMPLETED_DAYS.includes(day);
+                const isCompleted = !isTemporaryAccount && isReferenceMonth && day !== null && COMPLETED_DAYS.includes(day);
                 return (
                   <span
                     key={`${day ?? 'empty'}-${index}`}
@@ -367,7 +379,7 @@ export function PathwayPage() {
 
                 <button className="gv-pathway__modal-action" type="button" onClick={startLesson}>
                   <Play size={17} fill="currentColor" />
-                  {getStatusLabel(selectedLesson, startedLessons) === 'Chưa làm' ? 'Bắt đầu luyện tập' : 'Tiếp tục luyện tập'}
+                  {getStatusLabel(selectedLesson, startedLessons, isTemporaryAccount) === 'Chưa làm' ? 'Bắt đầu luyện tập' : 'Tiếp tục luyện tập'}
                 </button>
               </>
             ) : (

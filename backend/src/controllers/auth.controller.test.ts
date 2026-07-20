@@ -279,6 +279,10 @@ describe('AuthController', () => {
 
   describe('logout', () => {
     it('should logout successfully', async () => {
+      mockRequest.userId = 'user123';
+      mockRequest.sessionVersion = 3;
+      (AuthService.logout as jest.Mock).mockResolvedValue({ dataReset: false });
+
       // Act
       await AuthController.logout(
         mockRequest as Request,
@@ -290,8 +294,43 @@ describe('AuthController', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith({
         success: true,
+        dataReset: false,
         message: 'Đăng xuất thành công',
       });
+      expect(AuthService.logout).toHaveBeenCalledWith('user123', 3);
+    });
+
+    it('should require an authenticated user', async () => {
+      await AuthController.logout(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext
+      );
+
+      expect(AuthService.logout).not.toHaveBeenCalled();
+      expect(mockNext).toHaveBeenCalledWith(expect.objectContaining({
+        statusCode: 401,
+        message: 'Unauthorized',
+      }));
+    });
+
+    it('returns 401 when logout loses its temporary-session epoch', async () => {
+      mockRequest.userId = 'guest-user';
+      mockRequest.sessionVersion = 7;
+      (AuthService.logout as jest.Mock).mockRejectedValue(
+        new Error('Temporary account session is no longer active')
+      );
+
+      await AuthController.logout(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext
+      );
+
+      expect(mockNext).toHaveBeenCalledWith(expect.objectContaining({
+        statusCode: 401,
+        message: 'This temporary account session is no longer active.',
+      }));
     });
   });
 });

@@ -47,7 +47,7 @@ export function Sidebar() {
           <div className="sidebar-user-name">{user?.fullName || 'Người dùng'}</div>
           <div className="sidebar-user-email">{user?.email || ''}</div>
         </div>
-        <button className="btn btn-ghost btn-icon" onClick={logout} title="Đăng xuất">
+        <button className="btn btn-ghost btn-icon" onClick={() => void logout()} title="Đăng xuất">
           <LogOut size={18} />
         </button>
       </div>

@@ -3,11 +3,13 @@ import jwt from 'jsonwebtoken';
 import { AuthService } from './auth.service';
 import { User, IUser } from '../models/User';
 import { env } from '../config/env';
+import { TemporaryAccountService } from './temporary-account.service';
 
 // Mock dependencies
 jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
 jest.mock('../models/User');
+jest.mock('./temporary-account.service');
 
 describe('AuthService', () => {
   beforeEach(() => {
@@ -78,6 +80,9 @@ describe('AuthService', () => {
         {
           userId: 'user123',
           email: 'test@example.com',
+          role: 'user',
+          accountType: 'standard',
+          sessionVersion: 0,
         },
         env.JWT_SECRET,
         {
@@ -336,6 +341,107 @@ describe('AuthService', () => {
       await expect(AuthService.login(email, password)).rejects.toThrow(
         'Account is deactivated'
       );
+    });
+
+    it('should reset a temporary account before issuing its next token', async () => {
+      const temporaryUser = {
+        _id: 'guest-user',
+        email: 'guest@goodviet.glkh.vn',
+        passwordHash: 'hashed_password',
+        isActive: true,
+        accountType: 'temporary',
+      } as any;
+      const cleanUser = {
+        ...temporaryUser,
+        role: 'user',
+        sessionVersion: 4,
+      } as any;
+      const claimedUser = { ...cleanUser, lastLoginAt: new Date() } as any;
+
+      (User.findOne as jest.Mock).mockResolvedValue(temporaryUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      (TemporaryAccountService.reset as jest.Mock).mockResolvedValue({ user: cleanUser });
+      (User.findOneAndUpdate as jest.Mock).mockResolvedValue(claimedUser);
+      (jwt.sign as jest.Mock).mockReturnValue('guest.jwt');
+
+      const result = await AuthService.login(temporaryUser.email, 'GuestPassword1');
+
+      expect(TemporaryAccountService.reset).toHaveBeenCalledWith(temporaryUser._id);
+      expect(User.findOneAndUpdate).toHaveBeenCalledWith(
+        {
+          _id: cleanUser._id,
+          accountType: 'temporary',
+          sessionVersion: 4,
+          resetInProgress: false,
+          isActive: true,
+        },
+        { $set: { lastLoginAt: expect.any(Date) } },
+        { new: true }
+      );
+      expect(jwt.sign).toHaveBeenCalledWith(
+        expect.objectContaining({
+          accountType: 'temporary',
+          sessionVersion: 4,
+        }),
+        env.JWT_SECRET,
+        expect.any(Object)
+      );
+      expect(result).toEqual({ user: claimedUser, token: 'guest.jwt' });
+    });
+
+    it('does not write login state through a newer temporary reset epoch', async () => {
+      const temporaryUser = {
+        _id: 'guest-user',
+        email: 'guest@goodviet.glkh.vn',
+        passwordHash: 'hashed_password',
+        isActive: true,
+        accountType: 'temporary',
+      } as any;
+      const cleanUser = { ...temporaryUser, sessionVersion: 4 } as any;
+
+      (User.findOne as jest.Mock).mockResolvedValue(temporaryUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      (TemporaryAccountService.reset as jest.Mock).mockResolvedValue({ user: cleanUser });
+      (User.findOneAndUpdate as jest.Mock).mockResolvedValue(null);
+
+      await expect(AuthService.login(temporaryUser.email, 'GuestPassword1')).rejects.toThrow(
+        'Temporary account changed during login; please retry'
+      );
+      expect(jwt.sign).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('logout', () => {
+    it('keeps standard account data', async () => {
+      (User.findById as jest.Mock).mockReturnValue({
+        select: jest.fn().mockResolvedValue({ _id: 'user123', accountType: 'standard' }),
+      });
+
+      await expect(AuthService.logout('user123', 0)).resolves.toEqual({ dataReset: false });
+      expect(TemporaryAccountService.reset).not.toHaveBeenCalled();
+    });
+
+    it('resets temporary account data', async () => {
+      const guest = { _id: 'guest-user', accountType: 'temporary', sessionVersion: 9 };
+      (User.findById as jest.Mock).mockReturnValue({
+        select: jest.fn().mockResolvedValue(guest),
+      });
+      (TemporaryAccountService.reset as jest.Mock).mockResolvedValue({});
+
+      await expect(AuthService.logout('guest-user', 9)).resolves.toEqual({ dataReset: true });
+      expect(TemporaryAccountService.reset).toHaveBeenCalledWith('guest-user', 9);
+    });
+
+    it('does not let a stale logout reset a newer temporary session', async () => {
+      const guest = { _id: 'guest-user', accountType: 'temporary', sessionVersion: 10 };
+      (User.findById as jest.Mock).mockReturnValue({
+        select: jest.fn().mockResolvedValue(guest),
+      });
+
+      await expect(AuthService.logout('guest-user', 9)).rejects.toThrow(
+        'Temporary account session is no longer active'
+      );
+      expect(TemporaryAccountService.reset).not.toHaveBeenCalled();
     });
   });
 

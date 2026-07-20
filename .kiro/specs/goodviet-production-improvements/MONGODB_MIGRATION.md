@@ -6,7 +6,7 @@ This document provides a complete guide for implementing the GOODVIET backend us
 
 **Your MongoDB Atlas Connection:**
 ```
-mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true&w=majority
+mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
 ```
 
 ---
@@ -34,7 +34,7 @@ mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/
 **Environment Variable (.env):**
 ```env
 # MongoDB Atlas
-MONGODB_URI=mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
 
 # Alternative format for local development
 MONGODB_URI_LOCAL=mongodb://localhost:27017/goodviet

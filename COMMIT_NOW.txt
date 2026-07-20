@@ -59,7 +59,7 @@ AFTER PUSH:
    
    Variable 1:
    Name: GEMINI_API_KEY
-   Value: AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q
+   Value: your-gemini-api-key
    
    Variable 2:
    Name: AI_SERVICE

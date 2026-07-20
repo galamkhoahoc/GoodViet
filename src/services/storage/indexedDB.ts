@@ -74,11 +74,18 @@ export const indexedDBService = {
     return all;
   },
 
-  async getPendingUploads(): Promise<StoredRecording[]> {
+  async getPendingUploads(userId: string): Promise<StoredRecording[]> {
     const db = await getDB();
     const all = await db.getAll(storeName);
     return all
-      .filter(r => r.metadata.uploadStatus === 'pending' || r.metadata.uploadStatus === 'failed')
+      .filter(r =>
+        r.metadata.userId === userId
+        && (
+          r.metadata.uploadStatus === 'pending'
+          || r.metadata.uploadStatus === 'uploading'
+          || r.metadata.uploadStatus === 'failed'
+        )
+      )
       .sort((a, b) => new Date(a.metadata.timestamp).getTime() - new Date(b.metadata.timestamp).getTime());
   },
 
@@ -113,6 +120,19 @@ export const indexedDBService = {
   async deleteRecording(id: string): Promise<void> {
     const db = await getDB();
     await db.delete(storeName, id);
+  },
+
+  async deleteRecordingsForUser(userId: string): Promise<number> {
+    const db = await getDB();
+    const records = await db.getAllFromIndex(storeName, 'userId', userId);
+    const transaction = db.transaction(storeName, 'readwrite');
+
+    for (const record of records) {
+      await transaction.store.delete(record.id);
+    }
+    await transaction.done;
+
+    return records.length;
   },
 
   async getStorageUsage(): Promise<{ usedBytes: number; count: number }> {

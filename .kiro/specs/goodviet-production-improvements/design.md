@@ -269,7 +269,7 @@ backend/
 
 **Connection String:**
 ```
-mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true&w=majority
+mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
 ```
 
 **Mongoose Schemas:**

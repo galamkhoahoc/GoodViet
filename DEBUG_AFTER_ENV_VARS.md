@@ -185,7 +185,7 @@ curl -X POST https://your-backend-url.vercel.app/api/users/login \
 ```
 MONGODB_URI phải CHÍNH XÁC như sau (1 dòng, không có line break):
 
-mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true&w=majority
+mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
 ```
 
 ---
@@ -218,7 +218,7 @@ mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/
 
 **Fix:**
 ```
-JWT_SECRET = goodviet-super-secret-jwt-key-change-in-production-2024
+JWT_SECRET = replace-with-at-least-32-random-characters
 ```
 
 ---

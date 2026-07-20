@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import { Notification } from '../models/Notification';
+import { Notification, NotificationType } from '../models/Notification';
+import { User } from '../models/User';
 import { AppError } from '../middleware/error.middleware';
+import {
+  RequestSessionContext,
+  runWithRequestSessionWrite,
+} from '../middleware/auth.middleware';
 
 /**
  * Notification controller
@@ -27,14 +32,14 @@ export class NotificationController {
 
       const query: any = { userId };
       if (unreadOnly) {
-        query.isRead = false;
+        query.read = false;
       }
 
       const notifications = await Notification.find(query)
-        .sort({ createdAt: -1 })
+        .sort({ timestamp: -1 })
         .limit(limit);
 
-      const unreadCount = await Notification.countDocuments({ userId, isRead: false });
+      const unreadCount = await Notification.countDocuments({ userId, read: false });
 
       res.status(200).json({
         success: true,
@@ -67,11 +72,11 @@ export class NotificationController {
         throw new AppError(400, 'Invalid Notification ID');
       }
 
-      const notification = await Notification.findOneAndUpdate(
+      const notification = await runWithRequestSessionWrite(req, () => Notification.findOneAndUpdate(
         { _id: id, userId },
-        { $set: { isRead: true } },
+        { $set: { read: true } },
         { new: true }
-      );
+      ));
 
       if (!notification) {
         throw new AppError(404, 'Notification not found');
@@ -93,18 +98,33 @@ export class NotificationController {
     userId: string | mongoose.Types.ObjectId,
     title: string,
     message: string,
-    type: 'system' | 'assessment' | 'practice' | 'expert_session',
-    link?: string
+    type: NotificationType,
+    actionUrl?: string,
+    sessionContext?: RequestSessionContext
   ): Promise<void> {
     try {
-      await Notification.create({
-        userId: new mongoose.Types.ObjectId(userId),
-        title,
-        message,
-        type,
-        link,
-        isRead: false,
-      });
+      const owner = await User.findById(userId).select('accountType sessionVersion isActive');
+      if (!owner?.isActive) return;
+
+      // Background callers must carry the originating epoch for a temporary
+      // account. Without it, a late notification could leak into a later guest
+      // session, so fail closed.
+      if (owner.accountType === 'temporary' && !sessionContext) return;
+
+      const context = sessionContext ?? {
+        userId: owner._id.toString(),
+        accountType: owner.accountType,
+        sessionVersion: owner.sessionVersion,
+      };
+      await runWithRequestSessionWrite(context, () => Notification.create({
+          userId: new mongoose.Types.ObjectId(userId),
+          title,
+          message,
+          type,
+          actionUrl,
+          read: false,
+        })
+      );
     } catch (error) {
       console.error('Failed to create notification:', error);
     }

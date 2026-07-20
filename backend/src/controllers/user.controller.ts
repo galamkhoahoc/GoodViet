@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { User } from '../models/User';
 import { AppError } from '../middleware/error.middleware';
+import { runWithRequestSessionWrite } from '../middleware/auth.middleware';
 import validator from 'validator';
 
 /**
@@ -36,6 +37,10 @@ export class UserController {
           id: user._id,
           email: user.email,
           fullName: user.fullName,
+          role: user.role,
+          accountType: user.accountType,
+          isActive: user.isActive,
+          verifiedEmail: user.verifiedEmail,
           phoneNumber: user.phoneNumber,
           dateOfBirth: user.dateOfBirth,
           gender: user.gender,
@@ -44,6 +49,10 @@ export class UserController {
           learningStyle: user.learningStyle,
           assessmentCompleted: user.assessmentCompleted,
           currentPathwayId: user.currentPathwayId,
+          totalRecordings: user.totalRecordings,
+          totalPracticeTime: user.totalPracticeTime,
+          currentStreak: user.currentStreak,
+          longestStreak: user.longestStreak,
           createdAt: user.createdAt,
           lastLoginAt: user.lastLoginAt,
         },
@@ -69,21 +78,35 @@ export class UserController {
         throw new AppError(401, 'Unauthorized');
       }
 
-      const updates: any = { ...req.body };
+      const allowedFields = [
+        'fullName',
+        'phoneNumber',
+        'dateOfBirth',
+        'profileImageUrl',
+        'targetGoals',
+        'learningStyle',
+      ] as const;
+      const updates: Record<string, unknown> = {};
+      for (const field of allowedFields) {
+        if (req.body[field] !== undefined) {
+          updates[field] = req.body[field];
+        }
+      }
 
-      if (updates.fullName) {
+      if (typeof updates.fullName === 'string') {
         updates.fullName = validator.escape(updates.fullName.trim());
       }
-      if (updates.targetGoals) {
+      if (typeof updates.targetGoals === 'string') {
         updates.targetGoals = validator.escape(updates.targetGoals.trim());
       }
 
       // Find and update user
-      const user = await User.findByIdAndUpdate(
-        userId,
-        { $set: updates },
-        { new: true, runValidators: true }
-      ).select('-passwordHash');
+      const user = await runWithRequestSessionWrite(req, () => User.findByIdAndUpdate(
+          userId,
+          { $set: updates },
+          { new: true, runValidators: true }
+        ).select('-passwordHash')
+      );
 
       if (!user) {
         throw new AppError(404, 'User not found');
@@ -95,6 +118,10 @@ export class UserController {
           id: user._id,
           email: user.email,
           fullName: user.fullName,
+          role: user.role,
+          accountType: user.accountType,
+          isActive: user.isActive,
+          verifiedEmail: user.verifiedEmail,
           phoneNumber: user.phoneNumber,
           dateOfBirth: user.dateOfBirth,
           gender: user.gender,
@@ -103,6 +130,10 @@ export class UserController {
           learningStyle: user.learningStyle,
           assessmentCompleted: user.assessmentCompleted,
           currentPathwayId: user.currentPathwayId,
+          totalRecordings: user.totalRecordings,
+          totalPracticeTime: user.totalPracticeTime,
+          currentStreak: user.currentStreak,
+          longestStreak: user.longestStreak,
           updatedAt: user.updatedAt,
         },
       });

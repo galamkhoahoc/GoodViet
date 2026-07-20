@@ -85,6 +85,26 @@ let mockProgress: PracticeProgress = {
   startedAt: '2026-07-05T08:30:00.000Z',
 };
 
+const createFreshMockProgress = (): PracticeProgress => ({
+  _id: 'practice-progress-mock-01',
+  userId: 'mock-user-001',
+  pathwayId: mockPathway._id,
+  currentWeek: 1,
+  currentDay: 1,
+  currentStreak: 0,
+  longestStreak: 0,
+  startedAt: new Date().toISOString(),
+});
+
+let mockHistory: PracticeHistoryEntry[] = practiceLessons.slice(0, 3).map((lesson, index) => ({
+  sessionId: `mock-history-${index + 1}`,
+  lessonId: lesson.id,
+  lessonTitle: lesson.title,
+  completedAt: new Date(Date.UTC(2026, 6, 17 - index)).toISOString(),
+  score: 78 + index * 4,
+}));
+let mockGeneration = 0;
+
 const wait = (milliseconds = 160) =>
   new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 
@@ -94,6 +114,12 @@ const getLessonForDay = (week: number, day: number) => {
 };
 
 export const practiceApi = {
+  resetMockState(): void {
+    mockGeneration += 1;
+    mockProgress = createFreshMockProgress();
+    mockHistory = [];
+  },
+
   async getPathways(): Promise<{ pathways: PracticePathway[] }> {
     if (config.useMockApi) {
       await wait();
@@ -114,14 +140,17 @@ export const practiceApi = {
     message?: string;
   }> {
     if (config.useMockApi) {
+      const requestGeneration = mockGeneration;
       await wait();
-      mockProgress = {
-        ...mockProgress,
-        pathwayId,
-        currentWeek: 1,
-        currentDay: 1,
-        startedAt: new Date().toISOString(),
-      };
+      if (requestGeneration === mockGeneration) {
+        mockProgress = {
+          ...mockProgress,
+          pathwayId,
+          currentWeek: 1,
+          currentDay: 1,
+          startedAt: new Date().toISOString(),
+        };
+      }
       return {
         progressId: mockProgress._id,
         pathwayId,
@@ -141,12 +170,13 @@ export const practiceApi = {
   }> {
     if (config.useMockApi) {
       await wait();
+      const completedSessions = mockHistory.length;
       return {
         ...mockProgress,
         pathway: mockPathway,
-        completedSessions: practiceSummary.completedLessons,
+        completedSessions,
         completionPercentage: Math.round(
-          (practiceSummary.completedLessons / practiceSummary.totalLessons) * 100
+          (completedSessions / practiceSummary.totalLessons) * 100
         ),
       };
     }
@@ -190,15 +220,26 @@ export const practiceApi = {
 
   async checkin(week: number, day: number, exercisesCompleted: number): Promise<CheckinResponse> {
     if (config.useMockApi) {
+      const requestGeneration = mockGeneration;
       await wait();
       const completedAt = new Date().toISOString();
-      mockProgress = {
-        ...mockProgress,
-        currentWeek: week,
-        currentDay: day,
-        currentStreak: mockProgress.currentStreak + 1,
-        lastCheckIn: completedAt,
-      };
+      const lesson = getLessonForDay(week, day);
+      if (requestGeneration === mockGeneration) {
+        mockProgress = {
+          ...mockProgress,
+          currentWeek: week,
+          currentDay: day,
+          currentStreak: mockProgress.currentStreak + 1,
+          lastCheckIn: completedAt,
+        };
+        mockHistory = [{
+          sessionId: `mock-session-w${week}-d${day}`,
+          lessonId: lesson.id,
+          lessonTitle: lesson.title,
+          completedAt,
+          score: exercisesCompleted >= 2 ? 100 : 70,
+        }, ...mockHistory];
+      }
       return {
         sessionId: `mock-session-w${week}-d${day}`,
         completedAt,
@@ -240,15 +281,7 @@ export const practiceApi = {
   async getHistory(): Promise<{ history: PracticeHistoryEntry[] }> {
     if (config.useMockApi) {
       await wait();
-      return {
-        history: practiceLessons.slice(0, 3).map((lesson, index) => ({
-          sessionId: `mock-history-${index + 1}`,
-          lessonId: lesson.id,
-          lessonTitle: lesson.title,
-          completedAt: new Date(Date.UTC(2026, 6, 17 - index)).toISOString(),
-          score: 78 + index * 4,
-        })),
-      };
+      return { history: [...mockHistory] };
     }
 
     const response = await apiClient.get<{

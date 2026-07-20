@@ -5,6 +5,7 @@ import { ExpertConnection } from '../models/ExpertConnection';
 import { ExpertSession } from '../models/ExpertSession';
 import { User } from '../models/User';
 import { AppError } from '../middleware/error.middleware';
+import { runWithRequestSessionWrite } from '../middleware/auth.middleware';
 import { emailService } from '../services/email.service';
 
 /**
@@ -76,15 +77,15 @@ export class ExpertController {
         throw new AppError(409, 'Bạn đã gửi yêu cầu kết nối với chuyên gia này rồi');
       }
 
-      const connection = await ExpertConnection.create({
+      const connection = await runWithRequestSessionWrite(req, () => ExpertConnection.create({
         userId: new mongoose.Types.ObjectId(userId),
         expertId: new mongoose.Types.ObjectId(expertId),
         status: 'pending',
-      });
+      }));
 
       // Send email notification to expert
       const user = await User.findById(userId);
-      if (user) {
+      if (user && req.accountType !== 'temporary') {
         await emailService.sendExpertConnectionRequest(expert.email, user.fullName);
       }
 
@@ -159,7 +160,7 @@ export class ExpertController {
       }
 
       // Create session
-      const session = await ExpertSession.create({
+      const session = await runWithRequestSessionWrite(req, () => ExpertSession.create({
         connectionId: connection._id,
         expertId: connection.expertId,
         scheduledAt: new Date(scheduledAt),
@@ -167,11 +168,11 @@ export class ExpertController {
         sessionType,
         status: 'scheduled',
         meetingUrl: 'https://meet.google.com/mock-url-' + Math.random().toString(36).substring(7), // Mock URL
-      });
+      }));
 
       // Send confirmation emails
       const user = await User.findById(userId);
-      if (user) {
+      if (user && req.accountType !== 'temporary') {
         await emailService.sendSessionConfirmation(user.email, new Date(scheduledAt));
       }
 
@@ -224,18 +225,23 @@ export class ExpertController {
 
       session.rating = rating;
       session.feedback = feedback;
-      await session.save();
 
       // Recalculate expert's average rating
-      const expert = await Expert.findById(session.expertId);
+      const expert = req.accountType === 'temporary'
+        ? null
+        : await Expert.findById(session.expertId);
       if (expert) {
         const totalRatings = expert.totalRatings + 1;
         const averageRating = ((expert.averageRating * expert.totalRatings) + rating) / totalRatings;
         
         expert.totalRatings = totalRatings;
         expert.averageRating = averageRating;
-        await expert.save();
       }
+
+      await runWithRequestSessionWrite(req, async () => {
+        await session.save();
+        if (expert) await expert.save();
+      });
 
       res.status(200).json({
         success: true,

@@ -1,37 +1,26 @@
 import multer from 'multer';
-import multerS3 from 'multer-s3';
-import { S3Client } from '@aws-sdk/client-s3';
 import { Request } from 'express';
-import { env } from '../config/env';
+import {
+  MAX_AUDIO_FIELD_SIZE_BYTES,
+  MAX_AUDIO_FILE_SIZE_BYTES,
+  MAX_AUDIO_FILE_SIZE_MB,
+  MAX_AUDIO_FORM_FIELDS,
+} from '../config/audio';
 
-/**
- * Configure AWS S3 Client
- */
-let s3: S3Client | null = null;
-if (env.AWS_ACCESS_KEY_ID && env.AWS_SECRET_ACCESS_KEY && env.S3_BUCKET_NAME) {
-  s3 = new S3Client({
-    region: env.AWS_REGION || 'ap-southeast-1',
-    credentials: {
-      accessKeyId: env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
-    },
-  });
-}
+export {
+  MAX_AUDIO_FIELD_SIZE_BYTES,
+  MAX_AUDIO_FILE_SIZE_BYTES,
+  MAX_AUDIO_FILE_SIZE_MB,
+  MAX_AUDIO_FORM_FIELDS,
+} from '../config/audio';
 
 /**
  * Configure multer storage
- * Uses S3 if configured, otherwise falls back to memoryStorage (for local dev)
+ * Buffer uploads in memory so ownership/session fencing runs before any S3 or
+ * GridFS side effect. The controller delegates the actual storage write to
+ * StorageService inside the temporary-account write transaction.
  */
-const storage = s3 
-  ? multerS3({
-      s3: s3,
-      bucket: env.S3_BUCKET_NAME!,
-      contentType: multerS3.AUTO_CONTENT_TYPE,
-      key: function (req: Request, file: Express.Multer.File, cb: any) {
-        cb(null, `audio/${Date.now().toString()}-${file.originalname}`);
-      }
-    })
-  : multer.memoryStorage();
+const storage = multer.memoryStorage();
 
 /**
  * File filter for audio files
@@ -58,8 +47,13 @@ export const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB max
+    fileSize: MAX_AUDIO_FILE_SIZE_BYTES,
     files: 1, // Single file upload
+    fields: MAX_AUDIO_FORM_FIELDS,
+    parts: MAX_AUDIO_FORM_FIELDS + 1,
+    fieldNameSize: 100,
+    fieldSize: MAX_AUDIO_FIELD_SIZE_BYTES,
+    headerPairs: 100,
   },
 });
 
@@ -71,7 +65,7 @@ export function handleMulterError(error: any, req: Request, res: any, next: any)
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         error: 'File too large',
-        message: 'File quá lớn. Kích thước tối đa 10MB',
+        message: `File quá lớn. Kích thước tối đa ${MAX_AUDIO_FILE_SIZE_MB}MB`,
       });
     }
     if (error.code === 'LIMIT_FILE_COUNT') {

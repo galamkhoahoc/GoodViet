@@ -144,9 +144,9 @@ Click **Environment Variables**, thêm từng biến sau:
 
 | Name | Value | Environments |
 |------|-------|--------------|
-| `MONGODB_URI` | `mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true&w=majority` | ✅ Production<br>✅ Preview<br>✅ Development |
-| `JWT_SECRET` | `goodviet-super-secret-jwt-key-change-in-production-2024` | ✅ Production<br>✅ Preview<br>✅ Development |
-| `GEMINI_API_KEY` | `AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q` | ✅ Production<br>✅ Preview<br>✅ Development |
+| `MONGODB_URI` | `mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority` | ✅ Production<br>✅ Preview<br>✅ Development |
+| `JWT_SECRET` | `replace-with-at-least-32-random-characters` | ✅ Production<br>✅ Preview<br>✅ Development |
+| `GEMINI_API_KEY` | `your-gemini-api-key` | ✅ Production<br>✅ Preview<br>✅ Development |
 | `AI_SERVICE` | `gemini` | ✅ Production<br>✅ Preview<br>✅ Development |
 | `CORS_ORIGIN` | `*` | ✅ Production<br>✅ Preview<br>✅ Development |
 | `NODE_ENV` | `production` | ✅ Production<br>✅ Preview<br>✅ Development |

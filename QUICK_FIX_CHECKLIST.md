@@ -22,19 +22,19 @@
 
 ```
 Name: MONGODB_URI
-Value: mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true&w=majority
+Value: mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
 Environment: ✓ Production
 
 ---
 
 Name: JWT_SECRET
-Value: goodviet-super-secret-jwt-key-change-in-production-2024
+Value: replace-with-at-least-32-random-characters
 Environment: ✓ Production
 
 ---
 
 Name: GEMINI_API_KEY
-Value: AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q
+Value: your-gemini-api-key
 Environment: ✓ Production
 
 ---

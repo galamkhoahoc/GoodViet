@@ -18,7 +18,7 @@ MONGODB_URI=mongodb+srv://galamkhoahoctr_db_user:...
 ### 2. AI Service: Gemini API
 ✅ **Đã có** - API key trong `.env`:
 ```
-GEMINI_API_KEY=AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q
+GEMINI_API_KEY=your-gemini-api-key
 ```
 
 ### 3. Vercel Account
@@ -38,7 +38,7 @@ GEMINI_API_KEY=AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q
 **1. Kiểm tra `backend/.env`:**
 ```env
 AI_SERVICE=gemini  # MUST be gemini for Vercel
-GEMINI_API_KEY=AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q
+GEMINI_API_KEY=your-gemini-api-key
 ```
 
 **2. Kiểm tra `backend/vercel.json` đã được tạo** ✅
@@ -83,13 +83,13 @@ vercel
 **5. Set environment variables:**
 ```bash
 vercel env add MONGODB_URI
-# Paste: mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true&w=majority
+# Paste: mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
 
 vercel env add JWT_SECRET
-# Paste: goodviet-super-secret-jwt-key-change-in-production-2024
+# Paste: replace-with-at-least-32-random-characters
 
 vercel env add GEMINI_API_KEY
-# Paste: AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q
+# Paste: your-gemini-api-key
 
 vercel env add AI_SERVICE
 # Paste: gemini
@@ -136,9 +136,9 @@ Sau khi import, đi tới: **Settings → Environment Variables**
 
 Add các biến:
 ```
-MONGODB_URI = mongodb+srv://galamkhoahoctr_db_user:4VQsfyNTe6I3w4E3@glkh2.wtvyhjt.mongodb.net/goodviet?retryWrites=true&w=majority
-JWT_SECRET = goodviet-super-secret-jwt-key-change-in-production-2024
-GEMINI_API_KEY = AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q
+MONGODB_URI = mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
+JWT_SECRET = replace-with-at-least-32-random-characters
+GEMINI_API_KEY = your-gemini-api-key
 AI_SERVICE = gemini
 CORS_ORIGIN = *
 NODE_ENV = production

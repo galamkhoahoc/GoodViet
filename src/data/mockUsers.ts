@@ -2,6 +2,8 @@ export interface User {
   userId: string;
   email: string;
   fullName: string; // Aligned with backend
+  role: 'user' | 'admin';
+  accountType: 'standard' | 'temporary';
   age: number;
   phoneNumber?: string; // Aligned with backend
   targetGoals?: string; // Aligned with backend (formerly speechDescription)
@@ -22,6 +24,8 @@ export const mockUsers: User[] = [
     userId: 'user-001',
     email: 'nguyenvana@gmail.com',
     fullName: 'Nguyễn Văn A',
+    role: 'user',
+    accountType: 'standard',
     age: 30,
     phoneNumber: '0901234567',
     targetGoals: 'Khó phát âm phụ âm l/n, nói hơi nhanh khi trình bày trước đám đông',
@@ -42,6 +46,8 @@ export const defaultUser: User = {
   userId: '',
   email: '',
   fullName: '',
+  role: 'user',
+  accountType: 'standard',
   age: 30,
   targetGoals: '',
   createdAt: new Date().toISOString(),

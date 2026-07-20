@@ -12,7 +12,7 @@
 
 ## 🔑 GEMINI API KEY:
 
-**API Key:** `AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q`
+**API Key:** `your-gemini-api-key`
 
 ✅ Đã điền vào: `backend\.env`
 ⚠️ Cần add vào: Vercel Environment Variables
@@ -126,7 +126,7 @@ http://localhost:5173
 **Variable 1:**
 ```
 Name: GEMINI_API_KEY
-Value: AIzaSyAvgVxHx_wbHlMHZgmlsh0ttrDhrCEH15Q
+Value: your-gemini-api-key
 Environments: ✅ Production ✅ Preview ✅ Development
 ```
 

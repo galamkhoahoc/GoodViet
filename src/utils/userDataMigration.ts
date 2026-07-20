@@ -12,7 +12,13 @@ import type { User } from '../data/mockUsers';
  */
 export function migrateUserData(oldData: any): User {
   // If data already has new fields, return as is
-  if (oldData.fullName && oldData.phoneNumber !== undefined && oldData.targetGoals !== undefined) {
+  if (
+    oldData.fullName &&
+    oldData.phoneNumber !== undefined &&
+    oldData.targetGoals !== undefined &&
+    oldData.role &&
+    oldData.accountType
+  ) {
     return oldData as User;
   }
 
@@ -20,6 +26,8 @@ export function migrateUserData(oldData: any): User {
   const newData: User = {
     userId: oldData.userId || oldData.id,
     email: oldData.email,
+    role: oldData.role || 'user',
+    accountType: oldData.accountType || 'standard',
     fullName: oldData.name || oldData.fullName || '', // OLD: name → NEW: fullName
     age: oldData.age || 0,
     phoneNumber: oldData.phone || oldData.phoneNumber, // OLD: phone → NEW: phoneNumber

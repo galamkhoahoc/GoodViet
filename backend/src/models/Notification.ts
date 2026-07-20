@@ -1,8 +1,18 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+export const NOTIFICATION_TYPES = [
+  'reminder',
+  'milestone',
+  'alert',
+  'expert_session',
+  'new_content',
+] as const;
+
+export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
+
 export interface INotification extends Document {
   userId: mongoose.Types.ObjectId;
-  type: 'reminder' | 'milestone' | 'alert' | 'expert_session' | 'new_content';
+  type: NotificationType;
   title: string;
   message: string;
   read: boolean;
@@ -13,10 +23,10 @@ export interface INotification extends Document {
 
 const NotificationSchema = new Schema<INotification>({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  type: { 
-    type: String, 
-    enum: ['reminder', 'milestone', 'alert', 'expert_session', 'new_content'], 
-    required: true 
+  type: {
+    type: String,
+    enum: [...NOTIFICATION_TYPES],
+    required: true,
   },
   title: { type: String, required: true },
   message: { type: String, required: true },
@@ -26,7 +36,7 @@ const NotificationSchema = new Schema<INotification>({
   actionData: { type: Schema.Types.Mixed },
 }, {
   timestamps: true,
-  collection: 'notifications'
+  collection: 'notifications',
 });
 
 // Optimized index for common query: unread notifications for a user, sorted by time

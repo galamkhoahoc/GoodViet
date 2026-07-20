@@ -3,6 +3,12 @@ import mongoose from 'mongoose';
 import { Assessment } from '../models/Assessment';
 import { User } from '../models/User';
 import { AppError } from '../middleware/error.middleware';
+import {
+  assertRequestSessionCurrent,
+  getRequestSessionContext,
+  isRequestSessionCurrent,
+  runWithRequestSessionWrite,
+} from '../middleware/auth.middleware';
 import { normalizeVietnamese } from '../utils/vietnamese.utils';
 
 /**
@@ -39,13 +45,14 @@ export class AssessmentController {
       let assessment = await Assessment.findOne({ userId, phase: { $ne: 'completed' } });
 
       if (!assessment) {
-        assessment = await Assessment.create({
+        assessment = await runWithRequestSessionWrite(req, () => Assessment.create({
           userId: new mongoose.Types.ObjectId(userId),
           phase: 'phase_1',
-        });
+        }));
       } else if (assessment.phase === 'not_started') {
         assessment.phase = 'phase_1';
-        await assessment.save();
+        const existingAssessment = assessment;
+        await runWithRequestSessionWrite(req, () => existingAssessment.save());
       }
 
       // Predefined sentences for phase 1 (mock data for now, should ideally come from a DB or config)
@@ -102,6 +109,8 @@ export class AssessmentController {
         throw new AppError(404, 'Assessment not found');
       }
 
+      await assertRequestSessionCurrent(req);
+
       // Here we would typically link the recording to the assessment in the DB
       // For now, we return success so the frontend knows it's saved.
       res.status(200).json({
@@ -142,7 +151,7 @@ export class AssessmentController {
 
       if (phase === 'phase_1') {
         assessment.phase = 'phase_2';
-        await assessment.save();
+        await runWithRequestSessionWrite(req, () => assessment.save());
         
         // Mock Phase 2 sentences
         res.status(200).json({
@@ -167,14 +176,14 @@ export class AssessmentController {
         if (isConflict) {
           // Restart logic
           assessment.phase = 'not_started'; 
-          await assessment.save();
+          await runWithRequestSessionWrite(req, () => assessment.save());
           res.status(200).json({
             nextPhase: 'restart',
             message: 'Phát hiện mâu thuẫn trong kết quả đánh giá (bạn đọc sai ở Phần I nhưng lại đúng ở Phần II). Vui lòng làm lại từ đầu để hệ thống hiệu chuẩn.'
           });
         } else {
           assessment.phase = 'phase_3';
-          await assessment.save();
+          await runWithRequestSessionWrite(req, () => assessment.save());
           
           res.status(200).json({
             nextPhase: 'phase_3'
@@ -182,18 +191,23 @@ export class AssessmentController {
         }
       } else if (phase === 'phase_3') {
         assessment.phase = 'processing';
-        await assessment.save();
+        await runWithRequestSessionWrite(req, () => assessment.save());
+        const processingSession = getRequestSessionContext(req);
         
         // Trigger async AI analysis job
         setTimeout(async () => {
           try {
+            if (!(await isRequestSessionCurrent(processingSession))) return;
             const { aiService } = await import('../services/ai.service');
             const { AudioRecording } = await import('../models/AudioRecording');
             const { StorageService } = await import('../services/storage.service');
             const { getExpectedText } = await import('../utils/sentences');
             
             // Find all recordings for this assessment
-            const recordings = await AudioRecording.find({ assessmentId: id }).sort({ uploadedAt: -1 });
+            const recordings = await AudioRecording.find({
+              assessmentId: id,
+              deletionPendingAt: { $exists: false },
+            }).sort({ uploadedAt: -1 });
             
             // To prevent rate limiting and long processing, sample up to 3 recordings
             const sampleSize = Math.min(3, recordings.length);
@@ -272,17 +286,19 @@ export class AssessmentController {
               updatedAssessment.completedAt = new Date();
               updatedAssessment.pronunciationIssues = uniqueIssues.slice(0, 5); // Limit top 5 issues
               updatedAssessment.recommendedPathwayId = new mongoose.Types.ObjectId();
-              await updatedAssessment.save();
-              
-              await User.findByIdAndUpdate(userId, { 
-                assessmentCompleted: true, 
-                currentPathwayId: updatedAssessment.recommendedPathwayId 
+              await runWithRequestSessionWrite(processingSession, async () => {
+                await updatedAssessment.save();
+                await User.findByIdAndUpdate(userId, {
+                  assessmentCompleted: true,
+                  currentPathwayId: updatedAssessment.recommendedPathwayId,
+                });
               });
             }
           } catch (e) {
             console.error('AI Processing error', e);
             // Even if it fails completely, mark as completed with fallback to unblock user
             try {
+              if (!(await isRequestSessionCurrent(processingSession))) return;
               const updatedAssessment = await Assessment.findById(id);
               if (updatedAssessment) {
                 updatedAssessment.phase = 'completed';
@@ -295,8 +311,13 @@ export class AssessmentController {
                   { phoneme: 'L/N', severity: 'moderate', description: 'Cần phân biệt rõ L và N', timestamps: [] }
                 ];
                 updatedAssessment.recommendedPathwayId = new mongoose.Types.ObjectId();
-                await updatedAssessment.save();
-                await User.findByIdAndUpdate(userId, { assessmentCompleted: true, currentPathwayId: updatedAssessment.recommendedPathwayId });
+                await runWithRequestSessionWrite(processingSession, async () => {
+                  await updatedAssessment.save();
+                  await User.findByIdAndUpdate(userId, {
+                    assessmentCompleted: true,
+                    currentPathwayId: updatedAssessment.recommendedPathwayId,
+                  });
+                });
               }
             } catch(fallbackErr) {
                console.error('Fallback failed', fallbackErr);
@@ -364,6 +385,7 @@ export class AssessmentController {
       if (!userId) throw new AppError(401, 'Unauthorized');
 
       const { AudioRecording } = await import('../models/AudioRecording');
+      const { StorageService } = await import('../services/storage.service');
 
       const assessment = await Assessment.findOne({ 
         userId, 
@@ -375,15 +397,35 @@ export class AssessmentController {
       }
 
       // Fetch the audio recording for phase 3 to display in results
-      const recording = await AudioRecording.findOne({ assessmentId: assessment._id, phase: 'phase_3' });
+      const recording = await AudioRecording.findOne({
+        assessmentId: assessment._id,
+        phase: 'phase_3',
+        deletionPendingAt: { $exists: false },
+        $or: [
+          { userId: new mongoose.Types.ObjectId(userId) },
+          { userId: { $exists: false } },
+          { userId: null },
+        ],
+      });
       let audioUrl = undefined;
       if (recording && recording.fileUrl) {
-        const fileIdStr = recording.fileUrl.split('://')[1];
-        if (fileIdStr) {
-          audioUrl = `/api/audio/stream/${fileIdStr}`;
-        }
+        const fileId = recording.fileUrl.startsWith('gridfs://')
+          ? recording.fileUrl.slice('gridfs://'.length)
+          : recording.fileUrl;
+        const grant = await StorageService.generateTemporaryUrl(fileId, 3600, {
+          userId,
+          sessionVersion: req.sessionVersion ?? 0,
+        });
+        audioUrl = grant.url;
       }
 
+      if (audioUrl) {
+        res.set({
+          'Cache-Control': 'private, no-store',
+          Pragma: 'no-cache',
+          Expires: '0',
+        });
+      }
       res.status(200).json({
         assessmentId: assessment._id,
         completedAt: assessment.completedAt,
