@@ -25,8 +25,8 @@ const users = [
 
 async function seed() {
   try {
-    await mongoose.connect(MONGODB_URI);
-    console.log('Connected to MongoDB');
+    await mongoose.connect(MONGODB_URI, { dbName: 'goodviet' });
+    console.log('Connected to MongoDB (goodviet)');
 
     for (const u of users) {
       const passwordHash = await bcrypt.hash(u.password, 10);

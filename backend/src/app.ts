@@ -39,6 +39,9 @@ import notificationRoutes from './routes/notification.routes';
 export function createApp(): Application {
   const app = express();
 
+  // Trust proxy for Vercel (required for rate limiting)
+  app.set('trust proxy', 1);
+
   // Security headers with Helmet
   app.use(helmet({
     contentSecurityPolicy: {
