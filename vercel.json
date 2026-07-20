@@ -1,6 +1,4 @@
 {
-  "buildCommand": "npm run build",
-  "framework": "vite",
   "headers": [
     {
       "source": "/ai-runtime/gemma-4-e2b.js",
@@ -22,8 +20,28 @@
       "destination": "https://huggingface.co/api/resolve-cache/spaces/webml-community/gemma-4-webgpu-kernels/cc7145c0c0c3351c8d2852a2e1cc45edaa2a9e80/gemma-4-e2b.js"
     },
     {
+      "source": "/api/(.*)",
+      "destination": {
+        "type": "service",
+        "service": "backend"
+      }
+    },
+    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": {
+        "type": "service",
+        "service": "frontend"
+      }
     }
-  ]
+  ],
+  "services": {
+    "frontend": {
+      "root": ".",
+      "framework": "vite"
+    },
+    "backend": {
+      "root": "backend",
+      "entrypoint": "src/server.ts"
+    }
+  }
 }

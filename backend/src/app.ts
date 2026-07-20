@@ -5,6 +5,21 @@ import helmet from 'helmet';
 import { env, isDevelopment } from './config/env';
 import { globalLimiter } from './middleware/rateLimit.middleware';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
+import { connectDatabase } from './config/database';
+
+// Database connection promise – cached so concurrent serverless
+// invocations share the same connection.
+let dbReady: Promise<void> | null = null;
+
+export function ensureDb(): Promise<void> {
+  if (!dbReady) {
+    dbReady = connectDatabase().catch((err) => {
+      dbReady = null; // allow retry on next invocation
+      throw err;
+    });
+  }
+  return dbReady;
+}
 
 // Import routes
 import authRoutes from './routes/auth.routes';
@@ -69,6 +84,16 @@ export function createApp(): Application {
 
   // Global rate limiting
   app.use('/api', globalLimiter);
+
+  // Ensure database is connected before any API request
+  app.use('/api', async (_req, _res, next) => {
+    try {
+      await ensureDb();
+      next();
+    } catch (err) {
+      next(err);
+    }
+  });
 
   // Health check endpoint
   app.get('/health', (req, res) => {

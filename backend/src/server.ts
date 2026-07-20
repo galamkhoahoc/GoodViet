@@ -1,30 +1,32 @@
-import { createApp } from './app';
-import { connectDatabase } from './config/database';
+import { createApp, ensureDb } from './app';
 import { env } from './config/env';
 
 /**
- * Start the server
+ * Express app instance.
+ * On Vercel the default export is used as the serverless handler.
+ * Locally we call app.listen().
  */
-async function startServer(): Promise<void> {
-  try {
-    // Connect to MongoDB
-    await connectDatabase();
+const app = createApp();
 
-    // Create Express app
-    const app = createApp();
+// --- Local development: start listening ---
+const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 
-    // Start listening
-    app.listen(env.PORT, () => {
-      console.log(`🚀 Server running on port ${env.PORT}`);
-      console.log(`📍 Environment: ${env.NODE_ENV}`);
-      console.log(`🌐 CORS Origin: ${env.CORS_ORIGIN}`);
-      console.log(`\n✨ Backend is ready!`);
-    });
-  } catch (error) {
-    console.error('❌ Failed to start server:', error);
-    process.exit(1);
-  }
+if (!IS_VERCEL) {
+  (async () => {
+    try {
+      await ensureDb();
+      app.listen(env.PORT, () => {
+        console.log(`🚀 Server running on port ${env.PORT}`);
+        console.log(`📍 Environment: ${env.NODE_ENV}`);
+        console.log(`🌐 CORS Origin: ${env.CORS_ORIGIN}`);
+        console.log(`\n✨ Backend is ready!`);
+      });
+    } catch (error) {
+      console.error('❌ Failed to start server:', error);
+      process.exit(1);
+    }
+  })();
 }
 
-// Start the server
-startServer();
+// --- Vercel serverless: export the app as default ---
+export default app;
