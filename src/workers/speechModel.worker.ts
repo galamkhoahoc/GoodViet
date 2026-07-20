@@ -7,8 +7,8 @@ import type {
   EraxWorkerRequest,
 } from '../services/ml/speechModel.types';
 
-const SOURCE_MODEL_ID = 'speechModel-ai/SpeechModel-WoW-Turbo-V1.1';
-const DEFAULT_BROWSER_MODEL_ID = 'galamkhoahoc/SpeechModel-WoW-Turbo-V1.1-ONNX';
+const SOURCE_MODEL_ID = 'erax-ai/EraX-WoW-Turbo-V1.1';
+const DEFAULT_BROWSER_MODEL_ID = 'galamkhoahoc/EraX-WoW-Turbo-V1.1-ONNX';
 const DEFAULT_MODEL_REVISION = '9f6a17dd2de6ca0ab33a3f41c608cded527f106f';
 const BROWSER_MODEL_ID = import.meta.env.VITE_ERAX_BROWSER_MODEL_ID || DEFAULT_BROWSER_MODEL_ID;
 const MODEL_REVISION = import.meta.env.VITE_ERAX_MODEL_REVISION || DEFAULT_MODEL_REVISION;

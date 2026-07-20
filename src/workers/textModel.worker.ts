@@ -165,14 +165,15 @@ async function initialize(requestId: string) {
     await loadModel(requestId);
     post({ type: 'complete', requestId, text: '' });
   } catch (error) {
-    const unsupported = error instanceof Error && error.message === 'WEBGPU_UNAVAILABLE';
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    const unsupported = errorMsg === 'WEBGPU_UNAVAILABLE' || errorMsg.toLowerCase().includes('webgpu');
     post({
       type: 'error',
       requestId,
       code: unsupported ? 'WEBGPU_UNAVAILABLE' : 'MODEL_LOAD_FAILED',
       message: unsupported
-        ? 'Thiết bị hoặc trình duyệt này chưa hỗ trợ WebGPU. Hãy dùng Chrome/Edge mới và bật tăng tốc phần cứng.'
-        : `Không thể tải Trợ lý AI cục bộ: ${error instanceof Error ? error.message : String(error)}`,
+        ? 'Thiết bị hoặc trình duyệt này không tương thích với mô hình WebGPU. Hãy thử dùng máy tính khác hoặc sử dụng tính năng Đám mây (nếu có).'
+        : `Không thể tải Trợ lý AI cục bộ: ${errorMsg}`,
     });
   }
 }
