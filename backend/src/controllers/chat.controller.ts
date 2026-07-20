@@ -186,6 +186,37 @@ export class ChatController {
   }
 
   /**
+   * POST /api/chat/evaluate
+   * Evaluate a sentence or generate arbitrary AI response without saving to DB
+   */
+  static async evaluate(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const userId = req.userId;
+      if (!userId) throw new AppError(401, 'Unauthorized');
+
+      const { prompt, history } = req.body;
+
+      if (!prompt || prompt.trim() === '') {
+        throw new AppError(400, 'Nội dung không được để trống');
+      }
+
+      // Generate response from AI service
+      const botResponseContent = await aiService.generateChatResponse(prompt, history || []);
+
+      res.status(200).json({
+        success: true,
+        result: botResponseContent,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * GET /api/chat/sessions
    * Get all chat sessions for user
    */

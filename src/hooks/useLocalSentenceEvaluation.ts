@@ -42,14 +42,29 @@ export function useLocalSentenceEvaluation() {
       const metrics = calculateSentenceMetrics(targetText, transcript.text, lingResult);
       setStage('feedback');
       const prompt = buildSentenceEvaluationPrompt(targetText, transcript, lingResult, metrics);
-      const gemmaOutput = await localTextModel.generate([
-        {
-          role: 'user',
-          content: 'Bạn đánh giá phát âm tiếng Việt cho người học. Luôn trả về đúng JSON theo yêu cầu và không thêm markdown.',
-        },
-        { role: 'assistant', content: '{"status":"ready"}' },
-        { role: 'user', content: prompt },
-      ], { maxNewTokens: 260 });
+      let gemmaOutput = '';
+      try {
+        gemmaOutput = await localTextModel.generate([
+          {
+            role: 'user',
+            content: 'Bạn đánh giá phát âm tiếng Việt cho người học. Luôn trả về đúng JSON theo yêu cầu và không thêm markdown.',
+          },
+          { role: 'assistant', content: '{"status":"ready"}' },
+          { role: 'user', content: prompt },
+        ], { maxNewTokens: 260 });
+      } catch (generateError) {
+        console.warn('WebGPU failed, falling back to cloud evaluation API', generateError);
+        const { apiClient } = await import('../services/api/apiClient');
+        const response = await apiClient.post<{ success: boolean; result: string }>('/api/chat/evaluate', {
+          prompt,
+          history: [
+            { role: 'user', content: 'Bạn đánh giá phát âm tiếng Việt cho người học. Luôn trả về đúng JSON theo yêu cầu và không thêm markdown.' },
+            { role: 'assistant', content: '{"status":"ready"}' }
+          ]
+        });
+        gemmaOutput = response.result;
+      }
+
       const completed = createSentenceEvaluationResult(
         targetText,
         transcript,

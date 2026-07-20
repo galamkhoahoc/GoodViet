@@ -215,17 +215,29 @@ export const useChatStore = create<ChatState>((set, get) => ({
         role: message.senderType === 'user' ? 'user' as const : 'assistant' as const,
         content: message.content,
       }));
-      const response = await localTextModel.generate([
-        {
-          role: 'user',
-          content: 'Bạn là GoodBot của GOODVIET, một trợ lý thân thiện hỗ trợ người Việt luyện phát âm. Trả lời bằng tiếng Việt, rõ ràng, ngắn gọn; không tự chẩn đoán y khoa và khuyên gặp chuyên gia khi phù hợp.',
-        },
-        {
-          role: 'assistant',
-          content: 'Mình là GoodBot. Mình sẽ hỗ trợ bằng tiếng Việt, ưu tiên hướng dẫn thực tế và an toàn.',
-        },
-        ...history,
-      ], { maxNewTokens: 600, onText: updateReply });
+      let response = '';
+      try {
+        response = await localTextModel.generate([
+          {
+            role: 'user',
+            content: 'Bạn là GoodBot của GOODVIET, một trợ lý thân thiện hỗ trợ người Việt luyện phát âm. Trả lời bằng tiếng Việt, rõ ràng, ngắn gọn; không tự chẩn đoán y khoa và khuyên gặp chuyên gia khi phù hợp.',
+          },
+          {
+            role: 'assistant',
+            content: 'Mình là GoodBot. Mình sẽ hỗ trợ bằng tiếng Việt, ưu tiên hướng dẫn thực tế và an toàn.',
+          },
+          ...history,
+        ], { maxNewTokens: 600, onText: updateReply });
+      } catch (generateError) {
+        console.warn('WebGPU failed, falling back to cloud chat API', generateError);
+        const { apiClient } = await import('../services/api/apiClient');
+        const apiResponse = await apiClient.post<any>('/api/chat/messages', {
+          content: text,
+          sessionId: activeSessionId
+        });
+        response = apiResponse.botMessage.content;
+      }
+      
       if (requestGeneration !== chatGeneration) return;
       updateReply(response || 'Mình chưa tạo được câu trả lời rõ ràng. Bạn thử diễn đạt lại câu hỏi nhé.');
       set({ isTyping: false });
@@ -233,7 +245,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     } catch (error) {
       if (requestGeneration !== chatGeneration) return;
       const message = error instanceof Error ? error.message : 'Trợ lý AI cục bộ chưa thể trả lời.';
-      updateReply(`Mình chưa thể chạy Trợ lý AI trên thiết bị này. ${message}`);
+      updateReply(`Mình chưa thể chạy Trợ lý AI. ${message}`);
       set({ isTyping: false, modelError: message });
       persistState(get());
     }

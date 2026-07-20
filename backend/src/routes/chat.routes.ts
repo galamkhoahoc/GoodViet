@@ -13,6 +13,7 @@ router.post('/sessions', ChatController.createSession);
 router.delete('/sessions/:id', ChatController.deleteSession);
 
 router.post('/messages', chatLimiter, ChatController.sendMessage);
+router.post('/evaluate', chatLimiter, ChatController.evaluate);
 router.get('/history', ChatController.getHistory);
 
 export default router;
