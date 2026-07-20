@@ -46,7 +46,6 @@ let modelPromise: Promise<TextModelType> | null = null;
 let activeLoadRequestId = '';
 let generationQueue: Promise<void> = Promise.resolve();
 const abortControllers = new Map<string, AbortController>();
-let forceWasm = false;
 
 function post(message: TextModelWorkerMessage) {
   self.postMessage(message);
@@ -111,26 +110,15 @@ async function loadModel(requestId: string) {
       
       let loaded: TextModelType;
       try {
-        if (!('gpu' in navigator) || forceWasm) {
+        if (!('gpu' in navigator)) {
           throw new Error('WEBGPU_UNAVAILABLE');
         }
         loaded = await runtime.Gemma4Mobile.load(null, {
           onProgress: (event) => postState(activeLoadRequestId || requestId, progressState(event)),
         });
       } catch (e) {
-        console.warn('WebGPU load failed or skipped, falling back to WASM (CPU)', e);
-        postState(activeLoadRequestId || requestId, {
-          status: 'checking',
-          progress: 0.05,
-          detail: 'Đang dùng CPU (chế độ này sẽ chậm hơn). Đừng tắt máy nhé…',
-          fromCache: false,
-          error: null,
-        });
-        
-        loaded = await runtime.Gemma4Mobile.load(null, {
-          onProgress: (event) => postState(activeLoadRequestId || requestId, progressState(event)),
-          runtimeOptions: { device: 'wasm' }
-        });
+        console.warn('WebGPU load failed.', e);
+        throw e;
       }
       postState(activeLoadRequestId || requestId, {
         status: 'loading',
@@ -210,20 +198,15 @@ async function generate(request: Extract<TextModelWorkerRequest, { type: 'genera
     });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    if (!forceWasm && errorMsg.toLowerCase().includes('webgpu')) {
-      console.warn('WebGPU crashed during generation. Falling back to WASM...', error);
-      forceWasm = true;
-      model = null;
-      modelPromise = null;
-      abortControllers.delete(request.requestId);
-      return generate(request); // Retry recursively with WASM
-    }
-
+    const isGpuError = errorMsg.toLowerCase().includes('webgpu') || errorMsg.toLowerCase().includes('gpubuffer') || errorMsg.toLowerCase().includes('device is lost');
+    
     post({
       type: 'error',
       requestId: request.requestId,
-      code: model ? 'GENERATION_FAILED' : 'MODEL_LOAD_FAILED',
-      message: `Trợ lý AI không thể tạo phản hồi: ${errorMsg}`,
+      code: isGpuError ? 'WEBGPU_UNAVAILABLE' : (model ? 'GENERATION_FAILED' : 'MODEL_LOAD_FAILED'),
+      message: isGpuError 
+        ? 'Card đồ họa (GPU) của bạn đã bị quá tải hoặc ngắt kết nối khi chạy AI. Hãy tải lại trang hoặc sử dụng tính năng Đám mây (nếu có).'
+        : `Trợ lý AI không thể tạo phản hồi: ${errorMsg}`,
     });
   } finally {
     abortControllers.delete(request.requestId);
