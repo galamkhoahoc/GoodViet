@@ -452,7 +452,7 @@ export function ExpertPage() {
                 <Cpu aria-hidden="true" />
                 <span>
                   <strong>
-                    Gemma 4 cục bộ · {modelStatus === 'ready' ? 'Sẵn sàng' : modelStatus === 'generating' ? 'Đang trả lời' : modelStatus === 'error' || modelStatus === 'unsupported' ? 'Cần kiểm tra' : 'Đang chuẩn bị'}
+                    Trợ lý AI cục bộ · {modelStatus === 'ready' ? 'Sẵn sàng' : modelStatus === 'generating' ? 'Đang trả lời' : modelStatus === 'error' || modelStatus === 'unsupported' ? 'Cần kiểm tra' : 'Đang chuẩn bị'}
                   </strong>
                   <small>{modelError || modelDetail}</small>
                 </span>

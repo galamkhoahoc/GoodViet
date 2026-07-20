@@ -5,7 +5,7 @@ import type {
   EraxTranscriptResult,
   EraxWorkerMessage,
   EraxWorkerRequest,
-} from '../services/ml/erax.types';
+} from '../services/ml/speechModel.types';
 
 interface EraxState {
   status: EraxModelStatus;
@@ -19,7 +19,7 @@ interface EraxState {
 const INITIAL_STATE: EraxState = {
   status: 'idle',
   progress: 0,
-  detail: 'EraX chưa được nạp',
+  detail: 'SpeechModel chưa được nạp',
   result: null,
   error: null,
   isCached: false,
@@ -27,10 +27,10 @@ const INITIAL_STATE: EraxState = {
 
 function createRequestId() {
   if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
-  return `erax-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  return `speechModel-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-export function useEraxSpeechModel() {
+export function useSpeechModel() {
   const [state, setState] = useState<EraxState>(INITIAL_STATE);
   const workerRef = useRef<Worker | null>(null);
   const requestIdRef = useRef<string | null>(null);
@@ -78,13 +78,13 @@ export function useEraxSpeechModel() {
 
   const ensureWorker = useCallback(() => {
     if (workerRef.current) return workerRef.current;
-    const worker = new Worker(new URL('../workers/erax.worker.ts', import.meta.url), {
+    const worker = new Worker(new URL('../workers/speechModel.worker.ts', import.meta.url), {
       type: 'module',
-      name: 'goodviet-erax-local-stt',
+      name: 'goodviet-speechModel-local-stt',
     });
     worker.onmessage = handleMessage;
     worker.onerror = () => {
-      const error = new Error('Không thể khởi động EraX trên trình duyệt này.');
+      const error = new Error('Không thể khởi động SpeechModel trên trình duyệt này.');
       pendingRef.current?.reject(error);
       pendingRef.current = null;
       requestIdRef.current = null;
@@ -95,7 +95,7 @@ export function useEraxSpeechModel() {
   }, [handleMessage]);
 
   const transcribeAsync = useCallback(async (file: File): Promise<EraxTranscriptResult> => {
-    pendingRef.current?.reject(new Error('Yêu cầu EraX trước đã được thay thế.'));
+    pendingRef.current?.reject(new Error('Yêu cầu SpeechModel trước đã được thay thế.'));
     const requestId = createRequestId();
     requestIdRef.current = requestId;
     setState(previous => ({ ...previous, status: 'checking', progress: 0, result: null, error: null }));
@@ -111,7 +111,7 @@ export function useEraxSpeechModel() {
           ensureWorker().postMessage(request, [prepared.samples.buffer as ArrayBuffer]);
         } catch (error) {
           if (requestIdRef.current !== requestId) return;
-          const normalized = error instanceof Error ? error : new Error('Không thể chuẩn bị audio cho EraX.');
+          const normalized = error instanceof Error ? error : new Error('Không thể chuẩn bị audio cho SpeechModel.');
           pendingRef.current = null;
           requestIdRef.current = null;
           setState(previous => ({ ...previous, status: 'error', progress: 0, error: normalized.message, detail: normalized.message }));
@@ -122,14 +122,14 @@ export function useEraxSpeechModel() {
   }, [ensureWorker]);
 
   const reset = useCallback(() => {
-    pendingRef.current?.reject(new Error('Yêu cầu EraX đã bị hủy.'));
+    pendingRef.current?.reject(new Error('Yêu cầu SpeechModel đã bị hủy.'));
     pendingRef.current = null;
     requestIdRef.current = null;
     setState(previous => ({ ...INITIAL_STATE, status: previous.isCached ? 'ready' : 'idle', isCached: previous.isCached }));
   }, []);
 
   useEffect(() => () => {
-    pendingRef.current?.reject(new Error('Yêu cầu EraX đã bị hủy.'));
+    pendingRef.current?.reject(new Error('Yêu cầu SpeechModel đã bị hủy.'));
     workerRef.current?.terminate();
     workerRef.current = null;
   }, []);

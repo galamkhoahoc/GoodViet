@@ -1,9 +1,9 @@
 import { geminiService } from './gemini.service';
-import { ollamaService } from './ollama.service';
-import { gemma4Client } from './gemma4.client';
+import { localEngineService } from './localEngine.service';
+import { textModelClient } from './textModel.client';
 
 /**
- * Unified AI Service that can switch between Gemini, Ollama, and Gemma4
+ * Unified AI Service that can switch between Gemini, LocalEngine, and Gemma4
  * 
  * Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.8, 7.1, 7.2, 7.3
  */
@@ -16,15 +16,15 @@ export class AIService {
     
     if (aiService === 'gemma4') {
       this.provider = 'gemma4';
-      console.log('🤖 AI Service: Using Gemma 4 (Python Bridge)');
+      console.log('🤖 AI Service: Using Trợ lý AI (Python Bridge)');
     } else if (aiService === 'gemini') {
       this.provider = 'gemini';
       console.log('🤖 AI Service: Using Google Gemini API');
     } else if (aiService === 'ollama') {
       this.provider = 'ollama';
-      console.log('🤖 AI Service: Using Ollama (Local Gemma)');
+      console.log('🤖 AI Service: Using LocalEngine (Local Text AI)');
     } else {
-      // Auto-detect: Try Gemma4 first, then Ollama, then Gemini
+      // Auto-detect: Try Gemma4 first, then LocalEngine, then Gemini
       this.autoDetectProvider();
     }
   }
@@ -35,18 +35,18 @@ export class AIService {
   private async autoDetectProvider() {
     // Try Gemma4 first
     try {
-      await gemma4Client.healthCheck();
+      await textModelClient.healthCheck();
       this.provider = 'gemma4';
-      console.log('🤖 AI Service: Auto-detected Gemma 4 (Python Bridge)');
+      console.log('🤖 AI Service: Auto-detected Trợ lý AI (Python Bridge)');
       return;
     } catch (error) {
       // Gemma4 not available, try next
     }
 
-    // Try Ollama
-    if (ollamaService.isServiceAvailable()) {
+    // Try LocalEngine
+    if (localEngineService.isServiceAvailable()) {
       this.provider = 'ollama';
-      console.log('🤖 AI Service: Auto-detected Ollama (Local Gemma)');
+      console.log('🤖 AI Service: Auto-detected LocalEngine (Local Text AI)');
       return;
     }
 
@@ -73,9 +73,9 @@ export class AIService {
     try {
       // Try primary provider
       if (this.provider === 'gemma4') {
-        return await gemma4Client.generateChatResponse(message, history);
+        return await textModelClient.generateChatResponse(message, history);
       } else if (this.provider === 'ollama') {
-        return await ollamaService.generateChatResponse(message, history);
+        return await localEngineService.generateChatResponse(message, history);
       } else {
         return await geminiService.generateChatResponse(message, history);
       }
@@ -92,7 +92,7 @@ export class AIService {
    * Fallback chain for chat response generation
    * 
    * Tries all available providers in sequence until one succeeds.
-   * Order: Gemma4 → Ollama → Gemini
+   * Order: Gemma4 → LocalEngine → Gemini
    * 
    * Requirements: 7.1, 7.2, 7.3, 7.4, 7.5
    */
@@ -103,7 +103,7 @@ export class AIService {
     if (this.provider !== 'gemma4') {
       try {
         console.log('[AI Service] Attempting fallback to Gemma4...');
-        const response = await gemma4Client.generateChatResponse(message, history);
+        const response = await textModelClient.generateChatResponse(message, history);
         console.log('[AI Service] Gemma4 fallback successful ✓');
         return response;
       } catch (error: any) {
@@ -112,16 +112,16 @@ export class AIService {
       }
     }
 
-    // Try Ollama if not already tried
+    // Try LocalEngine if not already tried
     if (this.provider !== 'ollama') {
       try {
-        console.log('[AI Service] Attempting fallback to Ollama...');
-        const response = await ollamaService.generateChatResponse(message, history);
-        console.log('[AI Service] Ollama fallback successful ✓');
+        console.log('[AI Service] Attempting fallback to LocalEngine...');
+        const response = await localEngineService.generateChatResponse(message, history);
+        console.log('[AI Service] LocalEngine fallback successful ✓');
         return response;
       } catch (error: any) {
-        console.error(`[AI Service] Ollama fallback failed: ${error.message}`);
-        errors.push(`Ollama: ${error.message}`);
+        console.error(`[AI Service] LocalEngine fallback failed: ${error.message}`);
+        errors.push(`LocalEngine: ${error.message}`);
       }
     }
 
@@ -174,7 +174,7 @@ export class AIService {
     try {
       // Try Gemma4 first if it's the primary provider or if E2B/E4B variants are available
       if (this.provider === 'gemma4') {
-        return await gemma4Client.analyzeAudio(audioBase64, mimeType, expectedText);
+        return await textModelClient.analyzeAudio(audioBase64, mimeType, expectedText);
       }
       
       // Fallback to Gemini for audio analysis
@@ -214,7 +214,7 @@ export class AIService {
     return {
       provider: this.provider,
       gemma4: true, // Will check on first request
-      ollama: ollamaService.isServiceAvailable(),
+      ollama: localEngineService.isServiceAvailable(),
       gemini: !!process.env.GEMINI_API_KEY,
     };
   }

@@ -1,9 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
 
 /**
- * Gemma4Client - HTTP client for Python AI Service
+ * TextModelClient - HTTP client for Python AI Service
  * 
- * Provides interface to communicate with the Gemma 4 Python service
+ * Provides interface to communicate with the Trợ lý AI Python service
  * for chat responses and audio analysis.
  * 
  * Requirements: 1.2, 1.3, 1.4, 7.6
@@ -49,7 +49,7 @@ interface HealthResponse {
   variant: string;
 }
 
-export class Gemma4Client {
+export class TextModelClient {
   private client: AxiosInstance;
   private host: string;
   private timeout: number;
@@ -66,7 +66,7 @@ export class Gemma4Client {
       },
     });
 
-    console.log(`[Gemma4Client] Initialized with host: ${host}, timeout: ${timeout}ms`);
+    console.log(`[TextModelClient] Initialized with host: ${host}, timeout: ${timeout}ms`);
   }
 
   /**
@@ -82,7 +82,7 @@ export class Gemma4Client {
   async healthCheck(): Promise<HealthResponse> {
     try {
       const response = await this.client.get<HealthResponse>('/health');
-      console.log(`[Gemma4Client] Health check OK - Model: ${response.data.model}, Device: ${response.data.device}`);
+      console.log(`[TextModelClient] Health check OK - Model: ${response.data.model}, Device: ${response.data.device}`);
       return response.data;
     } catch (error: any) {
       if (error.code === 'ECONNREFUSED') {
@@ -110,7 +110,7 @@ export class Gemma4Client {
     history: Array<{ role: string; content: string }> = []
   ): Promise<string> {
     try {
-      console.log(`[Gemma4Client] Generating chat response for: "${message.substring(0, 50)}..."`);
+      console.log(`[TextModelClient] Generating chat response for: "${message.substring(0, 50)}..."`);
       
       const request: ChatRequest = {
         message,
@@ -119,9 +119,9 @@ export class Gemma4Client {
 
       const response = await this.client.post<ChatResponse>('/chat', request);
       
-      console.log(`[Gemma4Client] Response received: "${response.data.response.substring(0, 50)}..."`);
+      console.log(`[TextModelClient] Response received: "${response.data.response.substring(0, 50)}..."`);
       if (response.data.thinking) {
-        console.log(`[Gemma4Client] Thinking: "${response.data.thinking.substring(0, 50)}..."`);
+        console.log(`[TextModelClient] Thinking: "${response.data.thinking.substring(0, 50)}..."`);
       }
       
       return response.data.response;
@@ -140,7 +140,7 @@ export class Gemma4Client {
         throw new Error('Gemma4 service unavailable');
       }
       
-      console.error(`[Gemma4Client] Chat generation failed:`, error.message);
+      console.error(`[TextModelClient] Chat generation failed:`, error.message);
       throw new Error(`Gemma4 chat failed: ${error.message}`);
     }
   }
@@ -165,7 +165,7 @@ export class Gemma4Client {
     expectedText: string
   ): Promise<AudioAnalysisResponse> {
     try {
-      console.log(`[Gemma4Client] Analyzing audio - Type: ${mimeType}, Text: "${expectedText.substring(0, 30)}..."`);
+      console.log(`[TextModelClient] Analyzing audio - Type: ${mimeType}, Text: "${expectedText.substring(0, 30)}..."`);
       
       const request: AudioAnalysisRequest = {
         audio_data: audioBase64,
@@ -178,7 +178,7 @@ export class Gemma4Client {
         request
       );
       
-      console.log(`[Gemma4Client] Audio analysis complete - Score: ${response.data.overallScore}, Issues: ${response.data.issues.length}`);
+      console.log(`[TextModelClient] Audio analysis complete - Score: ${response.data.overallScore}, Issues: ${response.data.issues.length}`);
       
       return response.data;
       
@@ -190,7 +190,7 @@ export class Gemma4Client {
         throw new Error('Gemma4 service unavailable');
       }
       
-      console.error(`[Gemma4Client] Audio analysis failed:`, error.message);
+      console.error(`[TextModelClient] Audio analysis failed:`, error.message);
       throw new Error(`Gemma4 audio analysis failed: ${error.message}`);
     }
   }
@@ -211,7 +211,7 @@ export class Gemma4Client {
 }
 
 // Export singleton instance with environment configuration
-export const gemma4Client = new Gemma4Client(
+export const textModelClient = new TextModelClient(
   process.env.GEMMA4_HOST || 'http://localhost:5000',
   parseInt(process.env.GEMMA4_TIMEOUT || '30000')
 );

@@ -4,7 +4,7 @@ import {
   createSentenceEvaluationResult,
 } from './sentenceEvaluation';
 import type { LocalVoiceResult } from './voiceModel.types';
-import type { EraxTranscriptResult } from './erax.types';
+import type { EraxTranscriptResult } from './speechModel.types';
 
 const lingResult: LocalVoiceResult = {
   confidence: 0.8,
@@ -16,7 +16,7 @@ const transcript: EraxTranscriptResult = {
   language: 'vi',
   processingTimeMs: 120,
   backend: 'wasm',
-  modelId: 'test/erax-onnx',
+  modelId: 'test/speechModel-onnx',
 };
 
 describe('local sentence evaluation', () => {
@@ -43,7 +43,7 @@ describe('local sentence evaluation', () => {
     );
     expect(result.score).toBe(Math.max(0, metrics.baselineScore - 8));
     expect(result.feedback).toBe('Đọc rõ.');
-    expect(result.models.transcript).toBe('test/erax-onnx');
+    expect(result.models.transcript).toBe('test/speechModel-onnx');
   });
 
   it('falls back safely when Gemma does not return JSON', () => {

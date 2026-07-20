@@ -1,14 +1,14 @@
 import type {
-  GemmaMessage,
-  GemmaRuntimeState,
-  GemmaWorkerMessage,
-  GemmaWorkerRequest,
-} from './gemma.types';
+  TextModelMessage,
+  TextModelRuntimeState,
+  TextModelWorkerMessage,
+  TextModelWorkerRequest,
+} from './textModel.types';
 
-const INITIAL_STATE: GemmaRuntimeState = {
+const INITIAL_STATE: TextModelRuntimeState = {
   status: 'idle',
   progress: 0,
-  detail: 'Gemma 4 chưa được nạp',
+  detail: 'Trợ lý AI chưa được nạp',
   fromCache: false,
   error: null,
 };
@@ -31,16 +31,16 @@ function createRequestId() {
 
 class LocalGemmaClient {
   private worker: Worker | null = null;
-  private state: GemmaRuntimeState = INITIAL_STATE;
+  private state: TextModelRuntimeState = INITIAL_STATE;
   private pending = new Map<string, PendingRequest>();
-  private listeners = new Set<(state: GemmaRuntimeState) => void>();
+  private listeners = new Set<(state: TextModelRuntimeState) => void>();
   private preloadPromise: Promise<void> | null = null;
 
   getState() {
     return this.state;
   }
 
-  subscribe(listener: (state: GemmaRuntimeState) => void) {
+  subscribe(listener: (state: TextModelRuntimeState) => void) {
     this.listeners.add(listener);
     listener(this.state);
     return () => {
@@ -48,7 +48,7 @@ class LocalGemmaClient {
     };
   }
 
-  private setState(next: GemmaRuntimeState) {
+  private setState(next: TextModelRuntimeState) {
     this.state = next;
     this.listeners.forEach((listener) => listener(next));
   }
@@ -57,13 +57,13 @@ class LocalGemmaClient {
     if (this.worker) return this.worker;
     if (typeof Worker === 'undefined') throw new Error('Web Worker không khả dụng trên trình duyệt này.');
 
-    const worker = new Worker(new URL('../../workers/gemma.worker.ts', import.meta.url), {
+    const worker = new Worker(new URL('../../workers/textModel.worker.ts', import.meta.url), {
       type: 'module',
       name: 'goodviet-gemma-4-local',
     });
-    worker.onmessage = (event: MessageEvent<GemmaWorkerMessage>) => this.handleMessage(event.data);
+    worker.onmessage = (event: MessageEvent<TextModelWorkerMessage>) => this.handleMessage(event.data);
     worker.onerror = () => {
-      const error = new Error('Tiến trình Gemma 4 cục bộ đã dừng ngoài dự kiến.');
+      const error = new Error('Tiến trình Trợ lý AI cục bộ đã dừng ngoài dự kiến.');
       this.pending.forEach((request) => request.reject(error));
       this.pending.clear();
       this.setState({ ...this.state, status: 'error', error: error.message, detail: error.message });
@@ -75,7 +75,7 @@ class LocalGemmaClient {
     return worker;
   }
 
-  private handleMessage(message: GemmaWorkerMessage) {
+  private handleMessage(message: TextModelWorkerMessage) {
     if (message.type === 'state') {
       this.setState({
         status: message.status,
@@ -104,7 +104,7 @@ class LocalGemmaClient {
     pending.reject(new Error(message.message));
   }
 
-  private request(payload: GemmaWorkerRequest, onText?: (text: string) => void) {
+  private request(payload: TextModelWorkerRequest, onText?: (text: string) => void) {
     return new Promise<string>((resolve, reject) => {
       this.pending.set(payload.requestId, { resolve, reject, onText });
       this.ensureWorker().postMessage(payload);
@@ -123,7 +123,7 @@ class LocalGemmaClient {
     return this.preloadPromise;
   }
 
-  async generate(messages: GemmaMessage[], options: GemmaGenerateOptions = {}) {
+  async generate(messages: TextModelMessage[], options: GemmaGenerateOptions = {}) {
     if (typeof navigator !== 'undefined' && navigator.storage?.persist) {
       void navigator.storage.persist().catch(() => false);
     }
@@ -137,8 +137,8 @@ class LocalGemmaClient {
   }
 
   abort(requestId: string) {
-    this.worker?.postMessage({ type: 'abort', requestId } satisfies GemmaWorkerRequest);
+    this.worker?.postMessage({ type: 'abort', requestId } satisfies TextModelWorkerRequest);
   }
 }
 
-export const localGemma = new LocalGemmaClient();
+export const localTextModel = new LocalGemmaClient();

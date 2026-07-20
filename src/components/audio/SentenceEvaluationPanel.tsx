@@ -33,7 +33,7 @@ export function SentenceEvaluationPanel({
     return (
       <div className="sentence-evaluation sentence-evaluation--idle">
         <ShieldCheck size={18} />
-        <span>LingWav2Vec2, EraX và Gemma 4 sẽ chấm câu này ngay trên thiết bị.</span>
+        <span>LingWav2Vec2, Voice AI và Trợ lý AI sẽ chấm câu này ngay trên thiết bị.</span>
       </div>
     );
   }
@@ -45,7 +45,7 @@ export function SentenceEvaluationPanel({
         <div className="sentence-evaluation__status">
           <Cpu size={19} />
           <span>
-            <strong>{stage === 'speech' ? 'Đang nhận dạng giọng nói' : 'Gemma 4 đang tạo nhận xét'}</strong>
+            <strong>{stage === 'speech' ? 'Đang nhận dạng giọng nói' : 'Trợ lý AI đang tạo nhận xét'}</strong>
             <small>{detail}</small>
           </span>
           <b>{percent}%</b>
@@ -79,7 +79,7 @@ export function SentenceEvaluationPanel({
         <Metric label="Tin cậy âm vị" value={result.acousticConfidence} />
       </div>
       <div className="sentence-evaluation__transcript">
-        <small>EraX nghe được</small>
+        <small>Voice AI nghe được</small>
         <p>{result.transcript || 'Không nhận dạng được nội dung rõ ràng.'}</p>
       </div>
       <div className="sentence-evaluation__feedback">

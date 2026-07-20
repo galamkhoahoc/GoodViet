@@ -5,10 +5,10 @@ import type {
   EraxTranscriptResult,
   EraxWorkerMessage,
   EraxWorkerRequest,
-} from '../services/ml/erax.types';
+} from '../services/ml/speechModel.types';
 
-const SOURCE_MODEL_ID = 'erax-ai/EraX-WoW-Turbo-V1.1';
-const DEFAULT_BROWSER_MODEL_ID = 'galamkhoahoc/EraX-WoW-Turbo-V1.1-ONNX';
+const SOURCE_MODEL_ID = 'speechModel-ai/SpeechModel-WoW-Turbo-V1.1';
+const DEFAULT_BROWSER_MODEL_ID = 'galamkhoahoc/SpeechModel-WoW-Turbo-V1.1-ONNX';
 const DEFAULT_MODEL_REVISION = '9f6a17dd2de6ca0ab33a3f41c608cded527f106f';
 const BROWSER_MODEL_ID = import.meta.env.VITE_ERAX_BROWSER_MODEL_ID || DEFAULT_BROWSER_MODEL_ID;
 const MODEL_REVISION = import.meta.env.VITE_ERAX_MODEL_REVISION || DEFAULT_MODEL_REVISION;
@@ -63,7 +63,7 @@ function formatMegabytes(value: number) {
 }
 
 function browserModelHelp() {
-  return 'EraX cần bản ONNX dành cho browser. Hãy chạy tools/erax-browser-model/export_erax_model.ps1, upload thư mục output lên Hugging Face rồi đặt VITE_ERAX_BROWSER_MODEL_ID.';
+  return 'SpeechModel cần bản ONNX dành cho browser. Hãy chạy tools/speechModel-browser-model/export_speechModel_model.ps1, upload thư mục output lên Hugging Face rồi đặt VITE_ERAX_BROWSER_MODEL_ID.';
 }
 
 async function createTranscriber(requestId: string): Promise<Transcriber> {
@@ -78,12 +78,12 @@ async function createTranscriber(requestId: string): Promise<Transcriber> {
     const loaded = typeof info.loaded === 'number' ? info.loaded : null;
     const total = typeof info.total === 'number' ? info.total : null;
     const detail = loaded !== null && total !== null
-      ? `Đang tải EraX lần đầu: ${formatMegabytes(loaded)} / ${formatMegabytes(total)}`
-      : `Đang tải ${info.file || 'trọng số EraX'}…`;
+      ? `Đang tải AI Giọng nói lần đầu: ${formatMegabytes(loaded)} / ${formatMegabytes(total)}`
+      : `Đang tải ${info.file || 'trọng số AI Giọng nói'}…`;
     postState(requestId, 'downloading', visibleProgress, detail, false);
   };
 
-  postState(requestId, 'checking', 0, 'Đang kiểm tra model EraX trong cache…', false);
+  postState(requestId, 'checking', 0, 'Đang kiểm tra AI Giọng nói trong cache…', false);
   const candidates: Array<{
     device: 'webgpu' | 'wasm';
     dtype: Record<string, 'fp16' | 'q8' | 'q4'>;
@@ -115,13 +115,13 @@ async function createTranscriber(requestId: string): Promise<Transcriber> {
 
 async function ensureTranscriber(requestId: string) {
   if (transcriber) {
-    postState(requestId, 'ready', 1, 'EraX đã sẵn sàng trên thiết bị', true);
+    postState(requestId, 'ready', 1, 'AI Giọng nói đã sẵn sàng trên thiết bị', true);
     return transcriber;
   }
   if (!transcriberPromise) transcriberPromise = createTranscriber(requestId);
   try {
     transcriber = await transcriberPromise;
-    postState(requestId, 'ready', 1, 'EraX đã sẵn sàng trên thiết bị', true);
+    postState(requestId, 'ready', 1, 'AI Giọng nói đã sẵn sàng trên thiết bị', true);
     return transcriber;
   } catch (error) {
     transcriberPromise = null;
@@ -133,7 +133,7 @@ async function transcribe(request: EraxWorkerRequest) {
   const startedAt = performance.now();
   try {
     const runner = await ensureTranscriber(request.requestId);
-    postState(request.requestId, 'running', 1, 'EraX đang chuyển giọng nói thành văn bản…', true);
+    postState(request.requestId, 'running', 1, 'AI Giọng nói đang chuyển giọng nói thành văn bản…', true);
     const raw = await runner(request.audio, {
       language: 'vi',
       task: 'transcribe',
@@ -162,7 +162,7 @@ async function transcribe(request: EraxWorkerRequest) {
         ? message.replace('MISSING_BROWSER_MODEL:', '').trim()
         : loadFailed
           ? `Không thể nạp bản ONNX của ${SOURCE_MODEL_ID}. Kiểm tra model ID, revision và các file encoder/decoder đã quantize.`
-          : `EraX không thể nhận dạng bản ghi: ${message}`,
+          : `AI Giọng nói không thể nhận dạng bản ghi: ${message}`,
     });
   }
 }

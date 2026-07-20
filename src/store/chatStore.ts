@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { localGemma } from '../services/ml/localGemma';
-import type { GemmaRuntimeStatus } from '../services/ml/gemma.types';
+import { localTextModel } from '../services/ml/localTextModel';
+import type { TextModelRuntimeStatus } from '../services/ml/textModel.types';
 
 export interface ChatMessage {
   _id?: string;
@@ -26,7 +26,7 @@ interface ChatState {
   activeSessionId: string | null;
   messages: ChatMessage[];
   isTyping: boolean;
-  modelStatus: GemmaRuntimeStatus;
+  modelStatus: TextModelRuntimeStatus;
   modelProgress: number;
   modelDetail: string;
   modelError: string | null;
@@ -85,9 +85,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
   activeSessionId: null,
   messages: [],
   isTyping: false,
-  modelStatus: localGemma.getState().status,
-  modelProgress: localGemma.getState().progress,
-  modelDetail: localGemma.getState().detail,
+  modelStatus: localTextModel.getState().status,
+  modelProgress: localTextModel.getState().progress,
+  modelDetail: localTextModel.getState().detail,
   modelError: null,
 
   loadSessions: async () => {
@@ -144,7 +144,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   preloadModel: async () => {
     try {
-      await localGemma.preload();
+      await localTextModel.preload();
     } catch {
       // The runtime subscription exposes the actionable error in the chat UI.
     }
@@ -215,7 +215,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         role: message.senderType === 'user' ? 'user' as const : 'assistant' as const,
         content: message.content,
       }));
-      const response = await localGemma.generate([
+      const response = await localTextModel.generate([
         {
           role: 'user',
           content: 'Bạn là GoodBot của GOODVIET, một trợ lý thân thiện hỗ trợ người Việt luyện phát âm. Trả lời bằng tiếng Việt, rõ ràng, ngắn gọn; không tự chẩn đoán y khoa và khuyên gặp chuyên gia khi phù hợp.',
@@ -232,15 +232,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
       persistState(get());
     } catch (error) {
       if (requestGeneration !== chatGeneration) return;
-      const message = error instanceof Error ? error.message : 'Gemma 4 cục bộ chưa thể trả lời.';
-      updateReply(`Mình chưa thể chạy Gemma 4 trên thiết bị này. ${message}`);
+      const message = error instanceof Error ? error.message : 'Trợ lý AI cục bộ chưa thể trả lời.';
+      updateReply(`Mình chưa thể chạy Trợ lý AI trên thiết bị này. ${message}`);
       set({ isTyping: false, modelError: message });
       persistState(get());
     }
   },
 }));
 
-localGemma.subscribe((runtime) => {
+localTextModel.subscribe((runtime) => {
   useChatStore.setState({
     modelStatus: runtime.status,
     modelProgress: runtime.progress,

@@ -1,5 +1,5 @@
 import type { LocalVoiceResult } from './voiceModel.types';
-import type { EraxTranscriptResult } from './erax.types';
+import type { EraxTranscriptResult } from './speechModel.types';
 
 export interface SentenceEvaluationResult {
   targetText: string;
@@ -105,7 +105,7 @@ export function buildSentenceEvaluationPrompt(
   return `Bạn là trợ lý luyện phát âm tiếng Việt của GOODVIET. Hãy nhận xét ngắn gọn, tích cực và cụ thể dựa CHỈ trên dữ liệu nhận dạng cục bộ dưới đây.
 
 Câu cần đọc: ${JSON.stringify(targetText)}
-Văn bản EraX nhận dạng: ${JSON.stringify(transcript.text)}
+Văn bản Voice AI nhận dạng: ${JSON.stringify(transcript.text)}
 Chuỗi âm vị LingWav2Vec2: ${JSON.stringify(phonemes)}
 Độ khớp văn bản: ${metrics.transcriptAccuracy}/100
 Độ tin cậy âm vị: ${metrics.acousticConfidence}/100

@@ -310,7 +310,7 @@ function LocalUploadAssessment() {
       <div className="assessment-upload-local__heading">
         <span><span className="material-symbols-outlined">shield_lock</span> 100% trên thiết bị</span>
         <h2>Kiểm tra một bản ghi có sẵn</h2>
-        <p>Chọn audio và nhập câu mẫu. EraX chuyển giọng nói thành chữ, LingWav2Vec2 nhận dạng âm vị, sau đó Gemma 4 tạo điểm và nhận xét.</p>
+        <p>Chọn audio và nhập câu mẫu. Voice AI chuyển giọng nói thành chữ, LingWav2Vec2 nhận dạng âm vị, sau đó Trợ lý AI tạo điểm và nhận xét.</p>
       </div>
       <label>
         <span>Câu mẫu</span>

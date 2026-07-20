@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocalVoiceModel } from './useLocalVoiceModel';
-import { useEraxSpeechModel } from './useEraxSpeechModel';
-import { localGemma } from '../services/ml/localGemma';
-import type { GemmaRuntimeState } from '../services/ml/gemma.types';
+import { useSpeechModel } from './useSpeechModel';
+import { localTextModel } from '../services/ml/localTextModel';
+import type { TextModelRuntimeState } from '../services/ml/textModel.types';
 import {
   buildSentenceEvaluationPrompt,
   calculateSentenceMetrics,
@@ -14,17 +14,17 @@ export type SentenceEvaluationStage = 'idle' | 'speech' | 'feedback' | 'complete
 
 export function useLocalSentenceEvaluation() {
   const ling = useLocalVoiceModel();
-  const erax = useEraxSpeechModel();
+  const speechModel = useSpeechModel();
   const analyzeLing = ling.analyzeAsync;
   const resetLing = ling.reset;
-  const transcribeErax = erax.transcribeAsync;
-  const resetErax = erax.reset;
+  const transcribeErax = speechModel.transcribeAsync;
+  const resetErax = speechModel.reset;
   const [stage, setStage] = useState<SentenceEvaluationStage>('idle');
   const [result, setResult] = useState<SentenceEvaluationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [gemmaState, setGemmaState] = useState<GemmaRuntimeState>(() => localGemma.getState());
+  const [gemmaState, setGemmaState] = useState<TextModelRuntimeState>(() => localTextModel.getState());
 
-  useEffect(() => localGemma.subscribe(setGemmaState), []);
+  useEffect(() => localTextModel.subscribe(setGemmaState), []);
 
   const analyze = useCallback(async (blob: Blob, targetText: string) => {
     const startedAt = performance.now();
@@ -42,7 +42,7 @@ export function useLocalSentenceEvaluation() {
       const metrics = calculateSentenceMetrics(targetText, transcript.text, lingResult);
       setStage('feedback');
       const prompt = buildSentenceEvaluationPrompt(targetText, transcript, lingResult, metrics);
-      const gemmaOutput = await localGemma.generate([
+      const gemmaOutput = await localTextModel.generate([
         {
           role: 'user',
           content: 'Bạn đánh giá phát âm tiếng Việt cho người học. Luôn trả về đúng JSON theo yêu cầu và không thêm markdown.',
@@ -77,14 +77,14 @@ export function useLocalSentenceEvaluation() {
     setError(null);
   }, [resetErax, resetLing]);
 
-  const speechProgress = (ling.progress + erax.progress) / 2;
+  const speechProgress = (ling.progress + speechModel.progress) / 2;
   const progress = stage === 'speech'
     ? speechProgress * 0.62
     : stage === 'feedback'
       ? 0.62 + gemmaState.progress * 0.38
       : stage === 'complete' ? 1 : 0;
   const detail = stage === 'speech'
-    ? `${erax.detail} LingWav2Vec2: ${ling.status}.`
+    ? `${speechModel.detail} LingWav2Vec2: ${ling.status}.`
     : stage === 'feedback'
       ? gemmaState.detail
       : stage === 'complete'
@@ -100,7 +100,7 @@ export function useLocalSentenceEvaluation() {
     analyze,
     reset,
     lingStatus: ling.status,
-    eraxStatus: erax.status,
+    speechModelStatus: speechModel.status,
     gemmaStatus: gemmaState.status,
   };
 }

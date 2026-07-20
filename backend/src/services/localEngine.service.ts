@@ -1,9 +1,9 @@
 import { Ollama } from 'ollama';
 
 /**
- * Service to handle interactions with Ollama (Local Gemma model)
+ * Service to handle interactions with LocalEngine (Local Text AI model)
  */
-export class OllamaService {
+export class LocalEngineService {
   private ollama: Ollama | null = null;
   private model: string = 'gemma:2b';
   private isAvailable: boolean = false;
@@ -17,7 +17,7 @@ export class OllamaService {
       this.isAvailable = true;
       this.testConnection();
     } catch (error) {
-      console.warn('⚠️ Ollama client initialization failed. Install with: npm install ollama');
+      console.warn('⚠️ LocalEngine client initialization failed. Install with: npm install ollama');
       this.ollama = null;
     }
   }
@@ -28,7 +28,7 @@ export class OllamaService {
     try {
       const response = await this.ollama.list();
       this.isAvailable = true;
-      console.log('✅ Ollama connected. Available models:', response.models.map(m => m.name).join(', '));
+      console.log('✅ LocalEngine connected. Available models:', response.models.map(m => m.name).join(', '));
       
       // Check if our model is available
       const hasGemma = response.models.some(m => m.name.includes('gemma'));
@@ -37,7 +37,7 @@ export class OllamaService {
       }
     } catch (error) {
       this.isAvailable = false;
-      console.warn('⚠️ Ollama not available. Make sure Ollama is running: ollama serve');
+      console.warn('⚠️ LocalEngine not available. Make sure LocalEngine is running: ollama serve');
     }
   }
 
@@ -46,12 +46,12 @@ export class OllamaService {
    */
   async generateChatResponse(message: string, history: any[] = []): Promise<string> {
     if (!this.ollama || !this.isAvailable) {
-      console.log('[Ollama] Service not available, using mock response');
+      console.log('[LocalEngine] Service not available, using mock response');
       return this.generateMockResponse(message);
     }
 
     try {
-      console.log('[Ollama] Generating response for message:', message);
+      console.log('[LocalEngine] Generating response for message:', message);
       
       // Format conversation history
       const messages = [
@@ -71,8 +71,8 @@ export class OllamaService {
         }
       ];
 
-      console.log('[Ollama] Starting chat with history length:', history.length);
-      console.log('[Ollama] Sending message to model:', this.model);
+      console.log('[LocalEngine] Starting chat with history length:', history.length);
+      console.log('[LocalEngine] Sending message to model:', this.model);
 
       const response = await this.ollama.chat({
         model: this.model,
@@ -85,17 +85,17 @@ export class OllamaService {
         }
       });
 
-      console.log('[Ollama] Raw response:', JSON.stringify(response).substring(0, 200));
+      console.log('[LocalEngine] Raw response:', JSON.stringify(response).substring(0, 200));
       
       const text = response.message.content.trim();
-      console.log('[Ollama] Response received, length:', text.length);
-      console.log('[Ollama] First 100 chars:', text.substring(0, 100));
-      console.log('[Ollama] Full response:', text);
+      console.log('[LocalEngine] Response received, length:', text.length);
+      console.log('[LocalEngine] First 100 chars:', text.substring(0, 100));
+      console.log('[LocalEngine] Full response:', text);
       
       return text;
     } catch (error: any) {
-      console.error('[Ollama] Error:', error.message);
-      console.error('[Ollama] Error details:', error);
+      console.error('[LocalEngine] Error:', error.message);
+      console.error('[LocalEngine] Error details:', error);
       
       // Fallback to mock response
       return this.generateMockResponse(message);
@@ -119,7 +119,7 @@ export class OllamaService {
   }
 
   /**
-   * Check if Ollama service is available
+   * Check if LocalEngine service is available
    */
   isServiceAvailable(): boolean {
     return this.isAvailable;
@@ -169,10 +169,10 @@ export class OllamaService {
         }
       }
     } catch (error) {
-      console.error('[Ollama] Stream error:', error);
+      console.error('[LocalEngine] Stream error:', error);
       yield 'Xin lỗi, đã có lỗi xảy ra.';
     }
   }
 }
 
-export const ollamaService = new OllamaService();
+export const localEngineService = new LocalEngineService();

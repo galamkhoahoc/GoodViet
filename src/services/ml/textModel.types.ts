@@ -1,4 +1,4 @@
-export type GemmaRuntimeStatus =
+export type TextModelRuntimeStatus =
   | 'idle'
   | 'checking'
   | 'downloading'
@@ -8,13 +8,13 @@ export type GemmaRuntimeStatus =
   | 'unsupported'
   | 'error';
 
-export interface GemmaMessage {
+export interface TextModelMessage {
   role: 'user' | 'assistant';
   content: string;
 }
 
-export interface GemmaRuntimeState {
-  status: GemmaRuntimeStatus;
+export interface TextModelRuntimeState {
+  status: TextModelRuntimeStatus;
   progress: number;
   detail: string;
   fromCache: boolean;
@@ -29,7 +29,7 @@ export interface GemmaInitRequest {
 export interface GemmaGenerateRequest {
   type: 'generate';
   requestId: string;
-  messages: GemmaMessage[];
+  messages: TextModelMessage[];
   maxNewTokens: number;
 }
 
@@ -38,10 +38,10 @@ export interface GemmaAbortRequest {
   requestId: string;
 }
 
-export type GemmaWorkerRequest = GemmaInitRequest | GemmaGenerateRequest | GemmaAbortRequest;
+export type TextModelWorkerRequest = GemmaInitRequest | GemmaGenerateRequest | GemmaAbortRequest;
 
-export type GemmaWorkerMessage =
-  | ({ type: 'state'; requestId: string } & GemmaRuntimeState)
+export type TextModelWorkerMessage =
+  | ({ type: 'state'; requestId: string } & TextModelRuntimeState)
   | { type: 'chunk'; requestId: string; text: string }
   | { type: 'complete'; requestId: string; text: string }
   | { type: 'error'; requestId: string; code: 'WEBGPU_UNAVAILABLE' | 'MODEL_LOAD_FAILED' | 'GENERATION_FAILED'; message: string };

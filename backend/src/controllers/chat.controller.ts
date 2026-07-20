@@ -147,7 +147,7 @@ export class ChatController {
       // Requirements: 9.2, 9.6, 9.7
       const normalizedHistory = normalizeHistory(formattedHistory);
 
-      // Generate response from AI service (Gemma4, Ollama, or Gemini)
+      // Generate response from AI service (Gemma4, LocalEngine, or Gemini)
       const botResponseContent = await aiService.generateChatResponse(content, normalizedHistory);
 
       // A reset may happen while the AI call is running, so acquire a fresh
