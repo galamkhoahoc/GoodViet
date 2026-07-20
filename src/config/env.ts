@@ -3,10 +3,10 @@
 
 export const config = {
   // API Configuration
-  apiUrl: import.meta.env.VITE_API_URL || '',
+  apiUrl: (import.meta.env.VITE_API_URL || '').trim(),
   
   // Feature Flags
-  useMockApi: import.meta.env.VITE_USE_MOCK_API !== 'false', // Default: true (mock mode)
+  useMockApi: String(import.meta.env.VITE_USE_MOCK_API || '').trim() !== 'false', // Default: true (mock mode)
   
   // Audio Configuration
   audio: {
