@@ -34,7 +34,10 @@ interface GemmaModel {
 
 interface GemmaModule {
   Gemma4Mobile: {
-    load(modelId: string | null, options: { onProgress: (event: GemmaProgressEvent) => void }): Promise<GemmaModel>;
+    load(modelId: string | null, options: { 
+      onProgress: (event: GemmaProgressEvent) => void;
+      runtimeOptions?: { device?: 'wasm' | 'webgpu' };
+    }): Promise<GemmaModel>;
   };
 }
 
@@ -91,9 +94,6 @@ function progressState(event: GemmaProgressEvent): GemmaRuntimeState {
 
 async function loadModel(requestId: string) {
   if (model) return model;
-  if (!('gpu' in navigator)) {
-    throw new Error('WEBGPU_UNAVAILABLE');
-  }
 
   activeLoadRequestId = requestId;
   if (!modelPromise) {
@@ -101,15 +101,36 @@ async function loadModel(requestId: string) {
       postState(requestId, {
         status: 'checking',
         progress: 0.01,
-        detail: 'Đang khởi tạo WebGPU…',
+        detail: 'Đang khởi tạo AI…',
         fromCache: false,
         error: null,
       });
 
       const runtime = await import(/* @vite-ignore */ RUNTIME_URL) as GemmaModule;
-      const loaded = await runtime.Gemma4Mobile.load(null, {
-        onProgress: (event) => postState(activeLoadRequestId || requestId, progressState(event)),
-      });
+      
+      let loaded: GemmaModel;
+      try {
+        if (!('gpu' in navigator)) {
+          throw new Error('WEBGPU_UNAVAILABLE');
+        }
+        loaded = await runtime.Gemma4Mobile.load(null, {
+          onProgress: (event) => postState(activeLoadRequestId || requestId, progressState(event)),
+        });
+      } catch (e) {
+        console.warn('WebGPU load failed, falling back to WASM (CPU)', e);
+        postState(activeLoadRequestId || requestId, {
+          status: 'checking',
+          progress: 0.05,
+          detail: 'WebGPU không khả dụng. Đang thử chạy bằng CPU (chế độ này sẽ chậm)…',
+          fromCache: false,
+          error: null,
+        });
+        
+        loaded = await runtime.Gemma4Mobile.load(null, {
+          onProgress: (event) => postState(activeLoadRequestId || requestId, progressState(event)),
+          runtimeOptions: { device: 'wasm' }
+        });
+      }
       postState(activeLoadRequestId || requestId, {
         status: 'loading',
         progress: 0.99,
