@@ -41,38 +41,28 @@ export class LocalEngineService {
     }
   }
 
-  /**
-   * Generate a response for a chat message given conversation history
-   */
   async generateChatResponse(message: string, history: any[] = []): Promise<string> {
     if (!this.ollama || !this.isAvailable) {
-      console.log('[LocalEngine] Service not available, using mock response');
-      return this.generateMockResponse(message);
+      throw new Error('LocalEngine service is not available');
     }
 
     try {
       console.log('[LocalEngine] Generating response for message:', message);
       
-      // Format conversation history
       const messages = [
         {
           role: 'system',
           content: `Bạn là trợ lý hỗ trợ người dùng cải thiện giọng nói tiếng Việt trên nền tảng GOODVIET. Hãy động viên, kiên nhẫn và chuyên nghiệp. Luôn trả lời bằng tiếng Việt, ngắn gọn và thân thiện (2-3 câu). Không đưa ra chẩn đoán y khoa.`
         },
-        // Add last 10 messages from history
         ...history.slice(-10).map(msg => ({
           role: msg.senderType === 'user' ? 'user' : 'assistant',
           content: msg.content
         })),
-        // Add current message
         {
           role: 'user',
           content: message
         }
       ];
-
-      console.log('[LocalEngine] Starting chat with history length:', history.length);
-      console.log('[LocalEngine] Sending message to model:', this.model);
 
       const response = await this.ollama.chat({
         model: this.model,
@@ -80,25 +70,15 @@ export class LocalEngineService {
         stream: false,
         options: {
           temperature: 0.7,
-          num_predict: 300, // max tokens for shorter responses
+          num_predict: 300,
           top_p: 0.9,
         }
       });
-
-      console.log('[LocalEngine] Raw response:', JSON.stringify(response).substring(0, 200));
       
-      const text = response.message.content.trim();
-      console.log('[LocalEngine] Response received, length:', text.length);
-      console.log('[LocalEngine] First 100 chars:', text.substring(0, 100));
-      console.log('[LocalEngine] Full response:', text);
-      
-      return text;
+      return response.message.content.trim();
     } catch (error: any) {
       console.error('[LocalEngine] Error:', error.message);
-      console.error('[LocalEngine] Error details:', error);
-      
-      // Fallback to mock response
-      return this.generateMockResponse(message);
+      throw error;
     }
   }
 
