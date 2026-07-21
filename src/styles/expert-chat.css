@@ -486,6 +486,49 @@
   margin: 0;
 }
 
+.gv-chat-markdown p {
+  margin-bottom: 8px;
+}
+.gv-chat-markdown p:last-child {
+  margin-bottom: 0;
+}
+.gv-chat-markdown ul,
+.gv-chat-markdown ol {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+.gv-chat-markdown li {
+  margin-bottom: 4px;
+}
+.gv-chat-markdown pre {
+  background: #f0f3fa;
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 8px 0;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px;
+  border: 1px solid #d5d8df;
+  color: #1a1b1f;
+}
+.gv-chat-markdown code {
+  background: #f0f3fa;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px;
+  color: #1a1b1f;
+}
+.gv-chat-markdown pre code {
+  background: transparent;
+  padding: 0;
+  border: none;
+}
+.gv-chat-markdown strong {
+  font-weight: 700;
+  color: inherit;
+}
+
 .gv-chat-bubble--incoming {
   border-radius: 29px 29px 29px 4px;
   color: var(--gv-chat-ink);
