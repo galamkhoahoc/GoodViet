@@ -237,10 +237,12 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
           <div className="assessment-recorder__body">
             <h3>“{sentences[currentIdx].text}”</h3>
 
-            <div className="assessment-phonetic">
-              <span className="material-symbols-outlined" aria-hidden="true">translate</span>
-              /moj ɓwoj saŋ, toj tʰwəŋ uoŋ mot tat ka fe noŋ/
-            </div>
+            {sentences[currentIdx].targetPhonemes && sentences[currentIdx].targetPhonemes.length > 0 && (
+              <div className="assessment-phonetic">
+                <span className="material-symbols-outlined" aria-hidden="true">record_voice_over</span>
+                Âm trọng tâm: {sentences[currentIdx].targetPhonemes.join(', ').toUpperCase()}
+              </div>
+            )}
 
             <div className={`assessment-waveform${isRecording ? ' is-recording' : ''}`}>
               {isRecording ? (
