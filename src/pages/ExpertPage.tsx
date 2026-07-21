@@ -18,6 +18,9 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 import { useChatStore } from '../store/chatStore';
 import '../styles/expert-chat.css';
 
@@ -392,7 +395,7 @@ export function ExpertPage() {
                       {message.senderType === 'user' ? (
                         message.content
                       ) : (
-                        <ReactMarkdown>
+                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                           {message.content || ''}
                         </ReactMarkdown>
                       )}
@@ -422,7 +425,7 @@ export function ExpertPage() {
                     {message.sender === 'user' ? (
                       message.text
                     ) : (
-                      <ReactMarkdown>
+                      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                         {message.text || ''}
                       </ReactMarkdown>
                     )}
