@@ -1,11 +1,11 @@
-import { AlertTriangle, AudioLines, CheckCircle2, MessageSquareText, ShieldCheck, Sparkles } from 'lucide-react';
+import { createElement } from 'react';
+import { AlertTriangle, CheckCircle2, MessageSquareText, ShieldCheck } from 'lucide-react';
 import type { SentenceEvaluationResult, SentenceMetrics } from '../../services/ml/sentenceEvaluation';
 import type { SentenceEvaluationStage } from '../../hooks/useLocalSentenceEvaluation';
 import '../../styles/sentence-evaluation.css';
 
 interface SentenceEvaluationPanelProps {
   stage: SentenceEvaluationStage;
-  progress: number;
   detail: string;
   result: SentenceEvaluationResult | null;
   error: string | null;
@@ -21,9 +21,22 @@ function Metric({ label, value }: { label: string; value: number }) {
   );
 }
 
+function ProcessingAnimation() {
+  return (
+    <div className="sentence-evaluation__animation" aria-hidden="true">
+      <span className="sentence-evaluation__animation-fallback" />
+      {createElement('dotlottie-wc', {
+        src: 'https://lottie.host/5679b8d3-4a5c-4905-a9de-74e760b95145/atzhoKtJdH.json',
+        autoplay: true,
+        loop: true,
+        class: 'sentence-evaluation__lottie',
+      })}
+    </div>
+  );
+}
+
 export function SentenceEvaluationPanel({
   stage,
-  progress,
   detail,
   result,
   error,
@@ -39,19 +52,12 @@ export function SentenceEvaluationPanel({
   }
 
   if (stage === 'speech' || stage === 'feedback') {
-    const percent = Math.round(Math.min(1, Math.max(0, progress)) * 100);
     return (
-      <div className="sentence-evaluation sentence-evaluation--loading" aria-live="polite">
-        <div className="sentence-evaluation__status">
-          {stage === 'speech' ? <AudioLines size={19} /> : <Sparkles size={19} />}
-          <span>
-            <strong>{stage === 'speech' ? 'Đang phân tích bản thu' : 'Đang tạo điểm và nhận xét'}</strong>
-            <small>{detail}</small>
-          </span>
-          <b>{percent}%</b>
-        </div>
-        <div className="sentence-evaluation__track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}>
-          <span style={{ width: `${percent}%` }} />
+      <div className="sentence-evaluation sentence-evaluation--loading" aria-live="polite" aria-busy="true">
+        <ProcessingAnimation />
+        <div className="sentence-evaluation__loading-copy">
+          <strong>{stage === 'speech' ? 'Đang phân tích bản thu' : 'Đang hoàn thiện nhận xét'}</strong>
+          <small>Vui lòng chờ trong giây lát.</small>
         </div>
       </div>
     );

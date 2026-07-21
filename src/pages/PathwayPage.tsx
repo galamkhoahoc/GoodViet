@@ -405,7 +405,6 @@ export function PathwayPage() {
 
                 <SentenceEvaluationPanel
                   stage={practiceResults.has(practiceIndex) ? 'complete' : practiceEvaluation.stage}
-                  progress={practiceEvaluation.progress}
                   detail={practiceEvaluation.detail}
                   result={practiceResults.get(practiceIndex) || practiceEvaluation.result}
                   error={practiceEvaluation.error}

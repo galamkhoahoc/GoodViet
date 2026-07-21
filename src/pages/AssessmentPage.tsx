@@ -280,7 +280,6 @@ function SentenceRecording({ sentences, title, subtitle, onComplete, isLoading, 
 
             <SentenceEvaluationPanel
               stage={visibleStage}
-              progress={evaluation.progress}
               detail={evaluation.detail}
               result={savedEvaluation || (lastEvaluationIndex === currentIdx ? evaluation.result : null)}
               error={lastEvaluationIndex === currentIdx ? evaluation.error : null}
@@ -337,7 +336,6 @@ function LocalUploadAssessment() {
       </button>
       <SentenceEvaluationPanel
         stage={evaluation.stage}
-        progress={evaluation.progress}
         detail={evaluation.detail}
         result={evaluation.result}
         error={evaluation.error}
