@@ -8,7 +8,7 @@ const EXPERTS = [
     rating: 4.9, 
     reviews: 120, 
     tags: ["Chỉnh âm", "Thực hành giao tiếp"], 
-    avatar: "/images/avatars/expert_1.png?v=2",
+    avatar: "/images/avatars/expert_1_new.jpg",
     status: "available",
     fee: "500.000đ/giờ"
   },
@@ -19,7 +19,7 @@ const EXPERTS = [
     rating: 4.8, 
     reviews: 85, 
     tags: ["Tâm lý học", "Đồng hành cảm xúc"], 
-    avatar: "/images/avatars/expert_2.png?v=2",
+    avatar: "/images/avatars/expert_2_new.jpg",
     status: "busy",
     fee: "400.000đ/giờ"
   },
@@ -30,7 +30,7 @@ const EXPERTS = [
     rating: 5.0, 
     reviews: 42, 
     tags: ["Trị liệu ngôn ngữ", "Nhi khoa"], 
-    avatar: "/images/avatars/expert_3.png?v=2",
+    avatar: "/images/avatars/expert_3_new.jpg",
     status: "available",
     fee: "600.000đ/giờ"
   },
@@ -41,7 +41,7 @@ const EXPERTS = [
     rating: 4.7, 
     reviews: 200, 
     tags: ["Giao tiếp công sở", "Kỹ năng thuyết trình"], 
-    avatar: "/images/avatars/expert_4.png?v=2",
+    avatar: "/images/avatars/expert_4_new.jpg",
     status: "available",
     fee: "450.000đ/giờ"
   },
@@ -52,7 +52,7 @@ const EXPERTS = [
     rating: 4.9, 
     reviews: 156, 
     tags: ["Phát triển ngôn ngữ", "Can thiệp sớm"], 
-    avatar: "/images/avatars/expert_5.png?v=2",
+    avatar: "/images/avatars/expert_5_new.jpg",
     status: "available",
     fee: "350.000đ/giờ"
   },
@@ -63,7 +63,7 @@ const EXPERTS = [
     rating: 4.8, 
     reviews: 92, 
     tags: ["Thính lực", "Phục hồi chức năng"], 
-    avatar: "/images/avatars/expert_6.png?v=2",
+    avatar: "/images/avatars/expert_6_new.jpg",
     status: "busy",
     fee: "550.000đ/giờ"
   },

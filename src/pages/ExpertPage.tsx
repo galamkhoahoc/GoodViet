@@ -49,7 +49,7 @@ const CONTACTS: Contact[] = [
     name: 'ThS. Lê Trần',
     preview: 'Chào bạn, tôi đã xem qua đánh giá...',
     time: 'H.qua',
-    avatar: '/images/avatars/expert_2.png?v=2',
+    avatar: '/images/avatars/expert_2_new.jpg',
     role: 'Chuyên gia ngôn ngữ trị liệu',
   },
   {
@@ -57,7 +57,7 @@ const CONTACTS: Contact[] = [
     name: 'Bác sĩ Ngọc Phạm',
     preview: 'Lịch hẹn của bạn đã được xác nhận...',
     time: 'T2',
-    avatar: '/images/avatars/expert_3.png?v=2',
+    avatar: '/images/avatars/expert_3_new.jpg',
     role: 'Bác sĩ tư vấn phát âm',
   },
 ];

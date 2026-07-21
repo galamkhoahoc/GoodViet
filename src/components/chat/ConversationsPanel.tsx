@@ -29,14 +29,14 @@ export function ConversationsPanel() {
       title: 'ThS. Lê Trần (Chuyên gia)',
       lastMessage: 'Chào bạn, tôi đã xem qua đánh giá...',
       time: 'Hôm qua',
-      avatarUrl: '/images/avatars/expert_2.png?v=2'
+      avatarUrl: '/images/avatars/expert_2_new.jpg'
     },
     {
       _id: 'mock_2',
       title: 'Bác sĩ Ngọc Phạm (Chuyên gia)',
       lastMessage: 'Lịch hẹn của bạn đã được xác nhận...',
       time: 'Thứ 2',
-      avatarUrl: '/images/avatars/expert_3.png?v=2'
+      avatarUrl: '/images/avatars/expert_3_new.jpg'
     }
   ];
 
