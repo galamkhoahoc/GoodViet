@@ -11,12 +11,14 @@
   --login-surface-soft: #f1f2f8;
   --login-outline: #d9dce5;
   --login-text: #1b1d22;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
   width: 100%;
   display: grid;
   place-items: center;
-  padding: 40px;
-  overflow: auto;
+  padding: clamp(16px, 4.45dvh, 40px);
+  overflow: hidden;
   color: var(--login-text);
   background: var(--gv-page-bg-login);
   font-family: var(--gv-font-sans);
@@ -28,7 +30,8 @@
 
 .gv-login__card {
   width: min(1200px, 100%);
-  min-height: min(820px, calc(100vh - 80px));
+  height: min(820px, 100%);
+  min-height: 0;
   display: grid;
   grid-template-columns: minmax(480px, 45%) minmax(0, 55%);
   overflow: hidden;
@@ -40,9 +43,10 @@
 
 .gv-login__form-panel {
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 64px;
+  padding: clamp(32px, 7.1dvh, 64px);
   background: #fff;
 }
 
@@ -70,7 +74,7 @@
 .gv-login__form-wrap {
   width: 100%;
   max-width: 412px;
-  margin-top: 118px;
+  margin-top: clamp(32px, 13dvh, 118px);
 }
 
 .gv-login__heading {
@@ -308,17 +312,22 @@
 
 @media (max-width: 940px) {
   .gv-login {
-    padding: 24px;
+    padding: clamp(16px, 2.7dvh, 24px);
   }
 
   .gv-login__card {
     width: min(600px, 100%);
-    min-height: min(820px, calc(100vh - 48px));
+    height: min(820px, 100%);
+    min-height: 0;
     grid-template-columns: 1fr;
   }
 
   .gv-login__form-panel {
-    padding: 56px 64px;
+    padding: clamp(32px, 6.2dvh, 56px) 64px;
+  }
+
+  .gv-login__form-wrap {
+    margin-top: clamp(32px, 10dvh, 88px);
   }
 
   .gv-login__art-panel {
@@ -329,27 +338,31 @@
 @media (max-width: 600px) {
   .gv-login {
     display: block;
-    min-height: 100dvh;
+    height: 100dvh;
+    min-height: 0;
     padding: 0;
+    overflow: hidden;
     background: #fff;
   }
 
   .gv-login__card {
     width: 100%;
-    min-height: 100dvh;
+    height: 100%;
+    min-height: 0;
     border: 0;
     border-radius: 0;
     box-shadow: none;
   }
 
   .gv-login__form-panel {
-    min-height: 100dvh;
+    height: 100%;
+    min-height: 0;
     padding: 32px 24px 24px;
   }
 
   .gv-login__form-wrap {
     max-width: none;
-    margin-top: clamp(64px, 15vh, 112px);
+    margin-top: clamp(32px, 10dvh, 72px);
   }
 
   .gv-login__heading {
@@ -366,8 +379,68 @@
   }
 
   .gv-login__credit {
-    padding-top: 40px;
+    padding-top: 20px;
     text-align: center;
+  }
+}
+
+@media (max-height: 680px) {
+  .gv-login {
+    padding: 16px;
+  }
+
+  .gv-login__card {
+    border-radius: 20px;
+  }
+
+  .gv-login__form-panel {
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+
+  .gv-login__form-wrap {
+    margin-top: 24px;
+  }
+
+  .gv-login__heading {
+    margin-bottom: 20px;
+  }
+
+  .gv-login__form {
+    gap: 12px;
+  }
+
+  .gv-login__field input {
+    height: 44px;
+  }
+
+  .gv-login__help {
+    margin-top: 6px;
+    line-height: 18px;
+  }
+
+  .gv-login__submit {
+    min-height: 42px;
+    margin-top: 8px;
+  }
+
+  .gv-login__credit {
+    padding-top: 8px;
+  }
+}
+
+@media (max-width: 600px) and (max-height: 680px) {
+  .gv-login {
+    padding: 0;
+  }
+
+  .gv-login__card {
+    border-radius: 0;
+  }
+
+  .gv-login__form-panel {
+    padding-right: 24px;
+    padding-left: 24px;
   }
 }
 
