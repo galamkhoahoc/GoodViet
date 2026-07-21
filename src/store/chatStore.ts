@@ -1,6 +1,4 @@
 import { create } from 'zustand';
-import { localTextModel } from '../services/ml/localTextModel';
-import type { TextModelRuntimeStatus } from '../services/ml/textModel.types';
 
 export interface ChatMessage {
   _id?: string;
@@ -26,17 +24,12 @@ interface ChatState {
   activeSessionId: string | null;
   messages: ChatMessage[];
   isTyping: boolean;
-  modelStatus: TextModelRuntimeStatus;
-  modelProgress: number;
-  modelDetail: string;
-  modelError: string | null;
   loadSessions: () => Promise<void>;
   createSession: (title?: string) => Promise<string | null>;
   switchSession: (sessionId: string | null) => void;
   deleteSession: (sessionId: string) => Promise<void>;
   sendMessage: (content: string) => Promise<void>;
   loadMessages: () => Promise<void>;
-  preloadModel: () => Promise<void>;
   reset: () => void;
 }
 
@@ -85,10 +78,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
   activeSessionId: null,
   messages: [],
   isTyping: false,
-  modelStatus: localTextModel.getState().status,
-  modelProgress: localTextModel.getState().progress,
-  modelDetail: localTextModel.getState().detail,
-  modelError: null,
 
   loadSessions: async () => {
     const stored = readStoredChat();
@@ -142,13 +131,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ messages: activeSessionId ? stored.messagesBySession[activeSessionId] ?? [] : [] });
   },
 
-  preloadModel: async () => {
-    try {
-      await localTextModel.preload();
-    } catch {
-      // The runtime subscription exposes the actionable error in the chat UI.
-    }
-  },
+
 
   reset: () => {
     chatGeneration += 1;
@@ -158,7 +141,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
       activeSessionId: null,
       messages: [],
       isTyping: false,
-      modelError: null,
     });
   },
 
@@ -180,7 +162,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set(state => ({
       messages: [...state.messages, userMessage],
       isTyping: true,
-      modelError: null,
       sessions: state.sessions.map(session => session._id === activeSessionId
         ? { ...session, title: state.messages.length === 0 ? sessionTitle(text) : session.title, lastMessageAt: now }
         : session),
@@ -215,9 +196,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
         role: message.senderType === 'user' ? 'user' as const : 'assistant' as const,
         content: message.content,
       }));
-      let response = '';
-      try {
-        response = await localTextModel.generate([
+      const { apiClient } = await import('../services/api/apiClient');
+      const apiResponse = await apiClient.post<any>('/api/chat/evaluate', {
+        prompt: text,
+        history: [
           {
             role: 'user',
             content: 'Bạn là GoodBot của GOODVIET, một trợ lý thân thiện hỗ trợ người Việt luyện phát âm. Trả lời bằng tiếng Việt, rõ ràng, ngắn gọn; không tự chẩn đoán y khoa và khuyên gặp chuyên gia khi phù hợp.',
@@ -227,26 +209,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
             content: 'Mình là GoodBot. Mình sẽ hỗ trợ bằng tiếng Việt, ưu tiên hướng dẫn thực tế và an toàn.',
           },
           ...history,
-        ], { maxNewTokens: 600, onText: updateReply });
-      } catch (generateError) {
-        console.warn('WebGPU failed, falling back to cloud chat API', generateError);
-        const { apiClient } = await import('../services/api/apiClient');
-        const apiResponse = await apiClient.post<any>('/api/chat/evaluate', {
-          prompt: text,
-          history: [
-            {
-              role: 'user',
-              content: 'Bạn là GoodBot của GOODVIET, một trợ lý thân thiện hỗ trợ người Việt luyện phát âm. Trả lời bằng tiếng Việt, rõ ràng, ngắn gọn; không tự chẩn đoán y khoa và khuyên gặp chuyên gia khi phù hợp.',
-            },
-            {
-              role: 'assistant',
-              content: 'Mình là GoodBot. Mình sẽ hỗ trợ bằng tiếng Việt, ưu tiên hướng dẫn thực tế và an toàn.',
-            },
-            ...history,
-          ]
-        });
-        response = apiResponse.result;
-      }
+        ]
+      });
+      const response = apiResponse.result;
       
       if (requestGeneration !== chatGeneration) return;
       updateReply(response || 'Mình chưa tạo được câu trả lời rõ ràng. Bạn thử diễn đạt lại câu hỏi nhé.');
@@ -254,19 +219,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       persistState(get());
     } catch (error) {
       if (requestGeneration !== chatGeneration) return;
-      const message = error instanceof Error ? error.message : 'Trợ lý AI cục bộ chưa thể trả lời.';
-      updateReply(`Mình chưa thể chạy Trợ lý AI. ${message}`);
-      set({ isTyping: false, modelError: message });
+      set({ isTyping: false });
       persistState(get());
     }
   },
 }));
-
-localTextModel.subscribe((runtime) => {
-  useChatStore.setState({
-    modelStatus: runtime.status,
-    modelProgress: runtime.progress,
-    modelDetail: runtime.detail,
-    modelError: runtime.error,
-  });
-});

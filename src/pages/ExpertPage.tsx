@@ -125,16 +125,13 @@ function ContactAvatar({ contact, size = 'md' }: { contact: Contact; size?: 'sm'
 export function ExpertPage() {
   const botMessages = useChatStore((state) => state.messages);
   const botIsTyping = useChatStore((state) => state.isTyping);
-  const modelStatus = useChatStore((state) => state.modelStatus);
-  const modelProgress = useChatStore((state) => state.modelProgress);
-  const modelDetail = useChatStore((state) => state.modelDetail);
-  const modelError = useChatStore((state) => state.modelError);
+
   const activeSessionId = useChatStore((state) => state.activeSessionId);
   const loadMessages = useChatStore((state) => state.loadMessages);
   const loadSessions = useChatStore((state) => state.loadSessions);
   const createSession = useChatStore((state) => state.createSession);
   const sendBotMessage = useChatStore((state) => state.sendMessage);
-  const preloadModel = useChatStore((state) => state.preloadModel);
+
 
   const [activeContact, setActiveContact] = useState<ContactId>('bot');
   const [expertMessages, setExpertMessages] = useState<LocalMessage[]>(INITIAL_EXPERT_MESSAGES);
@@ -159,9 +156,7 @@ export function ExpertPage() {
 
   useEffect(() => {
     void loadSessions();
-    const skipQaDownload = import.meta.env.DEV && new URLSearchParams(window.location.search).has('__skipModel');
-    if (!skipQaDownload) void preloadModel();
-  }, [loadSessions, preloadModel]);
+  }, [loadSessions]);
 
   useEffect(() => {
     if (activeContact === 'bot') void loadMessages();
@@ -447,20 +442,7 @@ export function ExpertPage() {
           </div>
 
           <footer className="gv-chat-composer-wrap">
-            {activeContact === 'bot' && (
-              <div className={`gv-chat-local-model is-${modelStatus}`} aria-live="polite">
-                <Cpu aria-hidden="true" />
-                <span>
-                  <strong>
-                    Trợ lý AI cục bộ · {modelStatus === 'ready' ? 'Sẵn sàng' : modelStatus === 'generating' ? 'Đang trả lời' : modelStatus === 'error' || modelStatus === 'unsupported' ? 'Cần kiểm tra' : 'Đang chuẩn bị'}
-                  </strong>
-                  <small>{modelError || modelDetail}</small>
-                </span>
-                {['checking', 'downloading', 'loading'].includes(modelStatus) && (
-                  <b>{Math.round(modelProgress * 100)}%</b>
-                )}
-              </div>
-            )}
+
             <div className="gv-chat-suggestions" aria-label="Gợi ý tin nhắn">
               {(activeContact === 'bot' ? BOT_SUGGESTIONS : ['Đặt lịch hẹn', 'Gửi kết quả đánh giá', 'Hỏi về bài luyện tập']).map((suggestion) => (
                 <button type="button" key={suggestion} onClick={() => setInputValue(suggestion)}>
