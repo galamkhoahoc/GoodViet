@@ -105,8 +105,9 @@ const BOT_SUGGESTIONS = [
 ];
 
 function BotAvatar({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+  const mappedSize = size === 'lg' ? 'md' : 'sm';
   return (
-    <span className={`gv-chat-contact-avatar gv-chat-contact-avatar--${size}`} aria-hidden="true">
+    <span className={`gv-chat-contact-avatar gv-chat-contact-avatar--${mappedSize}`} aria-hidden="true">
       <img src="/images/avatars/chiga.jpg" alt="Chị Gà" />
     </span>
   );
