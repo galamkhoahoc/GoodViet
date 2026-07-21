@@ -486,6 +486,9 @@
   margin: 0;
 }
 
+.gv-chat-markdown {
+  white-space: normal;
+}
 .gv-chat-markdown p {
   margin-bottom: 8px;
 }
@@ -518,6 +521,7 @@
   font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 13px;
   color: #1a1b1f;
+  white-space: pre-wrap;
 }
 .gv-chat-markdown pre code {
   background: transparent;

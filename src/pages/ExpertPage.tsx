@@ -391,7 +391,7 @@ export function ExpertPage() {
                     className={`gv-chat-message-row ${message.senderType === 'user' ? 'gv-chat-message-row--outgoing' : 'gv-chat-message-row--incoming'}`}
                   >
                     {message.senderType === 'bot' && <BotAvatar />}
-                    <div className={`gv-chat-bubble ${message.senderType === 'user' ? 'gv-chat-bubble--outgoing' : 'gv-chat-bubble--incoming'} gv-chat-markdown`}>
+                    <div className={`gv-chat-bubble ${message.senderType === 'user' ? 'gv-chat-bubble--outgoing' : 'gv-chat-bubble--incoming gv-chat-markdown'}`}>
                       {message.senderType === 'user' ? (
                         message.content
                       ) : (
@@ -421,7 +421,7 @@ export function ExpertPage() {
                   className={`gv-chat-message-row ${message.sender === 'user' ? 'gv-chat-message-row--outgoing' : 'gv-chat-message-row--incoming'}`}
                 >
                   {message.sender === 'bot' && <ContactAvatar contact={activeContactMeta} size="sm" />}
-                  <div className={`gv-chat-bubble ${message.sender === 'user' ? 'gv-chat-bubble--outgoing' : 'gv-chat-bubble--incoming'} gv-chat-markdown`}>
+                  <div className={`gv-chat-bubble ${message.sender === 'user' ? 'gv-chat-bubble--outgoing' : 'gv-chat-bubble--incoming gv-chat-markdown'}`}>
                     {message.sender === 'user' ? (
                       message.text
                     ) : (
