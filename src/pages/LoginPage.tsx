@@ -93,7 +93,7 @@ export function LoginPage() {
 
               <div className="gv-login__help">
                 <strong>Cần hỗ trợ?</strong>
-                <p>Nếu quên mật khẩu, vui lòng liên hệ giáo viên của bạn để được cấp lại tài khoản.</p>
+                <p>Nếu quên mật khẩu, vui lòng liên hệ qua email galamkhoahoc@gmail.com để được hỗ trợ.</p>
               </div>
 
               <button className="gv-login__submit" type="submit" disabled={isLoading}>
@@ -112,7 +112,7 @@ export function LoginPage() {
             </form>
           </div>
 
-          <p className="gv-login__credit">Một dự án của Phú Quý &amp; TCG Science</p>
+          <p className="gv-login__credit">Một dự án của nhóm nghiên cứu Gà làm khoa học</p>
         </div>
 
         <div className="gv-login__art-panel" aria-hidden="true">
