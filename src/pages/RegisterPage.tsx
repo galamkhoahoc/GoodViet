@@ -1,379 +1,152 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
+import { ArrowRight, CheckCircle2, ShieldCheck, UserPlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { UserPlus } from 'lucide-react';
+import type { User } from '../data/mockUsers';
+import '../styles/login-page.css';
+import '../styles/register-page.css';
+
+interface RegisterForm {
+  name: string;
+  email: string;
+  age: string;
+  password: string;
+  confirmPassword: string;
+  phone: string;
+  speechDescription: string;
+}
+
+const EMPTY_FORM: RegisterForm = {
+  name: '',
+  email: '',
+  age: '',
+  password: '',
+  confirmPassword: '',
+  phone: '',
+  speechDescription: '',
+};
 
 export function RegisterPage() {
-  const registerFn = useAuthStore(s => s.register);
-  const [form, setForm] = useState({ name: '', email: '', age: '', password: '', confirmPassword: '', phone: '', speechDescription: '' });
+  const register = useAuthStore((state) => state.register);
+  const [form, setForm] = useState<RegisterForm>(EMPTY_FORM);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const update = (field: string, value: string) => setForm(f => ({ ...f, [field]: value }));
+  const update = (field: keyof RegisterForm, value: string) => {
+    setForm((current) => ({ ...current, [field]: value }));
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setError('');
 
-    if (!form.name || !form.email || !form.password) {
-      setError('Vui lòng điền đầy đủ các trường bắt buộc'); return;
+    if (!form.name.trim() || !form.email.trim() || !form.password) {
+      setError('Vui lòng điền đầy đủ họ tên, email và mật khẩu.');
+      return;
     }
 
-    // Validate age if provided
-    if (form.age) {
-      const age = parseInt(form.age);
-      if (age < 18 || age > 100) { setError('Tuổi phải từ 18 đến 100'); return; }
+    const age = form.age ? Number.parseInt(form.age, 10) : undefined;
+    if (age !== undefined && (age < 18 || age > 100)) {
+      setError('Tuổi phải từ 18 đến 100.');
+      return;
     }
-    
-    if (form.password.length < 8) { setError('Mật khẩu phải có ít nhất 8 ký tự'); return; }
-    if (form.password !== form.confirmPassword) { setError('Mật khẩu xác nhận không khớp'); return; }
+    if (form.password.length < 8) {
+      setError('Mật khẩu phải có ít nhất 8 ký tự.');
+      return;
+    }
+    if (form.password !== form.confirmPassword) {
+      setError('Mật khẩu xác nhận không khớp.');
+      return;
+    }
 
-    // Prepare payload - only send what backend expects
-    const payload: any = {
-      fullName: form.name,
-      email: form.email,
+    const payload: Partial<User> & { password: string } = {
+      fullName: form.name.trim(),
+      email: form.email.trim(),
       password: form.password,
+      ...(form.phone.trim() ? { phoneNumber: form.phone.trim() } : {}),
+      ...(age !== undefined ? { age } : {}),
+      ...(form.speechDescription.trim() ? { targetGoals: form.speechDescription.trim() } : {}),
     };
-    
-    // Add optional fields if provided
-    if (form.phone && form.phone.trim()) {
-      payload.phoneNumber = form.phone;
-    }
-    
-    if (form.age) {
-      payload.age = parseInt(form.age);
-    }
-    
-    // Store speechDescription in targetGoals field (backend accepts this)
-    if (form.speechDescription) {
-      payload.targetGoals = form.speechDescription;
-    }
 
-    console.log('Register payload:', payload); // DEBUG
-
-    const success = await registerFn(payload);
-
-    if (!success) setError('Đăng ký thất bại (email có thể đã được sử dụng hoặc dữ liệu không hợp lệ)');
+    setIsLoading(true);
+    const success = await register(payload);
+    setIsLoading(false);
+    if (!success) setError('Không thể tạo tài khoản. Email có thể đã được sử dụng hoặc dữ liệu chưa hợp lệ.');
   };
 
   return (
-    <div className="auth-page" style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      background: 'var(--md-sys-color-surface)',
-      padding: 'var(--md-sys-space-xl)',
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: 540,
-        background: 'var(--md-sys-color-surface-container-lowest)',
-        borderRadius: 'var(--md-sys-shape-corner-extra-large)',
-        padding: 'var(--md-sys-space-3xl)',
-        boxShadow: 'var(--md-sys-elevation-2)',
-      }}>
-        {/* Logo & Header */}
-        <div style={{ textAlign: 'center', marginBottom: 'var(--md-sys-space-2xl)' }}>
-          <div style={{
-            width: 64,
-            height: 64,
-            margin: '0 auto var(--md-sys-space-md)',
-            background: 'var(--md-sys-color-primary)',
-            borderRadius: 'var(--md-sys-shape-corner-large)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 'var(--md-sys-typescale-headline-medium-size)',
-            fontWeight: 700,
-            color: 'var(--md-sys-color-on-primary)',
-          }}>
-            G
-          </div>
-          <h1 style={{
-            fontSize: 'var(--md-sys-typescale-headline-small-size)',
-            fontWeight: 'var(--md-sys-typescale-headline-small-weight)',
-            color: 'var(--md-sys-color-on-surface)',
-            marginBottom: 'var(--md-sys-space-xs)',
-          }}>
-            Tạo tài khoản
-          </h1>
-          <p style={{
-            fontSize: 'var(--md-sys-typescale-body-medium-size)',
-            color: 'var(--md-sys-color-on-surface-variant)',
-          }}>
-            Bắt đầu hành trình cải thiện giọng nói
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--md-sys-space-lg)' }}>
-            <div style={{ marginBottom: 'var(--md-sys-space-lg)' }}>
-              <label style={{
-                display: 'block',
-                marginBottom: 'var(--md-sys-space-xs)',
-                fontSize: 'var(--md-sys-typescale-body-small-size)',
-                fontWeight: 500,
-                color: 'var(--md-sys-color-on-surface-variant)',
-              }}>Họ và tên *</label>
-              <input
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  fontSize: 'var(--md-sys-typescale-body-large-size)',
-                  color: 'var(--md-sys-color-on-surface)',
-                  background: 'var(--md-sys-color-surface-container)',
-                  border: '1px solid var(--md-sys-color-outline-variant)',
-                  borderRadius: 'var(--md-sys-shape-corner-small)',
-                  outline: 'none',
-                  transition: 'border-color var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
-                }}
-                onFocus={(e) => e.target.style.borderColor = 'var(--md-sys-color-primary)'}
-                onBlur={(e) => e.target.style.borderColor = 'var(--md-sys-color-outline-variant)'}
-                placeholder="Nguyễn Văn A"
-                value={form.name}
-                onChange={e => update('name', e.target.value)}
-              />
-            </div>
-            <div style={{ marginBottom: 'var(--md-sys-space-lg)' }}>
-              <label style={{
-                display: 'block',
-                marginBottom: 'var(--md-sys-space-xs)',
-                fontSize: 'var(--md-sys-typescale-body-small-size)',
-                fontWeight: 500,
-                color: 'var(--md-sys-color-on-surface-variant)',
-              }}>Tuổi</label>
-              <input
-                type="number"
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  fontSize: 'var(--md-sys-typescale-body-large-size)',
-                  color: 'var(--md-sys-color-on-surface)',
-                  background: 'var(--md-sys-color-surface-container)',
-                  border: '1px solid var(--md-sys-color-outline-variant)',
-                  borderRadius: 'var(--md-sys-shape-corner-small)',
-                  outline: 'none',
-                  transition: 'border-color var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
-                }}
-                onFocus={(e) => e.target.style.borderColor = 'var(--md-sys-color-primary)'}
-                onBlur={(e) => e.target.style.borderColor = 'var(--md-sys-color-outline-variant)'}
-                placeholder="25"
-                min={18}
-                max={100}
-                value={form.age}
-                onChange={e => update('age', e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div style={{ marginBottom: 'var(--md-sys-space-lg)' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: 'var(--md-sys-space-xs)',
-              fontSize: 'var(--md-sys-typescale-body-small-size)',
-              fontWeight: 500,
-              color: 'var(--md-sys-color-on-surface-variant)',
-            }}>Email *</label>
-            <input
-              type="email"
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                fontSize: 'var(--md-sys-typescale-body-large-size)',
-                color: 'var(--md-sys-color-on-surface)',
-                background: 'var(--md-sys-color-surface-container)',
-                border: '1px solid var(--md-sys-color-outline-variant)',
-                borderRadius: 'var(--md-sys-shape-corner-small)',
-                outline: 'none',
-                transition: 'border-color var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
-              }}
-              onFocus={(e) => e.target.style.borderColor = 'var(--md-sys-color-primary)'}
-              onBlur={(e) => e.target.style.borderColor = 'var(--md-sys-color-outline-variant)'}
-              placeholder="email@example.com"
-              value={form.email}
-              onChange={e => update('email', e.target.value)}
-            />
-          </div>
-
-          <div style={{ marginBottom: 'var(--md-sys-space-lg)' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: 'var(--md-sys-space-xs)',
-              fontSize: 'var(--md-sys-typescale-body-small-size)',
-              fontWeight: 500,
-              color: 'var(--md-sys-color-on-surface-variant)',
-            }}>Số điện thoại</label>
-            <input
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                fontSize: 'var(--md-sys-typescale-body-large-size)',
-                color: 'var(--md-sys-color-on-surface)',
-                background: 'var(--md-sys-color-surface-container)',
-                border: '1px solid var(--md-sys-color-outline-variant)',
-                borderRadius: 'var(--md-sys-shape-corner-small)',
-                outline: 'none',
-                transition: 'border-color var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
-              }}
-              onFocus={(e) => e.target.style.borderColor = 'var(--md-sys-color-primary)'}
-              onBlur={(e) => e.target.style.borderColor = 'var(--md-sys-color-outline-variant)'}
-              placeholder="0901234567"
-              value={form.phone}
-              onChange={e => update('phone', e.target.value)}
-            />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--md-sys-space-lg)' }}>
-            <div style={{ marginBottom: 'var(--md-sys-space-lg)' }}>
-              <label style={{
-                display: 'block',
-                marginBottom: 'var(--md-sys-space-xs)',
-                fontSize: 'var(--md-sys-typescale-body-small-size)',
-                fontWeight: 500,
-                color: 'var(--md-sys-color-on-surface-variant)',
-              }}>Mật khẩu *</label>
-              <input
-                type="password"
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  fontSize: 'var(--md-sys-typescale-body-large-size)',
-                  color: 'var(--md-sys-color-on-surface)',
-                  background: 'var(--md-sys-color-surface-container)',
-                  border: '1px solid var(--md-sys-color-outline-variant)',
-                  borderRadius: 'var(--md-sys-shape-corner-small)',
-                  outline: 'none',
-                  transition: 'border-color var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
-                }}
-                onFocus={(e) => e.target.style.borderColor = 'var(--md-sys-color-primary)'}
-                onBlur={(e) => e.target.style.borderColor = 'var(--md-sys-color-outline-variant)'}
-                placeholder="Tối thiểu 8 ký tự"
-                value={form.password}
-                onChange={e => update('password', e.target.value)}
-              />
-            </div>
-            <div style={{ marginBottom: 'var(--md-sys-space-lg)' }}>
-              <label style={{
-                display: 'block',
-                marginBottom: 'var(--md-sys-space-xs)',
-                fontSize: 'var(--md-sys-typescale-body-small-size)',
-                fontWeight: 500,
-                color: 'var(--md-sys-color-on-surface-variant)',
-              }}>Xác nhận mật khẩu *</label>
-              <input
-                type="password"
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  fontSize: 'var(--md-sys-typescale-body-large-size)',
-                  color: 'var(--md-sys-color-on-surface)',
-                  background: 'var(--md-sys-color-surface-container)',
-                  border: '1px solid var(--md-sys-color-outline-variant)',
-                  borderRadius: 'var(--md-sys-shape-corner-small)',
-                  outline: 'none',
-                  transition: 'border-color var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
-                }}
-                onFocus={(e) => e.target.style.borderColor = 'var(--md-sys-color-primary)'}
-                onBlur={(e) => e.target.style.borderColor = 'var(--md-sys-color-outline-variant)'}
-                placeholder="Nhập lại mật khẩu"
-                value={form.confirmPassword}
-                onChange={e => update('confirmPassword', e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div style={{ marginBottom: 'var(--md-sys-space-xl)' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: 'var(--md-sys-space-xs)',
-              fontSize: 'var(--md-sys-typescale-body-small-size)',
-              fontWeight: 500,
-              color: 'var(--md-sys-color-on-surface-variant)',
-            }}>Mô tả khó khăn về giọng nói</label>
-            <textarea
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                fontSize: 'var(--md-sys-typescale-body-large-size)',
-                color: 'var(--md-sys-color-on-surface)',
-                background: 'var(--md-sys-color-surface-container)',
-                border: '1px solid var(--md-sys-color-outline-variant)',
-                borderRadius: 'var(--md-sys-shape-corner-small)',
-                outline: 'none',
-                minHeight: 80,
-                resize: 'vertical',
-                fontFamily: 'var(--md-sys-typescale-font)',
-                transition: 'border-color var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
-              }}
-              onFocus={(e) => e.target.style.borderColor = 'var(--md-sys-color-primary)'}
-              onBlur={(e) => e.target.style.borderColor = 'var(--md-sys-color-outline-variant)'}
-              placeholder="Ví dụ: Tôi hay nhầm lẫn giữa L và N, nói hơi nhanh khi trình bày trước đám đông..."
-              value={form.speechDescription}
-              onChange={e => update('speechDescription', e.target.value)}
-            />
-          </div>
-
-          {error && (
-            <div style={{
-              padding: '12px 16px',
-              marginBottom: 'var(--md-sys-space-lg)',
-              background: 'var(--md-sys-color-error-container)',
-              color: 'var(--md-sys-color-on-error-container)',
-              borderRadius: 'var(--md-sys-shape-corner-small)',
-              fontSize: 'var(--md-sys-typescale-body-small-size)',
-            }}>
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            style={{
-              width: '100%',
-              padding: '14px 24px',
-              background: 'var(--md-sys-color-primary)',
-              color: 'var(--md-sys-color-on-primary)',
-              border: 'none',
-              borderRadius: 'var(--md-sys-shape-corner-full)',
-              fontSize: 'var(--md-sys-typescale-label-large-size)',
-              fontWeight: 'var(--md-sys-typescale-label-large-weight)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 'var(--md-sys-space-sm)',
-              transition: 'all var(--md-motion-duration-short4) var(--md-motion-easing-standard)',
-              boxShadow: 'var(--md-sys-elevation-1)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-2)';
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-1)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <UserPlus size={18} /> Đăng ký
-          </button>
-        </form>
-
-        <div style={{
-          marginTop: 'var(--md-sys-space-xl)',
-          textAlign: 'center',
-          fontSize: 'var(--md-sys-typescale-body-medium-size)',
-          color: 'var(--md-sys-color-on-surface-variant)',
-        }}>
-          Đã có tài khoản?{' '}
-          <Link to="/login" style={{
-            color: 'var(--md-sys-color-primary)',
-            textDecoration: 'none',
-            fontWeight: 500,
-          }}>
-            Đăng nhập
+    <main className="gv-login gv-register">
+      <section className="gv-login__card gv-register__card" aria-labelledby="register-title">
+        <div className="gv-login__form-panel gv-register__form-panel">
+          <Link className="gv-login__brand" to="/login" aria-label="GoodViet">
+            <span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>
+            <strong>GoodViet</strong>
           </Link>
+
+          <div className="gv-register__form-wrap">
+            <header className="gv-login__heading gv-register__heading">
+              <h1 id="register-title">Tạo tài khoản</h1>
+              <p>Bắt đầu hành trình luyện giọng được thiết kế riêng cho bạn.</p>
+            </header>
+
+            <form className="gv-register__form" onSubmit={handleSubmit} noValidate>
+              <div className="gv-register__grid">
+                <label className="gv-register__field">
+                  <span>Họ và tên *</span>
+                  <input value={form.name} onChange={(event) => update('name', event.target.value)} placeholder="Nguyễn Văn A" autoComplete="name" />
+                </label>
+                <label className="gv-register__field">
+                  <span>Tuổi</span>
+                  <input type="number" min={18} max={100} value={form.age} onChange={(event) => update('age', event.target.value)} placeholder="25" inputMode="numeric" />
+                </label>
+                <label className="gv-register__field">
+                  <span>Email *</span>
+                  <input type="email" value={form.email} onChange={(event) => update('email', event.target.value)} placeholder="email@example.com" autoComplete="email" />
+                </label>
+                <label className="gv-register__field">
+                  <span>Số điện thoại</span>
+                  <input type="tel" value={form.phone} onChange={(event) => update('phone', event.target.value)} placeholder="0901 234 567" autoComplete="tel" />
+                </label>
+                <label className="gv-register__field">
+                  <span>Mật khẩu *</span>
+                  <input type="password" value={form.password} onChange={(event) => update('password', event.target.value)} placeholder="Tối thiểu 8 ký tự" autoComplete="new-password" />
+                </label>
+                <label className="gv-register__field">
+                  <span>Xác nhận mật khẩu *</span>
+                  <input type="password" value={form.confirmPassword} onChange={(event) => update('confirmPassword', event.target.value)} placeholder="Nhập lại mật khẩu" autoComplete="new-password" />
+                </label>
+                <label className="gv-register__field gv-register__field--wide">
+                  <span>Mục tiêu luyện tập</span>
+                  <textarea value={form.speechDescription} onChange={(event) => update('speechDescription', event.target.value)} placeholder="Ví dụ: Tôi muốn nói rõ âm L/N và tự tin hơn khi thuyết trình..." rows={3} />
+                </label>
+              </div>
+
+              {error && <p className="gv-login__error" role="alert"><span className="material-symbols-outlined" aria-hidden="true">error</span>{error}</p>}
+
+              <div className="gv-register__form-footer">
+                <p>Đã có tài khoản? <Link to="/login">Đăng nhập</Link></p>
+                <button className="gv-login__submit gv-register__submit" type="submit" disabled={isLoading}>
+                  {isLoading ? <><span className="material-symbols-outlined gv-login__spinner">progress_activity</span> Đang tạo</> : <>Tạo tài khoản <ArrowRight size={17} /></>}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
-    </div>
+
+        <aside className="gv-register__art-panel" aria-label="Lợi ích khi sử dụng GoodViet">
+          <div className="gv-register__art-copy">
+            <span className="gv-register__art-icon"><UserPlus size={25} /></span>
+            <p className="gv-register__art-eyebrow"><ShieldCheck size={15} /> Không gian luyện tập riêng tư</p>
+            <h2>Một lộ trình phù hợp với chính giọng nói của bạn.</h2>
+            <p>Thông tin bạn cung cấp giúp GoodViet đề xuất bài học sát mục tiêu hơn và lưu tiến độ xuyên suốt hành trình.</p>
+            <ul>
+              <li><CheckCircle2 size={17} /> Đánh giá giọng nói bằng AI</li>
+              <li><CheckCircle2 size={17} /> Bài luyện và mục tiêu cá nhân hóa</li>
+              <li><CheckCircle2 size={17} /> Kết nối trợ lý và chuyên gia khi cần</li>
+            </ul>
+          </div>
+        </aside>
+      </section>
+    </main>
   );
 }

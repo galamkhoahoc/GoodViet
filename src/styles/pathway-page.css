@@ -73,10 +73,17 @@
   transform: scale(1.05);
 }
 
-.gv-pathway__avatar img {
+.gv-pathway__avatar > span {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background:
+    radial-gradient(circle at 70% 20%, rgb(255 255 255 / 18%), transparent 24%),
+    linear-gradient(145deg, #243b4d, #111920);
+  font-size: 16px;
+  font-weight: 750;
 }
 
 .gv-pathway__quote {

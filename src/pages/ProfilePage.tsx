@@ -1,6 +1,20 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  ArrowRight,
+  BadgeCheck,
+  Bell,
+  Check,
+  Languages,
+  LoaderCircle,
+  Mail,
+  MapPin,
+  Pencil,
+  Phone,
+  TrendingUp,
+} from 'lucide-react';
 import { toast } from '../components/common/Toast';
+import { PageHeader } from '../components/layout/PageHeader';
 import { useAuthStore } from '../store/authStore';
 import '../styles/profile-settings.css';
 
@@ -67,14 +81,11 @@ export function ProfilePage() {
   return (
     <main className="ps-page">
       <div className="ps-page__inner">
-        <header className="ps-page__header">
-          <p className="ps-page__eyebrow">
-            <span className="material-symbols-outlined" aria-hidden="true">account_circle</span>
-            Không gian cá nhân
-          </p>
-          <h1>Hồ sơ &amp; Cài đặt</h1>
-          <p>Quản lý thông tin, mục tiêu luyện tập và trải nghiệm GoodViet của bạn.</p>
-        </header>
+        <PageHeader
+          eyebrow="Không gian cá nhân"
+          title="Hồ sơ của bạn"
+          description="Quản lý thông tin, mục tiêu luyện tập và trải nghiệm GoodViet trong một nơi."
+        />
 
         <div className="ps-layout">
           <aside className="ps-sidebar" aria-label="Tóm tắt hồ sơ">
@@ -82,13 +93,11 @@ export function ProfilePage() {
               <div className="ps-profile-card__banner" />
               <div className="ps-profile-card__body">
                 <div className="ps-avatar-wrap">
-                  <img
-                    className="ps-avatar"
-                    src="/images/avatars/expert_1.png"
-                    alt={`Ảnh đại diện của ${user?.fullName || 'người dùng GoodViet'}`}
-                  />
+                  <div className="ps-avatar" role="img" aria-label={`Ảnh đại diện của ${user?.fullName || 'người dùng GoodViet'}`}>
+                    {user?.fullName?.trim().charAt(0).toUpperCase() || 'G'}
+                  </div>
                   <button className="ps-avatar-edit" type="button" aria-label="Thay ảnh đại diện">
-                    <span className="material-symbols-outlined" aria-hidden="true">edit</span>
+                    <Pencil aria-hidden="true" />
                   </button>
                 </div>
 
@@ -97,7 +106,7 @@ export function ProfilePage() {
 
                 <div className="ps-badges" aria-label="Trạng thái tài khoản">
                   <span className="ps-badge ps-badge--primary">
-                    <span className="material-symbols-outlined" aria-hidden="true">verified</span>
+                    <BadgeCheck aria-hidden="true" />
                     Đã xác minh
                   </span>
                   <span className="ps-badge ps-badge--tertiary">Premium</span>
@@ -105,15 +114,15 @@ export function ProfilePage() {
 
                 <div className="ps-contact-list">
                   <p>
-                    <span className="material-symbols-outlined" aria-hidden="true">mail</span>
+                    <Mail aria-hidden="true" />
                     <span>{user?.email || 'nguyen.vana@example.com'}</span>
                   </p>
                   <p>
-                    <span className="material-symbols-outlined" aria-hidden="true">phone</span>
+                    <Phone aria-hidden="true" />
                     <span>{user?.phoneNumber || 'Chưa cập nhật số điện thoại'}</span>
                   </p>
                   <p>
-                    <span className="material-symbols-outlined" aria-hidden="true">location_on</span>
+                    <MapPin aria-hidden="true" />
                     <span>TP. Hồ Chí Minh, Việt Nam</span>
                   </p>
                 </div>
@@ -126,7 +135,7 @@ export function ProfilePage() {
                   <p className="ps-card__kicker">Tổng quan</p>
                   <h2 id="activity-title">Hoạt động</h2>
                 </div>
-                <span className="ps-icon-circle material-symbols-outlined" aria-hidden="true">monitoring</span>
+                <span className="ps-icon-circle"><TrendingUp aria-hidden="true" /></span>
               </div>
               <div className="ps-stat-grid">
                 <div className="ps-stat">
@@ -150,7 +159,7 @@ export function ProfilePage() {
                 </div>
                 {!isEditing && (
                   <button className="ps-text-button" type="button" onClick={beginEditing}>
-                    <span className="material-symbols-outlined" aria-hidden="true">edit</span>
+                    <Pencil aria-hidden="true" />
                     Chỉnh sửa
                   </button>
                 )}
@@ -208,21 +217,21 @@ export function ProfilePage() {
 
             <div className="ps-shortcut-grid">
               <Link className="ps-card ps-shortcut-card" to="/settings">
-                <span className="ps-icon-circle material-symbols-outlined" aria-hidden="true">language</span>
+                <span className="ps-icon-circle"><Languages aria-hidden="true" /></span>
                 <span>
                   <strong>Ngôn ngữ &amp; Khu vực</strong>
                   <small>Tiếng Việt · Giờ Đông Dương</small>
                 </span>
-                <span className="material-symbols-outlined ps-shortcut-card__arrow" aria-hidden="true">arrow_forward</span>
+                <ArrowRight className="ps-shortcut-card__arrow" aria-hidden="true" />
               </Link>
 
               <Link className="ps-card ps-shortcut-card" to="/settings">
-                <span className="ps-icon-circle ps-icon-circle--tertiary material-symbols-outlined" aria-hidden="true">notifications</span>
+                <span className="ps-icon-circle ps-icon-circle--tertiary"><Bell aria-hidden="true" /></span>
                 <span>
                   <strong>Thông báo</strong>
                   <small>Email, tin nhắn và nhắc lịch</small>
                 </span>
-                <span className="material-symbols-outlined ps-shortcut-card__arrow" aria-hidden="true">arrow_forward</span>
+                <ArrowRight className="ps-shortcut-card__arrow" aria-hidden="true" />
               </Link>
             </div>
 
@@ -239,12 +248,12 @@ export function ProfilePage() {
                 <button className="ps-button ps-button--primary" type="button" onClick={handleSave} disabled={isSaving}>
                   {isSaving ? (
                     <>
-                      <span className="material-symbols-outlined ps-spin" aria-hidden="true">progress_activity</span>
+                      <LoaderCircle className="ps-spin" aria-hidden="true" />
                       Đang lưu
                     </>
                   ) : (
                     <>
-                      <span className="material-symbols-outlined" aria-hidden="true">check</span>
+                      <Check aria-hidden="true" />
                       Lưu thay đổi
                     </>
                   )}

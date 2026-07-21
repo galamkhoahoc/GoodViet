@@ -274,6 +274,24 @@
   text-transform: uppercase;
 }
 
+.gv-login__register-link {
+  margin: 2px 0 0;
+  color: var(--login-secondary);
+  font-size: 11px;
+  text-align: right;
+}
+
+.gv-login__register-link a {
+  color: var(--login-primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.gv-login__register-link a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .gv-login__art-panel {
   min-width: 0;
   display: grid;

@@ -11,6 +11,7 @@ import { config } from '../config/env';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { WaveformVisualizer } from '../components/audio/WaveformVisualizer';
 import { SentenceEvaluationPanel } from '../components/audio/SentenceEvaluationPanel';
+import { PageHeader } from '../components/layout/PageHeader';
 import { useLocalSentenceEvaluation } from '../hooks/useLocalSentenceEvaluation';
 import type { SentenceEvaluationResult } from '../services/ml/sentenceEvaluation';
 import type { AssessmentSentence } from '../services/api/assessmentApi';
@@ -18,44 +19,41 @@ import '../styles/assessment-page.css';
 
 function IntroPhase({ onStart, isLoading }: { onStart: () => void, isLoading: boolean }) {
   return (
-    <div className="max-w-[700px] mx-auto text-center bg-surface-lowest organic-curve p-12 shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-transparent">
-      <div className="text-5xl mb-6">🎙️</div>
-      <h2 className="font-display-lg font-bold tracking-tight mb-4 text-on-surface">
-        <span className="text-primary">GOODVIET Check</span> — Bài test sàng lọc giọng nói
-      </h2>
-      <p className="text-on-surface-variant text-body-lg mb-8 leading-relaxed">
-        Bài test gồm <strong>3 giai đoạn</strong> giúp phân tích chuyên sâu bởi AI và Chuyên gia:
-      </p>
-      
-      <div className="flex flex-col gap-4 text-left max-w-[500px] mx-auto mb-8">
+    <section className="assessment-intro" aria-labelledby="assessment-intro-title">
+      <div className="assessment-intro__summary">
+        <span className="assessment-intro__icon"><span className="material-symbols-outlined">graphic_eq</span></span>
+        <span className="assessment-intro__eyebrow">GOODVIET Check</span>
+        <h2 id="assessment-intro-title">Hiểu rõ giọng nói của bạn trong một lần đánh giá.</h2>
+        <p>AI phân tích phát âm, độ rõ, nhịp điệu và cách diễn đạt để đề xuất lộ trình phù hợp.</p>
+        <div className="assessment-intro__meta">
+          <span><strong>15–20</strong> phút</span>
+          <span><strong>3</strong> giai đoạn</span>
+          <span><strong>1</strong> lộ trình riêng</span>
+        </div>
+      </div>
+
+      <div className="assessment-intro__steps">
+        <div>
+          <span className="gv-chip">Quy trình đánh giá</span>
+          <h3>Ba bước ngắn, phản hồi rõ ràng</h3>
+        </div>
         {[
           { num: 'I', text: 'Đọc 10 câu sàng lọc các cặp âm L/N, S/X, TR/CH, V/D/GI và thanh hỏi/ngã' },
           { num: 'II', text: 'Đọc 5 câu dài để đo tốc độ, độ rõ, hơi thở và nhịp điệu' },
           { num: 'III', text: 'Trả lời một tình huống mở để đánh giá khả năng diễn đạt tự nhiên' },
         ].map(item => (
-          <div key={item.num} className="p-4 flex gap-4 items-center bg-surface-container-low rounded-2xl">
-            <span className="font-label-lg px-3 py-1 bg-primary-container text-on-primary-container rounded-full shrink-0">
-              {item.num}
-            </span>
-            <span className="font-body-md text-on-surface">
-              {item.text}
-            </span>
+          <div key={item.num} className="assessment-intro__step">
+            <span>{item.num}</span>
+            <p>{item.text}</p>
           </div>
         ))}
+
+        <p className="assessment-intro__note"><span className="material-symbols-outlined">info</span> Mỗi tài khoản thực hiện bài đánh giá một lần. Hãy chọn nơi yên tĩnh và dùng tai nghe nếu có.</p>
+        <button onClick={onStart} disabled={isLoading} className="gv-primary-button assessment-intro__action">
+          <Play size={18} /> {isLoading ? 'Đang khởi tạo...' : 'Bắt đầu đánh giá'}
+        </button>
       </div>
-      
-      <p className="font-body-sm text-on-surface-variant mb-8 opacity-80">
-        ⚠️ Mỗi tài khoản chỉ được làm bài test này <strong>1 lần duy nhất</strong>. Hãy chuẩn bị ở nơi yên tĩnh.
-      </p>
-      
-      <button
-        onClick={onStart}
-        disabled={isLoading}
-        className={`w-full max-w-[300px] py-4 px-6 bg-primary text-on-primary rounded-full font-bold flex items-center justify-center gap-2 mx-auto shadow-md transition-transform hover:scale-105 hover:bg-primary-fixed-variant ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-      >
-        <Play size={18} /> {isLoading ? 'Đang khởi tạo...' : 'Bắt đầu bài test'}
-      </button>
-    </div>
+    </section>
   );
 }
 
@@ -598,24 +596,28 @@ export function AssessmentPage() {
 
   if (user?.assessmentCompleted && phase !== 'results') {
     return (
-      <main className="flex-1 ml-nav-rail-width min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="bg-surface-lowest rounded-3xl p-12 text-center shadow-sm border border-outline-variant/20 max-w-[600px] w-full">
+      <main className="gv-page assessment-page">
+        <div className="assessment-page__content">
+          <PageHeader eyebrow="GOODVIET Check" title="Đánh giá giọng nói" description="Xem lại kết quả và tiếp tục luyện tập theo lộ trình của bạn." />
+          <div className="assessment-completed-card">
           <CheckCircle size={64} className="text-primary mx-auto mb-6" />
           <h2 className="font-display-sm font-bold text-on-surface mb-4">Bạn đã hoàn thành GOODVIET Check</h2>
           <p className="text-body-lg text-on-surface-variant mb-8">Mỗi tài khoản chỉ được làm bài test 1 lần duy nhất.</p>
           <button className="bg-primary text-on-primary px-8 py-3 rounded-full font-bold shadow-md hover:bg-primary-fixed-variant" onClick={() => loadResult()}>
             Xem lại kết quả
           </button>
+          </div>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="assessment-page flex-1 ml-nav-rail-width min-h-screen bg-background">
+    <main className="gv-page assessment-page">
       <div className="assessment-page__content">
         {(phase === 'not_started' || phase === 'intro') && (
-          <div className="pt-20">
+          <div className="assessment-landing">
+             <PageHeader eyebrow="GOODVIET Check" title="Đánh giá giọng nói" description="Khám phá điểm mạnh và những âm cần cải thiện trước khi bắt đầu lộ trình." />
              <IntroPhase onStart={startAssessment} isLoading={isLoading} />
              <LocalUploadAssessment />
           </div>

@@ -56,7 +56,8 @@ function LessonIconView({ type }: { type: LessonIcon }) {
 
 export function PathwayPage() {
   const navigate = useNavigate();
-  const isTemporaryAccount = useAuthStore(state => state.user?.accountType === 'temporary');
+  const user = useAuthStore(state => state.user);
+  const isTemporaryAccount = user?.accountType === 'temporary';
   const [currentMonth, setCurrentMonth] = useState(() => new Date(2024, 9, 1));
   const [selectedLesson, setSelectedLesson] = useState<PracticeLesson | null>(null);
   const [lessonMode, setLessonMode] = useState<LessonMode>('short');
@@ -159,7 +160,7 @@ export function PathwayPage() {
             <h1>Tiến độ hôm nay</h1>
           </div>
           <button type="button" className="gv-pathway__avatar" onClick={() => navigate('/profile')} aria-label="Mở hồ sơ">
-            <img src="/images/pathway-avatar.png" alt="Ảnh đại diện người dùng" />
+            <span>{user?.fullName?.trim().charAt(0).toUpperCase() || 'G'}</span>
           </button>
         </header>
 

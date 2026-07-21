@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import '../styles/login-page.css';
 
@@ -109,6 +110,10 @@ export function LoginPage() {
                   </>
                 )}
               </button>
+
+              <p className="gv-login__register-link">
+                Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
+              </p>
             </form>
           </div>
 

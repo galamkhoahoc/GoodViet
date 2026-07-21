@@ -1,174 +1,128 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { Check, Clock3, Search, SlidersHorizontal, Star } from 'lucide-react';
+import { PageHeader } from '../components/layout/PageHeader';
+import { toast } from '../components/common/Toast';
+import '../styles/expert-directory.css';
 
 const EXPERTS = [
-  { 
-    id: 1, 
-    name: "GS. Nguyễn Văn B", 
-    title: "Chuyên gia Ngôn ngữ học", 
-    rating: 4.9, 
-    reviews: 120, 
-    tags: ["Chỉnh âm", "Thực hành giao tiếp"], 
-    avatar: "/images/avatars/expert_1_new.jpg",
-    status: "available",
-    fee: "500.000đ/giờ"
-  },
-  { 
-    id: 2, 
-    name: "ThS. Lê Trần", 
-    title: "Chuyên gia Tâm lý", 
-    rating: 4.8, 
-    reviews: 85, 
-    tags: ["Tâm lý học", "Đồng hành cảm xúc"], 
-    avatar: "/images/avatars/expert_2_new.jpg",
-    status: "busy",
-    fee: "400.000đ/giờ"
-  },
-  { 
-    id: 3, 
-    name: "Bác sĩ Ngọc Phạm", 
-    title: "Bác sĩ Trị liệu", 
-    rating: 5.0, 
-    reviews: 42, 
-    tags: ["Trị liệu ngôn ngữ", "Nhi khoa"], 
-    avatar: "/images/avatars/expert_3_new.jpg",
-    status: "available",
-    fee: "600.000đ/giờ"
-  },
-  { 
-    id: 4, 
-    name: "TS. Trần Hoàng", 
-    title: "Cố vấn Giao tiếp", 
-    rating: 4.7, 
-    reviews: 200, 
-    tags: ["Giao tiếp công sở", "Kỹ năng thuyết trình"], 
-    avatar: "/images/avatars/expert_4_new.jpg",
-    status: "available",
-    fee: "450.000đ/giờ"
-  },
-  { 
-    id: 5, 
-    name: "ThS. Phạm Mai", 
-    title: "Chuyên viên Giáo dục", 
-    rating: 4.9, 
-    reviews: 156, 
-    tags: ["Phát triển ngôn ngữ", "Can thiệp sớm"], 
-    avatar: "/images/avatars/expert_5_new.jpg",
-    status: "available",
-    fee: "350.000đ/giờ"
-  },
-  { 
-    id: 6, 
-    name: "BS. Hoàng Nam", 
-    title: "Chuyên gia Thính học", 
-    rating: 4.8, 
-    reviews: 92, 
-    tags: ["Thính lực", "Phục hồi chức năng"], 
-    avatar: "/images/avatars/expert_6_new.jpg",
-    status: "busy",
-    fee: "550.000đ/giờ"
-  },
-];
+  { id: 1, name: 'GS. Nguyễn Văn B', title: 'Chuyên gia Ngôn ngữ học', rating: 4.9, reviews: 120, tags: ['Ngôn ngữ học', 'Chỉnh âm'], avatar: '/images/avatars/expert_1_new.jpg', status: 'available', fee: '500.000đ/giờ', responseTime: 'Phản hồi trong 30 phút' },
+  { id: 2, name: 'ThS. Lê Trần', title: 'Chuyên gia Tâm lý', rating: 4.8, reviews: 85, tags: ['Tâm lý học', 'Đồng hành cảm xúc'], avatar: '/images/avatars/expert_2_new.jpg', status: 'busy', fee: '400.000đ/giờ', responseTime: 'Phản hồi trong hôm nay' },
+  { id: 3, name: 'Bác sĩ Ngọc Phạm', title: 'Bác sĩ Trị liệu', rating: 5.0, reviews: 42, tags: ['Trị liệu', 'Nhi khoa'], avatar: '/images/avatars/expert_3_new.jpg', status: 'available', fee: '600.000đ/giờ', responseTime: 'Phản hồi trong 1 giờ' },
+  { id: 4, name: 'TS. Trần Hoàng', title: 'Cố vấn Giao tiếp', rating: 4.7, reviews: 200, tags: ['Giao tiếp', 'Thuyết trình'], avatar: '/images/avatars/expert_4_new.jpg', status: 'available', fee: '450.000đ/giờ', responseTime: 'Phản hồi trong 2 giờ' },
+  { id: 5, name: 'ThS. Phạm Mai', title: 'Chuyên viên Giáo dục', rating: 4.9, reviews: 156, tags: ['Can thiệp sớm', 'Phát triển ngôn ngữ'], avatar: '/images/avatars/expert_5_new.jpg', status: 'available', fee: '350.000đ/giờ', responseTime: 'Phản hồi trong 1 giờ' },
+  { id: 6, name: 'BS. Hoàng Nam', title: 'Chuyên gia Thính học', rating: 4.8, reviews: 92, tags: ['Thính lực', 'Trị liệu'], avatar: '/images/avatars/expert_6_new.jpg', status: 'busy', fee: '550.000đ/giờ', responseTime: 'Phản hồi trong hôm nay' },
+] as const;
+
+const CATEGORIES = ['Tất cả', 'Ngôn ngữ học', 'Tâm lý học', 'Trị liệu', 'Can thiệp sớm'] as const;
 
 export function FindExpertsPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeCategory, setActiveCategory] = useState<(typeof CATEGORIES)[number]>('Tất cả');
   const [requestedId, setRequestedId] = useState<number | null>(null);
 
-  const filteredExperts = EXPERTS.filter(expert => 
-    expert.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    expert.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    expert.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredExperts = useMemo(() => {
+    const query = searchTerm.trim().toLocaleLowerCase('vi');
+    return EXPERTS.filter((expert) => {
+      const matchesQuery = !query || `${expert.name} ${expert.title} ${expert.tags.join(' ')}`
+        .toLocaleLowerCase('vi')
+        .includes(query);
+      const matchesCategory = activeCategory === 'Tất cả' || expert.tags.includes(activeCategory as never);
+      return matchesQuery && matchesCategory;
+    });
+  }, [activeCategory, searchTerm]);
 
-  const handleRequest = (id: number) => {
+  const handleRequest = (id: number, name: string) => {
     setRequestedId(id);
-    setTimeout(() => {
-      setRequestedId(null);
-      alert('Đã gửi yêu cầu kết nối! Quản trị viên sẽ liên hệ để phê duyệt.');
-    }, 1500);
+    toast.success('Đã gửi yêu cầu kết nối', `${name} sẽ nhận được yêu cầu tư vấn của bạn.`);
+    window.setTimeout(() => setRequestedId(null), 1000);
   };
 
   return (
-    <main className="flex-1 ml-nav-rail-width min-h-screen pb-12 pt-0 bg-background text-on-background">
-      <div className="max-w-[1200px] mx-auto p-12">
-        <div className="flex justify-between items-end mb-8">
-          <div>
-            <h2 className="font-display-lg text-display-lg font-bold tracking-tight mb-2">Tìm kiếm Chuyên gia</h2>
-            <p className="text-body-lg text-on-surface-variant max-w-2xl">Kết nối với các bác sĩ, nhà trị liệu và chuyên gia ngôn ngữ hàng đầu để nhận lộ trình can thiệp và hỗ trợ cá nhân hóa.</p>
-          </div>
-        </div>
+    <main className="gv-page gv-experts">
+      <div className="gv-page__inner">
+        <PageHeader
+          eyebrow="Đội ngũ đồng hành"
+          title="Tìm chuyên gia"
+          description="Kết nối với chuyên gia ngôn ngữ, nhà trị liệu và bác sĩ phù hợp với mục tiêu luyện tập của bạn."
+        />
 
-        {/* Search and Filter */}
-        <div className="flex gap-4 mb-8">
-          <div className="relative flex-1 max-w-md">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-            <input 
-              type="text" 
-              placeholder="Tìm theo tên, chuyên ngành, kỹ năng..." 
+        <section className="gv-experts__toolbar" aria-label="Tìm và lọc chuyên gia">
+          <label className="gv-experts__search">
+            <Search size={18} aria-hidden="true" />
+            <input
+              type="search"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-surface-lowest text-on-surface text-body-md pl-12 pr-4 py-3 rounded-2xl border border-outline-variant/30 focus:border-primary focus:outline-none transition-colors shadow-sm"
+              placeholder="Tìm theo tên, chuyên ngành, kỹ năng..."
+              aria-label="Tìm chuyên gia"
+              onChange={(event) => setSearchTerm(event.target.value)}
             />
-          </div>
-          <button className="flex items-center gap-2 px-6 py-3 bg-surface-lowest border border-outline-variant/30 rounded-2xl hover:bg-surface-container-low transition-colors shadow-sm font-label-md font-medium">
-             <span className="material-symbols-outlined text-[20px]">tune</span> Lọc kết quả
+          </label>
+          <button type="button" className="gv-experts__filter">
+            <SlidersHorizontal size={18} /> Bộ lọc
           </button>
-        </div>
+        </section>
 
-        {/* Categories / Tags */}
-        <div className="flex gap-3 mb-8 overflow-x-auto pb-2 hide-scrollbar">
-           <button className="px-5 py-2 bg-primary text-on-primary rounded-full font-label-md font-medium whitespace-nowrap shadow-sm">Tất cả</button>
-           <button className="px-5 py-2 bg-surface-lowest border border-outline-variant/30 text-on-surface rounded-full font-label-md font-medium hover:bg-surface-container transition-colors whitespace-nowrap">Ngôn ngữ học</button>
-           <button className="px-5 py-2 bg-surface-lowest border border-outline-variant/30 text-on-surface rounded-full font-label-md font-medium hover:bg-surface-container transition-colors whitespace-nowrap">Tâm lý học</button>
-           <button className="px-5 py-2 bg-surface-lowest border border-outline-variant/30 text-on-surface rounded-full font-label-md font-medium hover:bg-surface-container transition-colors whitespace-nowrap">Trị liệu</button>
-           <button className="px-5 py-2 bg-surface-lowest border border-outline-variant/30 text-on-surface rounded-full font-label-md font-medium hover:bg-surface-container transition-colors whitespace-nowrap">Can thiệp sớm</button>
-        </div>
-
-        {/* Experts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredExperts.map(expert => (
-            <div key={expert.id} className="bg-surface-lowest organic-curve p-6 shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-transparent hover:border-outline-variant/30 soft-bounce flex flex-col">
-               <div className="flex items-start gap-4 mb-4">
-                  <div className="w-16 h-16 rounded-full overflow-hidden shadow-sm border-2 border-surface-lowest relative flex-shrink-0">
-                     <img src={expert.avatar} alt={expert.name} className="w-full h-full object-cover" />
-                     <div className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-surface-lowest ${expert.status === 'available' ? 'bg-[#386a20]' : 'bg-[#ba1a1a]'}`}></div>
-                  </div>
-                  <div>
-                    <h3 className="font-title-lg font-bold text-on-surface leading-tight">{expert.name}</h3>
-                    <p className="text-body-sm text-primary font-medium mb-1">{expert.title}</p>
-                    <div className="flex items-center gap-1 text-sm text-on-surface-variant">
-                       <span className="material-symbols-outlined text-[16px] text-orange-500" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                       <span className="font-bold text-on-surface">{expert.rating}</span>
-                       <span>({expert.reviews} đánh giá)</span>
-                    </div>
-                  </div>
-               </div>
-
-               <div className="flex flex-wrap gap-2 mb-6">
-                 {expert.tags.map(tag => (
-                   <span key={tag} className="px-2 py-1 bg-surface-container-low text-on-surface-variant text-[11px] rounded-md font-medium">#{tag}</span>
-                 ))}
-               </div>
-
-               <div className="mt-auto flex items-center justify-between pt-4 border-t border-outline-variant/20">
-                 <div className="font-label-md text-on-surface-variant font-bold">{expert.fee}</div>
-                 <button 
-                   onClick={() => handleRequest(expert.id)}
-                   disabled={requestedId === expert.id}
-                   className={`px-6 py-2.5 rounded-full font-label-md font-bold transition-all shadow-sm flex items-center gap-2 ${requestedId === expert.id ? 'bg-surface-container-high text-on-surface-variant' : 'bg-primary text-on-primary hover:scale-[1.02]'}`}
-                 >
-                   {requestedId === expert.id ? (
-                     <>
-                        <span className="material-symbols-outlined text-[18px] animate-spin">refresh</span>
-                        Đang gửi...
-                     </>
-                   ) : (
-                     'Gửi yêu cầu'
-                   )}
-                 </button>
-               </div>
-            </div>
+        <div className="gv-experts__categories" aria-label="Lọc theo chuyên ngành">
+          {CATEGORIES.map((category) => (
+            <button
+              key={category}
+              type="button"
+              className={activeCategory === category ? 'is-active' : ''}
+              onClick={() => setActiveCategory(category)}
+            >
+              {category}
+            </button>
           ))}
         </div>
+
+        <div className="gv-experts__summary">
+          <h2>Chuyên gia phù hợp</h2>
+          <span>{filteredExperts.length} kết quả</span>
+        </div>
+
+        {filteredExperts.length > 0 ? (
+          <section className="gv-experts__grid" aria-label="Danh sách chuyên gia">
+            {filteredExperts.map((expert) => (
+              <article className="gv-experts__card" key={expert.id}>
+                <div className="gv-experts__identity">
+                  <div className="gv-experts__avatar">
+                    <img src={expert.avatar} alt={expert.name} />
+                    <span className={expert.status === 'available' ? 'is-online' : ''} aria-label={expert.status === 'available' ? 'Đang trực tuyến' : 'Đang bận'} />
+                  </div>
+                  <div>
+                    <h3>{expert.name}</h3>
+                    <p>{expert.title}</p>
+                    <span className="gv-experts__rating"><Star size={15} fill="currentColor" /> <strong>{expert.rating}</strong> ({expert.reviews} đánh giá)</span>
+                  </div>
+                </div>
+
+                <div className="gv-experts__tags">
+                  {expert.tags.map((tag) => <span key={tag}>{tag}</span>)}
+                </div>
+
+                <p className="gv-experts__response"><Clock3 size={15} /> {expert.responseTime}</p>
+
+                <footer>
+                  <div><small>Phí tư vấn</small><strong>{expert.fee}</strong></div>
+                  <button
+                    type="button"
+                    disabled={requestedId === expert.id}
+                    onClick={() => handleRequest(expert.id, expert.name)}
+                  >
+                    {requestedId === expert.id ? <><Check size={17} /> Đã gửi</> : 'Gửi yêu cầu'}
+                  </button>
+                </footer>
+              </article>
+            ))}
+          </section>
+        ) : (
+          <section className="gv-experts__empty" role="status">
+            <Search size={25} />
+            <h2>Chưa tìm thấy chuyên gia phù hợp</h2>
+            <p>Hãy thử từ khóa khác hoặc chọn lại chuyên ngành.</p>
+            <button type="button" onClick={() => { setSearchTerm(''); setActiveCategory('Tất cả'); }}>Xóa bộ lọc</button>
+          </section>
+        )}
       </div>
     </main>
   );

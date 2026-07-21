@@ -1,0 +1,208 @@
+.gv-register__card {
+  grid-template-columns: minmax(600px, 58%) minmax(360px, 42%);
+}
+
+.gv-register__form-panel {
+  padding: 48px 56px;
+}
+
+.gv-register .gv-login__brand {
+  color: var(--login-text);
+  text-decoration: none;
+}
+
+.gv-register__form-wrap {
+  width: 100%;
+  max-width: 680px;
+  margin: 48px auto 0;
+}
+
+.gv-register__heading {
+  margin-bottom: 27px;
+}
+
+.gv-register__form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.gv-register__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.gv-register__field {
+  min-width: 0;
+}
+
+.gv-register__field--wide {
+  grid-column: 1 / -1;
+}
+
+.gv-register__field > span {
+  display: block;
+  margin: 0 0 6px;
+  color: var(--login-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.gv-register__field input,
+.gv-register__field textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid #c8ccd4;
+  border-radius: 13px;
+  outline: none;
+  color: var(--login-text);
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.gv-register__field textarea {
+  min-height: 76px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  resize: vertical;
+}
+
+.gv-register__field input:focus,
+.gv-register__field textarea:focus {
+  border-color: var(--login-primary);
+  box-shadow: 0 0 0 3px rgb(51 97 141 / 14%);
+}
+
+.gv-register__form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.gv-register__form-footer p {
+  margin: 0;
+  color: var(--login-secondary);
+  font-size: 11px;
+}
+
+.gv-register__form-footer a {
+  color: var(--login-primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.gv-register__submit {
+  flex: 0 0 auto;
+  margin-top: 0;
+}
+
+.gv-register__art-panel {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  padding: 54px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 85% 12%, rgb(141 179 210 / 42%), transparent 28%),
+    linear-gradient(145deg, #211a18 0%, #1f2d32 58%, #294956 100%);
+}
+
+.gv-register__art-panel::before,
+.gv-register__art-panel::after {
+  position: absolute;
+  content: "";
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 50%;
+}
+
+.gv-register__art-panel::before { top: -120px; right: -90px; width: 390px; height: 390px; }
+.gv-register__art-panel::after { top: -52px; right: -22px; width: 250px; height: 250px; }
+
+.gv-register__art-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 410px;
+}
+
+.gv-register__art-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 24px;
+  border-radius: 50%;
+  color: #dcecf9;
+  background: rgb(255 255 255 / 11%);
+}
+
+.gv-register__art-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 12px;
+  color: #dcecf9;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.gv-register__art-copy h2 {
+  margin: 0;
+  font-size: clamp(30px, 3vw, 40px);
+  font-weight: 600;
+  line-height: 1.17;
+  letter-spacing: -.04em;
+}
+
+.gv-register__art-copy > p:not(.gv-register__art-eyebrow) {
+  margin: 16px 0 0;
+  color: rgb(255 255 255 / 68%);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.gv-register__art-copy ul {
+  display: grid;
+  gap: 12px;
+  margin: 25px 0 0;
+  padding: 22px 0 0;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+  list-style: none;
+}
+
+.gv-register__art-copy li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: rgb(255 255 255 / 80%);
+  font-size: 11px;
+}
+
+.gv-register__art-copy li svg { color: #b8d2e9; }
+
+@media (max-width: 1040px) {
+  .gv-register__card { width: min(720px, 100%); grid-template-columns: 1fr; }
+  .gv-register__art-panel { display: none; }
+}
+
+@media (max-width: 700px) {
+  .gv-register { display: block; padding: 0; background: #fff; }
+  .gv-register__card { min-height: 100dvh; border: 0; border-radius: 0; box-shadow: none; }
+  .gv-register__form-panel { min-height: 100dvh; padding: 30px 22px; }
+  .gv-register__form-wrap { margin-top: 50px; }
+}
+
+@media (max-width: 540px) {
+  .gv-register__grid { grid-template-columns: 1fr; }
+  .gv-register__field--wide { grid-column: auto; }
+  .gv-register__form-footer { align-items: stretch; flex-direction: column-reverse; }
+  .gv-register__submit { width: 100%; }
+}

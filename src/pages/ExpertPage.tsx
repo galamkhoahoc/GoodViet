@@ -2,10 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import {
   Bell,
-  Bot,
   Brain,
   ChevronLeft,
-  Cpu,
   Globe2,
   Menu,
   Mic,
@@ -13,7 +11,6 @@ import {
   Search,
   Send,
   Sparkles,
-  Wind,
   X,
   RotateCcw,
 } from 'lucide-react';
@@ -275,7 +272,7 @@ export function ExpertPage() {
             <Globe2 />
           </button>
           <button type="button" className="gv-chat-profile-button" aria-label="Mở hồ sơ">
-            <img src="/images/avatars/expert_4.png" alt="Ảnh đại diện của bạn" />
+            <span>G</span>
           </button>
         </div>
       </header>

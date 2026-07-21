@@ -1,5 +1,19 @@
 import { Link } from 'react-router-dom';
+import {
+  Bell,
+  CheckCircle,
+  ChevronDown,
+  ChevronRight,
+  CloudCheck,
+  KeyRound,
+  Languages,
+  Settings as SettingsIcon,
+  Shield,
+  Smartphone,
+  User,
+} from 'lucide-react';
 import { toast } from '../components/common/Toast';
+import { PageHeader } from '../components/layout/PageHeader';
 import { useAuthStore } from '../store/authStore';
 import { useSettingsStore } from '../store/settingsStore';
 import '../styles/profile-settings.css';
@@ -36,20 +50,19 @@ export function SettingsPage() {
   return (
     <main className="ps-page">
       <div className="ps-page__inner">
-        <header className="ps-page__header">
-          <p className="ps-page__eyebrow">
-            <span className="material-symbols-outlined" aria-hidden="true">tune</span>
-            Tùy chỉnh trải nghiệm
-          </p>
-          <h1>Cài đặt tài khoản</h1>
-          <p>Quản lý ngôn ngữ, thông báo và bảo mật trong một không gian thống nhất.</p>
-        </header>
+        <PageHeader
+          eyebrow="Tùy chỉnh trải nghiệm"
+          title="Cài đặt tài khoản"
+          description="Quản lý ngôn ngữ, thông báo và bảo mật trong một không gian thống nhất."
+        />
 
         <div className="ps-layout">
           <aside className="ps-sidebar" aria-label="Điều hướng tài khoản">
             <section className="ps-card ps-account-card">
               <div className="ps-account-card__identity">
-                <img src="/images/avatars/expert_1.png" alt="Ảnh đại diện người dùng" />
+                <div className="ps-account-avatar" role="img" aria-label="Ảnh đại diện người dùng">
+                  {user?.fullName?.trim().charAt(0).toUpperCase() || 'G'}
+                </div>
                 <div>
                   <h2>{user?.fullName || 'Nguyễn Văn A'}</h2>
                   <p>{user?.email || 'nguyen.vana@example.com'}</p>
@@ -58,20 +71,20 @@ export function SettingsPage() {
 
               <nav className="ps-account-nav" aria-label="Hồ sơ và cài đặt">
                 <Link to="/profile">
-                  <span className="material-symbols-outlined" aria-hidden="true">person</span>
+                  <User aria-hidden="true" />
                   Hồ sơ cá nhân
-                  <span className="material-symbols-outlined ps-account-nav__arrow" aria-hidden="true">chevron_right</span>
+                  <ChevronRight className="ps-account-nav__arrow" aria-hidden="true" />
                 </Link>
                 <Link className="ps-account-nav__active" to="/settings" aria-current="page">
-                  <span className="material-symbols-outlined" aria-hidden="true">settings</span>
+                  <SettingsIcon aria-hidden="true" />
                   Cài đặt tài khoản
-                  <span className="material-symbols-outlined ps-account-nav__arrow" aria-hidden="true">chevron_right</span>
+                  <ChevronRight className="ps-account-nav__arrow" aria-hidden="true" />
                 </Link>
               </nav>
             </section>
 
             <section className="ps-card ps-save-note">
-              <span className="ps-icon-circle material-symbols-outlined" aria-hidden="true">cloud_done</span>
+              <span className="ps-icon-circle"><CloudCheck aria-hidden="true" /></span>
               <div>
                 <h2>Tự động lưu</h2>
                 <p>Mọi thay đổi trên trang này được lưu ngay trên thiết bị của bạn.</p>
@@ -84,7 +97,7 @@ export function SettingsPage() {
               <section className="ps-card ps-setting-card" aria-labelledby="language-region-title">
                 <div className="ps-card__title-row ps-card__title-row--top">
                   <div className="ps-setting-card__heading">
-                    <span className="ps-icon-circle material-symbols-outlined" aria-hidden="true">language</span>
+                    <span className="ps-icon-circle"><Languages aria-hidden="true" /></span>
                     <div>
                       <p className="ps-card__kicker">Hiển thị</p>
                       <h2 id="language-region-title">Ngôn ngữ &amp; Khu vực</h2>
@@ -103,7 +116,7 @@ export function SettingsPage() {
                       <option value="vi">Tiếng Việt</option>
                       <option value="en">English</option>
                     </select>
-                    <span className="material-symbols-outlined" aria-hidden="true">expand_more</span>
+                    <ChevronDown aria-hidden="true" />
                   </div>
                 </div>
 
@@ -119,7 +132,7 @@ export function SettingsPage() {
                       <option value="Asia/Bangkok">Bangkok (GMT+7)</option>
                       <option value="UTC">Giờ phối hợp quốc tế (UTC)</option>
                     </select>
-                    <span className="material-symbols-outlined" aria-hidden="true">expand_more</span>
+                    <ChevronDown aria-hidden="true" />
                   </div>
                 </div>
               </section>
@@ -127,7 +140,7 @@ export function SettingsPage() {
               <section className="ps-card ps-setting-card" aria-labelledby="notifications-title">
                 <div className="ps-card__title-row ps-card__title-row--top">
                   <div className="ps-setting-card__heading">
-                    <span className="ps-icon-circle ps-icon-circle--tertiary material-symbols-outlined" aria-hidden="true">notifications</span>
+                    <span className="ps-icon-circle ps-icon-circle--tertiary"><Bell aria-hidden="true" /></span>
                     <div>
                       <p className="ps-card__kicker">Kết nối</p>
                       <h2 id="notifications-title">Thông báo</h2>
@@ -164,7 +177,7 @@ export function SettingsPage() {
             <section className="ps-card ps-security-card" aria-labelledby="security-title">
               <div className="ps-card__title-row ps-card__title-row--top">
                 <div className="ps-setting-card__heading">
-                  <span className="ps-icon-circle ps-icon-circle--security material-symbols-outlined" aria-hidden="true">shield</span>
+                  <span className="ps-icon-circle ps-icon-circle--security"><Shield aria-hidden="true" /></span>
                   <div>
                     <p className="ps-card__kicker">An toàn tài khoản</p>
                     <h2 id="security-title">Bảo mật</h2>
@@ -178,7 +191,7 @@ export function SettingsPage() {
 
               <div className="ps-security-list">
                 <div className="ps-security-row">
-                  <span className="material-symbols-outlined" aria-hidden="true">password</span>
+                  <span><KeyRound aria-hidden="true" /></span>
                   <div>
                     <strong>Mật khẩu</strong>
                     <small>Thay đổi lần cuối khoảng 3 tháng trước</small>
@@ -187,7 +200,7 @@ export function SettingsPage() {
                 </div>
 
                 <div className="ps-security-row">
-                  <span className="material-symbols-outlined" aria-hidden="true">phonelink_lock</span>
+                  <span><Smartphone aria-hidden="true" /></span>
                   <div>
                     <strong>Xác thực hai yếu tố</strong>
                     <small><span className="ps-online-dot" aria-hidden="true" /> Hiện đang bật</small>
@@ -198,7 +211,7 @@ export function SettingsPage() {
             </section>
 
             <div className="ps-settings-footer" role="status">
-              <span className="material-symbols-outlined" aria-hidden="true">check_circle</span>
+              <CheckCircle aria-hidden="true" />
               Các thay đổi được lưu tự động
             </div>
           </section>
