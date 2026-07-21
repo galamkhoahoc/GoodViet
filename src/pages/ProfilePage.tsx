@@ -82,7 +82,7 @@ export function ProfilePage() {
   };
 
   return (
-    <main className="ps-page">
+    <main className="ps-page ps-page--profile">
       <div className="ps-page__inner">
         <PageHeader
           eyebrow="Không gian cá nhân"

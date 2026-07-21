@@ -9,7 +9,7 @@
   box-sizing: border-box;
   overflow-x: hidden;
   color: var(--gv-path-ink);
-  background: var(--gv-path-surface);
+  background: var(--gv-page-bg-pathway);
   font-family: var(--gv-font-sans);
 }
 

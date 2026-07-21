@@ -1,3 +1,7 @@
+.gv-page.gv-experts {
+  background: var(--gv-page-bg-experts);
+}
+
 .gv-experts__toolbar {
   display: flex;
   align-items: center;

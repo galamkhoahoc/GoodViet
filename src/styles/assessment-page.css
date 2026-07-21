@@ -1,5 +1,5 @@
-.assessment-page {
-  background: var(--gv-surface);
+.gv-page.assessment-page {
+  background: var(--gv-page-bg-assessment);
 }
 
 .assessment-page__content {

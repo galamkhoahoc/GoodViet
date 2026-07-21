@@ -10,9 +10,7 @@
   margin-left: 96px;
   overflow-x: hidden;
   color: var(--gv-text);
-  background:
-    radial-gradient(circle at 88% 4%, rgb(51 97 141 / 5%), transparent 26rem),
-    var(--gv-surface);
+  background: var(--gv-page-bg-default);
   font-family: var(--gv-font-sans);
 }
 

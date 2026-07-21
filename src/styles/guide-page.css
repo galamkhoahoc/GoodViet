@@ -1,3 +1,7 @@
+.gv-page.gv-guide {
+  background: var(--gv-page-bg-guide);
+}
+
 .gv-guide__hero {
   min-height: 260px;
   display: grid;

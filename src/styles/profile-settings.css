@@ -20,10 +20,16 @@
   margin-left: 96px;
   overflow-x: hidden;
   color: var(--ps-text);
-  background:
-    radial-gradient(circle at 86% 5%, rgb(51 97 141 / 6%), transparent 24rem),
-    var(--ps-surface);
+  background: var(--gv-page-bg-default);
   font-family: var(--gv-font-sans);
+}
+
+.ps-page--profile {
+  background: var(--gv-page-bg-profile);
+}
+
+.ps-page--settings {
+  background: var(--gv-page-bg-settings);
 }
 
 .ps-page button,

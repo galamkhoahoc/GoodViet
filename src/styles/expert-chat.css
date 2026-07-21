@@ -23,7 +23,7 @@
   padding: 28px 33px 34px;
   overflow: hidden;
   color: var(--gv-chat-ink);
-  background: var(--gv-chat-surface);
+  background: var(--gv-page-bg-chat);
   display: flex;
   flex-direction: column;
 }

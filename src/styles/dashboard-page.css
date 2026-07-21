@@ -1,3 +1,7 @@
+.gv-page.gv-dashboard {
+  background: var(--gv-page-bg-dashboard);
+}
+
 .gv-dashboard__hero {
   position: relative;
   isolation: isolate;

@@ -63,7 +63,7 @@ export function SettingsPage() {
   };
 
   return (
-    <main className="ps-page">
+    <main className="ps-page ps-page--settings">
       <div className="ps-page__inner">
         <PageHeader
           eyebrow="Tùy chỉnh trải nghiệm"
