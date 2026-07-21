@@ -12,17 +12,9 @@ export class GeminiService {
     if (env.XAH_API_KEY) {
       this.apiKeys.push(env.XAH_API_KEY);
     }
-    if (env.GEMINI_API_KEY) {
-      this.apiKeys.push(env.GEMINI_API_KEY);
-    }
-    
-    const envKeys = process.env.GEMINI_API_KEYS ? process.env.GEMINI_API_KEYS.split(',').map(k => k.trim()) : [];
-    this.apiKeys.push(...envKeys);
-    
-    this.apiKeys = [...new Set(this.apiKeys.filter(k => k.length > 0))];
     
     if (this.apiKeys.length > 0) {
-      console.log(`[AI Service] Initialized with API Key index ${this.currentKeyIndex}`);
+      console.log(`[AI Service] Initialized with XAH API Key`);
     } else {
       console.warn('API Key is not set. AI Service will run in mock mode.');
     }
