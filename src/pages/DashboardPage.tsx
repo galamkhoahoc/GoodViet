@@ -3,10 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
   Bot,
-  CheckCircle2,
-  Flame,
+  CalendarClock,
   Mic2,
-  Play,
   Sparkles,
   Users,
 } from 'lucide-react';
@@ -57,39 +55,44 @@ export function DashboardPage() {
           </div>
         </section>
 
-        <section className="gv-dashboard__metrics" aria-label="Tổng quan hôm nay">
-          <article className="gv-dashboard__metric gv-dashboard__metric--primary">
-            <div className="gv-dashboard__metric-heading">
-              <span>Chuỗi ngày học</span>
-              <span className="gv-dashboard__metric-icon"><Flame size={20} /></span>
-            </div>
-            <strong>{user?.currentStreak || 0}<small> ngày</small></strong>
-            <p>Duy trì nhịp học để tiến bộ đều đặn.</p>
-          </article>
-
-          <article className="gv-dashboard__metric">
-            <div className="gv-dashboard__metric-heading">
-              <span>Mục tiêu tuần</span>
-              <span className="gv-dashboard__metric-icon gv-dashboard__metric-icon--soft"><CheckCircle2 size={20} /></span>
-            </div>
-            <div className="gv-dashboard__progress-row">
-              <div className="gv-dashboard__ring" aria-label="Hoàn thành 75 phần trăm">
-                <span>75%</span>
+        <section className="gv-dashboard__today" aria-labelledby="dashboard-today-title">
+          <article className="gv-dashboard__today-plan gv-card">
+            <div className="gv-dashboard__today-heading">
+              <div>
+                <span className="gv-chip">Khoảng 15 phút</span>
+                <h2 id="dashboard-today-title">Kế hoạch nhỏ hôm nay</h2>
+                <p>Ba việc ngắn để duy trì cảm giác nói tự nhiên.</p>
               </div>
-              <p>Còn 1 bài để hoàn thành mục tiêu tuần.</p>
+              <button className="gv-secondary-button" type="button" onClick={() => navigate('/pathway')}>
+                Vào bài luyện <ArrowRight size={16} />
+              </button>
+            </div>
+
+            <div className="gv-dashboard__routine">
+              <button type="button" onClick={() => navigate('/pathway')}>
+                <span className="gv-dashboard__routine-number">01</span>
+                <span><strong>Khởi động giọng nói</strong><small>Đọc chậm 3 câu trong bài tiếp theo</small></span>
+                <ArrowRight size={17} />
+              </button>
+              <button type="button" onClick={() => navigate('/pathway')}>
+                <span className="gv-dashboard__routine-number gv-dashboard__routine-number--tertiary">02</span>
+                <span><strong>Luyện trọng tâm</strong><small>10 phút với nhóm âm đang cải thiện</small></span>
+                <ArrowRight size={17} />
+              </button>
+              <button type="button" onClick={() => navigate('/chat')}>
+                <span className="gv-dashboard__routine-number gv-dashboard__routine-number--neutral">03</span>
+                <span><strong>Nhận một lời góp ý</strong><small>Trao đổi nhanh với Chị Gà sau khi luyện</small></span>
+                <ArrowRight size={17} />
+              </button>
             </div>
           </article>
 
-          <article className="gv-dashboard__metric">
-            <div className="gv-dashboard__metric-heading">
-              <span>Thời gian luyện tập</span>
-              <span className="gv-dashboard__metric-icon gv-dashboard__metric-icon--tertiary"><Mic2 size={20} /></span>
-            </div>
-            <strong className="gv-dashboard__metric-value">{Math.max(12, Math.round((user?.totalPracticeTime || 0) / 60))}<small> phút</small></strong>
-            <div className="gv-dashboard__bars" aria-hidden="true">
-              {[38, 58, 46, 82, 67, 42, 54].map((height, index) => <i key={index} style={{ height: `${height}%` }} />)}
-            </div>
-          </article>
+          <aside className="gv-dashboard__reminder">
+            <span className="gv-dashboard__reminder-icon"><CalendarClock size={24} /></span>
+            <p>Nhắc bạn</p>
+            <h2>Một khung giờ cố định giúp việc luyện tập dễ duy trì hơn.</h2>
+            <button type="button" onClick={() => navigate('/settings')}>Thiết lập nhắc lịch <ArrowRight size={15} /></button>
+          </aside>
         </section>
 
         <section className="gv-dashboard__section" aria-labelledby="dashboard-spaces-title">
@@ -98,7 +101,6 @@ export function DashboardPage() {
               <h2 id="dashboard-spaces-title">Không gian luyện tập</h2>
               <p>Chọn hoạt động phù hợp với mục tiêu của bạn.</p>
             </div>
-            <button type="button" onClick={() => navigate('/pathway')}>Xem lộ trình <ArrowRight size={16} /></button>
           </div>
 
           <div className="gv-dashboard__activity-grid">
@@ -110,16 +112,9 @@ export function DashboardPage() {
               <span className="gv-dashboard__activity-link">Bắt đầu đánh giá <ArrowRight size={15} /></span>
             </button>
 
-            <button className="gv-dashboard__activity gv-dashboard__activity--pathway" type="button" onClick={() => navigate('/pathway')}>
-              <span className="gv-dashboard__activity-icon"><Play size={23} /></span>
-              <span className="gv-chip">Luyện tập</span>
-              <strong>Lộ trình cá nhân hóa</strong>
-              <small>Bài học ngắn, phản hồi tức thì và mục tiêu rõ ràng cho từng tuần.</small>
-              <span className="gv-dashboard__activity-link">Tiếp tục bài học <ArrowRight size={15} /></span>
-            </button>
-
             <button className="gv-dashboard__activity gv-dashboard__activity--compact" type="button" onClick={() => navigate('/chat')}>
               <span className="gv-dashboard__activity-icon gv-dashboard__activity-icon--tertiary"><Bot size={22} /></span>
+              <span className="gv-chip">Trợ lý AI</span>
               <strong>Trò chuyện cùng Chị Gà</strong>
               <small>Hỏi đáp, lên kế hoạch và nhận lời động viên bất cứ lúc nào.</small>
               <span className="gv-dashboard__activity-link">Nhắn tin ngay <ArrowRight size={15} /></span>
@@ -127,6 +122,7 @@ export function DashboardPage() {
 
             <button className="gv-dashboard__activity gv-dashboard__activity--compact" type="button" onClick={() => navigate('/experts')}>
               <span className="gv-dashboard__activity-icon gv-dashboard__activity-icon--neutral"><Users size={22} /></span>
+              <span className="gv-chip">Tư vấn 1:1</span>
               <strong>Kết nối chuyên gia</strong>
               <small>Tìm người đồng hành phù hợp và gửi yêu cầu tư vấn 1:1.</small>
               <span className="gv-dashboard__activity-link">Tìm chuyên gia <ArrowRight size={15} /></span>
