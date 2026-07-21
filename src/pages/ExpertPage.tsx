@@ -39,7 +39,7 @@ type Contact = {
 const CONTACTS: Contact[] = [
   {
     id: 'bot',
-    name: 'GoodBot (Trợ lý AI)',
+    name: 'Chị Gà (Trợ lý AI)',
     preview: 'Mình có một vài bài tập thư giãn...',
     time: '10:30',
     role: 'Trợ lý sức khỏe tinh thần',
@@ -106,8 +106,8 @@ const BOT_SUGGESTIONS = [
 
 function BotAvatar({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   return (
-    <span className={`gv-chat-bot-avatar gv-chat-bot-avatar--${size}`} aria-hidden="true">
-      <Bot />
+    <span className={`gv-chat-contact-avatar gv-chat-contact-avatar--${size}`} aria-hidden="true">
+      <img src="/images/avatars/chiga.jpg" alt="Chị Gà" />
     </span>
   );
 }
@@ -364,7 +364,7 @@ export function ExpertPage() {
                     <div className="gv-chat-message-row gv-chat-message-row--incoming">
                       <BotAvatar />
                       <div className="gv-chat-bubble gv-chat-bubble--incoming gv-chat-bubble--welcome">
-                        <p>Chào bạn! Mình là GoodBot. Hôm nay bạn cảm thấy thế nào? Mình ở đây để lắng nghe và hỗ trợ bạn.</p>
+                        <p>Chào bạn! Mình là Chị Gà. Hôm nay bạn cảm thấy thế nào? Mình ở đây để lắng nghe và hỗ trợ bạn.</p>
                         <div className="gv-chat-mood-actions">
                           <button type="button" onClick={() => setInputValue('Hôm nay tôi cảm thấy rất tuyệt vời')}>
                             <Sparkles aria-hidden="true" />
@@ -416,7 +416,7 @@ export function ExpertPage() {
                 {botIsTyping && (
                   <div className="gv-chat-message-row gv-chat-message-row--incoming">
                     <BotAvatar />
-                    <div className="gv-chat-typing" aria-label="GoodBot đang nhập">
+                    <div className="gv-chat-typing" aria-label="Chị Gà đang nhập">
                       <span />
                       <span />
                       <span />
@@ -463,7 +463,7 @@ export function ExpertPage() {
                 value={inputValue}
                 onChange={(event) => setInputValue(event.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder={activeContact === 'bot' ? 'Nhắn tin cho GoodBot...' : `Nhắn tin cho ${activeContactMeta.name}...`}
+                placeholder={activeContact === 'bot' ? 'Nhắn tin cho Chị Gà...' : `Nhắn tin cho ${activeContactMeta.name}...`}
                 aria-label="Nội dung tin nhắn"
               />
               <button

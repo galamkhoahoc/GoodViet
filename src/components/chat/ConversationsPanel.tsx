@@ -70,14 +70,14 @@ export function ConversationsPanel() {
               <div className="w-12 h-12 rounded-full bg-[#BDF59B] shrink-0 flex items-center justify-center overflow-hidden">
                 <img 
                   className="w-full h-full object-cover" 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgQLzkmVyq3xF3VWcGrPE-e86rF0g6L0PxeTZzShIo4cZPEBoQ8n6CjGMah-4pDglRtytU-HDhmgWXAHXMH1rT-qgTOdo8zgTigk-AOAjOk6Gc6A6KxR_mabNhjGsH6yLM2EKZ-qwM9EtGzHQ2c_gPI3Y2FLSScUZv1RxNoNTG52uW0pudHwfbXFTPysy9wUk7huYnwuT-62-X3yzpGTYaW1ydQYxDf737mlCxqCmBgCAcFpgi3FkFTsQVCViBhQDBnf4NQBrwf9s" 
-                  alt="GoodBot Avatar" 
+                  src="/images/avatars/chiga.jpg" 
+                  alt="Chị Gà Avatar" 
                 />
               </div>
               
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-baseline">
-                  <h3 className="text-[16px] font-bold truncate">GoodBot (Trợ lý AI)</h3>
+                  <h3 className="text-[16px] font-bold truncate">Chị Gà (Trợ lý AI)</h3>
                   <span className="text-[12px] font-medium opacity-70">
                     {formatTime(session.lastMessageAt)}
                   </span>

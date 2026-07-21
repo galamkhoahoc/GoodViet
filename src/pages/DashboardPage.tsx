@@ -121,7 +121,7 @@ export function DashboardPage() {
               <span className="gv-home__mini-icon"><Bot size={22} /></span>
               <div>
                 <h3>Trò chuyện cùng AI</h3>
-                <p>Trợ lý GoodBot luôn sẵn sàng hỗ trợ, động viên và giải đáp thắc mắc.</p>
+                <p>Trợ lý Chị Gà luôn sẵn sàng hỗ trợ, động viên và giải đáp thắc mắc.</p>
                 <span className="gv-home__text-link">Trò chuyện <ArrowRight size={14} /></span>
               </div>
             </button>

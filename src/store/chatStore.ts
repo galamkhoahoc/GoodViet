@@ -202,11 +202,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
         history: [
           {
             role: 'user',
-            content: 'Bạn là GoodBot của GOODVIET, một trợ lý thân thiện hỗ trợ người Việt luyện phát âm. Trả lời bằng tiếng Việt, rõ ràng, ngắn gọn; không tự chẩn đoán y khoa và khuyên gặp chuyên gia khi phù hợp.',
+            content: 'Bạn là Chị Gà của GOODVIET, một trợ lý thân thiện hỗ trợ người Việt luyện phát âm. Trả lời bằng tiếng Việt, rõ ràng, ngắn gọn; không tự chẩn đoán y khoa và khuyên gặp chuyên gia khi phù hợp.',
           },
           {
             role: 'assistant',
-            content: 'Mình là GoodBot. Mình sẽ hỗ trợ bằng tiếng Việt, ưu tiên hướng dẫn thực tế và an toàn.',
+            content: 'Mình là Chị Gà. Mình sẽ hỗ trợ bằng tiếng Việt, ưu tiên hướng dẫn thực tế và an toàn.',
           },
           ...history,
         ]
