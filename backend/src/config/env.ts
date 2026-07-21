@@ -36,6 +36,7 @@ const envSchema = z.object({
   
   // Optional - Gemini API (will be used later)
   GEMINI_API_KEY: z.string().optional(),
+  XAH_API_KEY: z.string().optional(),
   
   // Email Configuration
   SMTP_HOST: z.string().optional(),

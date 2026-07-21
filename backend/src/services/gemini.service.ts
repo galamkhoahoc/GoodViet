@@ -1,18 +1,17 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { env } from '../config/env';
 
 /**
- * Service to handle interactions with Google Gemini API
+ * Service to handle interactions with XAH AI API (replacing Gemini)
  */
 export class GeminiService {
-  private genAI: GoogleGenerativeAI | null = null;
-  private model: any = null;
-  private audioModel: any = null;
-  
   private apiKeys: string[] = [];
   private currentKeyIndex = 0;
+  private endpoint = 'https://api.xah.io/v1beta/models/phatchau036/gemma4-31b:generateContent';
 
   constructor() {
+    if (env.XAH_API_KEY) {
+      this.apiKeys.push(env.XAH_API_KEY);
+    }
     if (env.GEMINI_API_KEY) {
       this.apiKeys.push(env.GEMINI_API_KEY);
     }
@@ -22,32 +21,17 @@ export class GeminiService {
     
     this.apiKeys = [...new Set(this.apiKeys.filter(k => k.length > 0))];
     
-    this.initModel();
-  }
-
-  private initModel() {
     if (this.apiKeys.length > 0) {
-      const currentKey = this.apiKeys[this.currentKeyIndex];
-      this.genAI = new GoogleGenerativeAI(currentKey);
-      this.model = this.genAI.getGenerativeModel({ 
-        model: "gemini-flash-latest",
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 500,
-        }
-      });
-      this.audioModel = this.genAI.getGenerativeModel({ model: "gemini-flash-latest" });
-      console.log(`[Gemini] Initialized with API Key index ${this.currentKeyIndex}`);
+      console.log(`[AI Service] Initialized with API Key index ${this.currentKeyIndex}`);
     } else {
-      console.warn('GEMINI_API_KEY is not set. Gemini Service will run in mock mode.');
+      console.warn('API Key is not set. AI Service will run in mock mode.');
     }
   }
 
   private rotateKey(): boolean {
     if (this.apiKeys.length <= 1) return false;
     this.currentKeyIndex = (this.currentKeyIndex + 1) % this.apiKeys.length;
-    console.log(`[Gemini] Rotating API Key to index ${this.currentKeyIndex}`);
-    this.initModel();
+    console.log(`[AI Service] Rotating API Key to index ${this.currentKeyIndex}`);
     return true;
   }
 
@@ -64,40 +48,76 @@ export class GeminiService {
     let attempts = 0;
 
     while (attempts < maxRetries) {
-      if (!this.model) {
-        console.log('[Gemini] Model not initialized, using mock response');
+      if (this.apiKeys.length === 0) {
+        console.log('[AI Service] API Key not set, using mock response');
         return this.generateMockResponse(message);
       }
 
       try {
-        console.log('[Gemini] Generating response for message:', message);
+        console.log('[AI Service] Generating response for message:', message);
         
-        const systemPrompt = {
-          parts: [{ 
-            text: `Bạn là trợ lý hỗ trợ người dùng cải thiện giọng nói tiếng Việt trên nền tảng GOODVIET. Hãy động viên, kiên nhẫn và chuyên nghiệp. Luôn trả lời bằng tiếng Việt, ngắn gọn và thân thiện. Không đưa ra chẩn đoán y khoa.`
-          }]
-        };
+        const systemPrompt = `[System Instruction: Bạn là trợ lý hỗ trợ người dùng cải thiện giọng nói tiếng Việt trên nền tảng GOODVIET. Hãy động viên, kiên nhẫn và chuyên nghiệp. Luôn trả lời bằng tiếng Việt, ngắn gọn và thân thiện. Không đưa ra chẩn đoán y khoa.]`;
 
         const formattedHistory = history.map(msg => ({
           role: msg.role === 'assistant' ? 'model' : 'user',
           parts: [{ text: msg.content }],
         }));
+        
+        // Inject system prompt into the first message or create a leading message
+        const contents = [];
+        if (formattedHistory.length === 0) {
+          contents.push({
+            role: 'user',
+            parts: [{ text: `${systemPrompt}\n\n${message}` }]
+          });
+        } else {
+          // If there is history, prepend the system prompt to the first user message
+          const firstMsg = formattedHistory[0];
+          if (firstMsg.role === 'user') {
+            firstMsg.parts[0].text = `${systemPrompt}\n\n${firstMsg.parts[0].text}`;
+          } else {
+            formattedHistory.unshift({
+              role: 'user',
+              parts: [{ text: systemPrompt }]
+            });
+          }
+          contents.push(...formattedHistory);
+          contents.push({
+            role: 'user',
+            parts: [{ text: message }]
+          });
+        }
 
-        const chat = this.model.startChat({
-          history: formattedHistory,
-          systemInstruction: systemPrompt,
+        const currentKey = this.apiKeys[this.currentKeyIndex];
+        const res = await fetch(this.endpoint, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ contents })
         });
 
-        const result = await chat.sendMessage(message);
-        const response = await result.response;
-        return response.text();
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`API error ${res.status}: ${text}`);
+        }
+
+        const data = await res.json();
+        const textResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        if (!textResponse) {
+          throw new Error(`Invalid response format: ${JSON.stringify(data)}`);
+        }
+        
+        return textResponse;
       } catch (error: any) {
         attempts++;
         const errorMsg = error.message || String(error);
-        console.error(`[Gemini] API Error (attempt ${attempts}/${maxRetries}):`, errorMsg);
+        console.error(`[AI Service] API Error (attempt ${attempts}/${maxRetries}):`, errorMsg);
         
         if (this.shouldRotateKey(errorMsg) && attempts < maxRetries) {
-          console.warn('[Gemini] Key exhausted/rate-limited. Attempting rotation...');
+          console.warn('[AI Service] Key exhausted/rate-limited. Attempting rotation...');
           this.rotateKey();
           continue;
         }
@@ -117,14 +137,14 @@ export class GeminiService {
   }
 
   /**
-   * Analyze audio pronunciation using Gemini 1.5 Flash
+   * Analyze audio pronunciation
    */
   async analyzePronunciation(audioBuffer: Buffer, mimeType: string, expectedText: string): Promise<any> {
     const maxRetries = Math.max(1, this.apiKeys.length);
     let attempts = 0;
 
     while (attempts < maxRetries) {
-      if (!this.audioModel) {
+      if (this.apiKeys.length === 0) {
         return this.mockAnalysis(expectedText);
       }
 
@@ -142,13 +162,39 @@ Chỉ trả về JSON hợp lệ (không kèm markdown \`\`\` hay văn bản kh�
   ]
 }`;
 
-        const result = await this.audioModel.generateContent([
-          { inlineData: { data: audioBuffer.toString("base64"), mimeType } },
-          { text: prompt }
-        ]);
+        const contents = [
+          {
+            role: "user",
+            parts: [
+              { inlineData: { data: audioBuffer.toString("base64"), mimeType } },
+              { text: prompt }
+            ]
+          }
+        ];
+
+        const currentKey = this.apiKeys[this.currentKeyIndex];
+        const res = await fetch(this.endpoint, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ contents })
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`API error ${res.status}: ${text}`);
+        }
         
-        let text = await result.response.text();
-        text = text.trim();
+        const data = await res.json();
+        let textResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        if (!textResponse) {
+          throw new Error(`Invalid response format: ${JSON.stringify(data)}`);
+        }
+
+        let text = textResponse.trim();
         if (text.startsWith('```json')) text = text.substring(7);
         if (text.startsWith('```')) text = text.substring(3);
         if (text.endsWith('```')) text = text.substring(0, text.length - 3);
@@ -157,10 +203,10 @@ Chỉ trả về JSON hợp lệ (không kèm markdown \`\`\` hay văn bản kh�
       } catch (error: any) {
         attempts++;
         const errorMsg = error.message || String(error);
-        console.error(`[Gemini Audio Analysis] API Error (attempt ${attempts}/${maxRetries}):`, errorMsg);
+        console.error(`[AI Service Audio Analysis] API Error (attempt ${attempts}/${maxRetries}):`, errorMsg);
         
         if (this.shouldRotateKey(errorMsg) && attempts < maxRetries) {
-          console.warn('[Gemini Audio Analysis] Key exhausted/rate-limited. Attempting rotation...');
+          console.warn('[AI Service Audio Analysis] Key exhausted/rate-limited. Attempting rotation...');
           this.rotateKey();
           continue;
         }
