@@ -139,10 +139,21 @@ async function transcribe(request: EraxWorkerRequest) {
       task: 'transcribe',
       return_timestamps: false,
       chunk_length_s: 30,
+      condition_on_prev_tokens: false,
+      temperature: 0,
     });
     const output = Array.isArray(raw) ? raw[0] : raw;
+    
+    let text = (output?.text || '').trim();
+    // EraX model frequently hallucinates call center transcripts on silence/noise
+    if (/^(Hội thoại tiếp theo của AGENT|AGENT:|Khách hàng:)/i.test(text)) {
+      text = ''; // Reject complete hallucination
+    } else {
+      text = text.replace(/^(Dạ,)\s*/i, '').trim();
+    }
+
     const result: EraxTranscriptResult = {
-      text: (output?.text || '').trim(),
+      text,
       language: output?.language || 'vi',
       languageProbability: output?.language_probability,
       processingTimeMs: performance.now() - startedAt,
