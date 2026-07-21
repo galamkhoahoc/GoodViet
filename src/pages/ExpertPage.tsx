@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  ArrowRight,
   Bell,
   Brain,
   ChevronLeft,
@@ -158,6 +159,7 @@ export function ExpertPage() {
             onClick={() => navigate(href)}
           >
             {children}
+            <ArrowRight size={14} strokeWidth={2.2} aria-hidden="true" />
           </button>
         );
       }
