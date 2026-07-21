@@ -310,7 +310,7 @@ function LocalUploadAssessment() {
       <div className="assessment-upload-local__heading">
         <span><span className="material-symbols-outlined">shield_lock</span> 100% trên thiết bị</span>
         <h2>Kiểm tra một bản ghi có sẵn</h2>
-        <p>Chọn audio và nhập câu mẫu. Voice AI chuyển giọng nói thành chữ, LingWav2Vec2 nhận dạng âm vị, sau đó Trợ lý AI tạo điểm và nhận xét.</p>
+        <p>Chọn bản ghi và nhập câu mẫu. GOODVIET sẽ đối chiếu nội dung, đánh giá độ rõ và đưa ra gợi ý cải thiện.</p>
       </div>
       <label>
         <span>Câu mẫu</span>
@@ -333,7 +333,7 @@ function LocalUploadAssessment() {
         onClick={() => file && void evaluation.analyze(file, targetText.trim()).catch(() => undefined)}
       >
         <span className="material-symbols-outlined">neurology</span>
-        Phân tích cục bộ
+        Phân tích bản ghi
       </button>
       <SentenceEvaluationPanel
         stage={evaluation.stage}

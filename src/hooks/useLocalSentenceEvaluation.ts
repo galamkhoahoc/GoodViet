@@ -60,7 +60,8 @@ export function useLocalSentenceEvaluation() {
       setStage('complete');
       return completed;
     } catch (caught) {
-      const message = caught instanceof Error ? caught.message : 'Không thể chấm điểm bản ghi trên thiết bị.';
+      console.error('Sentence evaluation failed', caught);
+      const message = 'Chưa thể phân tích bản ghi. Vui lòng kiểm tra tệp âm thanh và thử lại.';
       setError(message);
       setStage('error');
       throw caught;
@@ -82,12 +83,12 @@ export function useLocalSentenceEvaluation() {
       ? 0.95
       : stage === 'complete' ? 1 : 0;
   const detail = stage === 'speech'
-    ? `${speechModel.detail} LingWav2Vec2: ${ling.status}.`
+    ? 'Đang nghe và đối chiếu bản thu với câu mẫu...'
     : stage === 'feedback'
-      ? 'Đang nhận phản hồi từ máy chủ AI...'
+      ? 'Đang tổng hợp điểm và gợi ý cải thiện...'
       : stage === 'complete'
-        ? 'Đã phân tích hoàn tất'
-        : error || 'Sẵn sàng phân tích';
+        ? 'Đã hoàn tất đánh giá.'
+        : error || 'Sẵn sàng đánh giá.';
 
   return {
     stage,

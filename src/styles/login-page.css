@@ -21,7 +21,7 @@
   background:
     radial-gradient(circle at 82% 20%, rgb(51 97 141 / 7%), transparent 32%),
     var(--login-surface);
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: var(--gv-font-sans);
 }
 
 .gv-login__card {

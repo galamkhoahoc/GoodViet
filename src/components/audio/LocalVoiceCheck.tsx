@@ -68,26 +68,26 @@ function getConfidenceClass(value: number | undefined) {
   return ' is-low';
 }
 
-function getModelStatusCopy(status: LocalVoiceModelStatus, isCached: boolean) {
+function getAnalysisStatusCopy(status: LocalVoiceModelStatus, isCached: boolean) {
   switch (status) {
     case 'checking':
-      return { title: 'Đang kiểm tra bộ nhớ trình duyệt', detail: 'GOODVIET đang tìm model đã tải trước đó.' };
+      return { title: 'Đang chuẩn bị', detail: 'GOODVIET đang kiểm tra dữ liệu cần thiết cho lần phân tích này.' };
     case 'downloading':
-      return { title: 'Đang tải model lần đầu', detail: 'Giữ trang này mở. Model sẽ được lưu lại cho các lần sau.' };
+      return { title: 'Đang chuẩn bị bộ phân tích', detail: 'Giữ trang này mở trong ít phút. Những lần sau sẽ nhanh hơn.' };
     case 'loading':
-      return { title: 'Đang khởi tạo model', detail: 'Chuẩn bị bộ xử lý giọng nói ngay trên thiết bị của bạn.' };
+      return { title: 'Sắp sẵn sàng', detail: 'GOODVIET đang chuẩn bị kiểm tra bản ghi trên thiết bị của bạn.' };
     case 'ready':
-      return { title: isCached ? 'Model đã sẵn sàng từ bộ nhớ' : 'Model đã sẵn sàng', detail: 'Bạn có thể phân tích mà không gửi tệp âm thanh lên máy chủ.' };
+      return { title: isCached ? 'Sẵn sàng kiểm tra' : 'Đã sẵn sàng', detail: 'Bạn có thể bắt đầu phân tích bản ghi.' };
     case 'running':
-      return { title: 'Đang phân tích giọng nói', detail: 'Thời gian xử lý phụ thuộc cấu hình thiết bị và độ dài tệp.' };
+      return { title: 'Đang phân tích bản ghi', detail: 'Thời gian xử lý phụ thuộc vào độ dài tệp.' };
     case 'complete':
-      return { title: 'Phân tích hoàn tất', detail: 'Kết quả được tạo cục bộ trên thiết bị này.' };
+      return { title: 'Đã hoàn tất', detail: 'Kết quả của bạn đã sẵn sàng.' };
     case 'missing-artifacts':
-      return { title: 'Thiếu phiên bản model dành cho trình duyệt', detail: 'Cần bổ sung model ONNX và bảng nhãn âm vị trước khi có thể phân tích.' };
+      return { title: 'Chưa thể chuẩn bị tính năng', detail: 'Một số dữ liệu cần thiết chưa sẵn sàng. Vui lòng thử lại sau.' };
     case 'error':
-      return { title: 'Không thể khởi tạo model', detail: 'Hãy kiểm tra kết nối, dung lượng lưu trữ rồi thử lại.' };
+      return { title: 'Chưa thể bắt đầu', detail: 'Hãy kiểm tra kết nối, dung lượng lưu trữ rồi thử lại.' };
     default:
-      return { title: 'Model sẽ được tải khi bạn bắt đầu', detail: 'Lần tải đầu có thể mất vài phút; những lần sau sẽ dùng bản đã lưu.' };
+      return { title: 'Sẵn sàng khi bạn bắt đầu', detail: 'Lần chuẩn bị đầu tiên có thể mất vài phút; những lần sau sẽ nhanh hơn.' };
   }
 }
 
@@ -115,7 +115,7 @@ export function LocalVoiceCheck({
   const progressPercent = Math.round(normalizedProgress * 100);
   const isBusy = BUSY_STATUSES.has(status);
   const canAnalyze = Boolean(selectedFile && onAnalyze && !isBusy && status !== 'missing-artifacts' && status !== 'error');
-  const statusCopy = getModelStatusCopy(status, isCached);
+  const statusCopy = getAnalysisStatusCopy(status, isCached);
   const resultConfidence = formatConfidence(result?.confidence);
 
   useEffect(() => {
@@ -188,7 +188,7 @@ export function LocalVoiceCheck({
         </div>
         <h2 id={`${inputId}-title`}>Tải bản ghi và kiểm tra phát âm</h2>
         <p>
-          Âm thanh không rời khỏi máy của bạn. Model AI chỉ được tải một lần và được lưu trong bộ nhớ trình duyệt.
+          Bản ghi được xử lý an toàn trên thiết bị và chỉ dùng để tạo kết quả cho lần kiểm tra này.
         </p>
       </div>
 
@@ -264,9 +264,9 @@ export function LocalVoiceCheck({
             {status === 'running' ? (
               <><span className="local-voice-check__spinner" aria-hidden="true" /> Đang phân tích...</>
             ) : status === 'downloading' || status === 'loading' || status === 'checking' ? (
-              <><Download size={19} aria-hidden="true" /> Đang chuẩn bị model...</>
+              <><Download size={19} aria-hidden="true" /> Đang chuẩn bị...</>
             ) : (
-              <><Cpu size={19} aria-hidden="true" /> {status === 'ready' || status === 'complete' ? 'Phân tích trên thiết bị' : 'Tải model và phân tích'}</>
+              <><Cpu size={19} aria-hidden="true" /> {status === 'ready' || status === 'complete' ? 'Phân tích bản ghi' : 'Bắt đầu phân tích'}</>
             )}
           </button>
         </div>
@@ -287,7 +287,7 @@ export function LocalVoiceCheck({
           {(status === 'checking' || status === 'downloading' || status === 'loading' || status === 'running') && (
             <div className="local-model-status__progress">
               <div className="local-model-status__progress-label">
-                <span>{status === 'running' ? 'Tiến độ xử lý' : status === 'loading' ? 'Đang mở model đã lưu' : 'Tiến độ tải model'}</span>
+                <span>{status === 'running' ? 'Tiến độ xử lý' : 'Tiến độ chuẩn bị'}</span>
                 <strong>{progressPercent}%</strong>
               </div>
               <div className="local-model-status__track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progressPercent}>
@@ -298,7 +298,7 @@ export function LocalVoiceCheck({
 
           {(error || status === 'missing-artifacts') && (
             <div className="local-model-status__error" role="alert">
-              {error || 'Không tìm thấy tệp ONNX tương thích. Trọng số PyTorch không thể chạy trực tiếp trong trình duyệt.'}
+              Chưa thể phân tích bản ghi. Vui lòng kiểm tra kết nối, dung lượng thiết bị rồi thử lại.
             </div>
           )}
 
@@ -309,8 +309,8 @@ export function LocalVoiceCheck({
           )}
 
           <div className="local-model-status__facts">
-            <span><ShieldCheck size={15} aria-hidden="true" /> Xử lý cục bộ</span>
-            <span><Download size={15} aria-hidden="true" /> {isCached ? 'Đã lưu model' : 'Tải một lần'}</span>
+            <span><ShieldCheck size={15} aria-hidden="true" /> Bản ghi được bảo vệ</span>
+            <span><Download size={15} aria-hidden="true" /> {isCached ? 'Sẵn sàng dùng lại' : 'Chuẩn bị một lần'}</span>
           </div>
         </div>
       </div>
@@ -319,24 +319,24 @@ export function LocalVoiceCheck({
         <div className="local-voice-result" aria-live="polite">
           <div className="local-voice-result__header">
             <div>
-              <span className="local-voice-result__kicker"><CheckCircle2 size={16} aria-hidden="true" /> Kết quả cục bộ</span>
-              <h3>Âm vị nhận diện được</h3>
+              <span className="local-voice-result__kicker"><CheckCircle2 size={16} aria-hidden="true" /> Đã phân tích xong</span>
+              <h3>Kết quả phân tích bản ghi</h3>
             </div>
             {resultConfidence && (
               <div className="local-voice-result__score">
-                <span>Độ tin cậy</span>
+                <span>Độ rõ tín hiệu</span>
                 <strong>{resultConfidence}</strong>
               </div>
             )}
           </div>
 
           {result.phonemes.length > 0 ? (
-            <div className="local-voice-result__phonemes" aria-label="Chuỗi âm vị nhận diện">
+            <div className="local-voice-result__phonemes" aria-label="Các âm nhận diện rõ">
               {result.phonemes.map((phoneme, index) => (
                 <span
                   key={`${phoneme.token}-${phoneme.startTime ?? index}-${index}`}
                   className={`local-voice-result__phoneme${getConfidenceClass(phoneme.confidence)}`}
-                  title={phoneme.confidence === undefined ? phoneme.token : `${phoneme.token}: ${formatConfidence(phoneme.confidence)} tin cậy`}
+                  title={phoneme.confidence === undefined ? phoneme.token : `${phoneme.token}: rõ ${formatConfidence(phoneme.confidence)}`}
                 >
                   {phoneme.token}
                   {phoneme.confidence !== undefined && <small>{formatConfidence(phoneme.confidence)}</small>}
@@ -344,15 +344,11 @@ export function LocalVoiceCheck({
               ))}
             </div>
           ) : (
-            <p className="local-voice-result__empty">Không nhận diện được âm vị rõ ràng trong bản ghi này.</p>
+            <p className="local-voice-result__empty">Chưa nhận diện được nội dung rõ ràng trong bản ghi này.</p>
           )}
 
-          <div className="local-voice-result__meta">
-            {result.backend && <span>Bộ xử lý: {result.backend === 'webgpu' ? 'WebGPU' : 'WebAssembly'}</span>}
-            {result.processingTimeMs !== undefined && <span>Thời gian: {(result.processingTimeMs / 1000).toFixed(1)} giây</span>}
-          </div>
           <p className="local-voice-result__disclaimer">
-            Độ tin cậy trên là độ tin cậy nhận dạng âm vị, chưa phải điểm phát âm đúng/sai theo một câu mẫu.
+            Kết quả này mang tính tham khảo và giúp bạn chọn nội dung luyện tập phù hợp.
           </p>
         </div>
       )}

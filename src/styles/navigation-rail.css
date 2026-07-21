@@ -49,7 +49,7 @@
     transition: 
         width var(--md-motion-duration-long) var(--md-motion-easing-expressive-soft),
         border-radius var(--md-motion-duration-medium) var(--md-motion-easing-emphasized);
-    font-family: "Google Sans Flex", sans-serif;
+    font-family: var(--gv-font-sans);
 }
 
 .navigation-rail.expanded {

@@ -516,7 +516,7 @@
   border-radius: 8px;
   overflow-x: auto;
   margin: 8px 0;
-  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  font-family: var(--gv-font-mono);
   font-size: 13px;
   border: 1px solid #d5d8df;
   color: #1a1b1f;
@@ -525,7 +525,7 @@
   background: #f0f3fa;
   padding: 2px 4px;
   border-radius: 4px;
-  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  font-family: var(--gv-font-mono);
   font-size: 13px;
   color: #1a1b1f;
   white-space: pre-wrap;

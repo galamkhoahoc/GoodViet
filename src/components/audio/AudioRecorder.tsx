@@ -112,7 +112,7 @@ export function AudioRecorder({
 
         {/* Timer */}
         <div style={{
-          fontFamily: 'monospace',
+          fontFamily: 'var(--gv-font-mono)',
           fontSize: compact ? 'var(--md-sys-typescale-title-small-size)' : 'var(--md-sys-typescale-title-medium-size)',
           fontWeight: 700,
           color: isRecording ? 'var(--md-sys-color-error, var(--md-sys-color-error))' : 'var(--md-sys-color-on-surface)',

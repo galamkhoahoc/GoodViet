@@ -505,7 +505,7 @@
   border-radius: 10px;
   background: #fff;
   color: var(--gv-text);
-  font-family: 'Google Sans Code', ui-monospace, monospace;
+  font-family: var(--gv-font-mono);
   font-size: 14px;
   font-weight: 650;
   line-height: 20px;

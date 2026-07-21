@@ -1,7 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
 @import "./styles/md3-tokens.css";
 @import "tailwindcss";
+
+:root {
+    --gv-font-sans: "Google Sans Flex", "Google Sans", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --gv-font-mono: "Google Sans Code", "Roboto Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+}
 
 @theme {
     --color-primary: #33618d;
@@ -66,17 +70,17 @@
     --spacing-nav-rail-width: 96px;
     --spacing-gutter: 1.5rem;
 
-    --font-sans: "Plus Jakarta Sans", sans-serif;
-    --font-body-lg: "Plus Jakarta Sans", sans-serif;
-    --font-label-md: "Plus Jakarta Sans", sans-serif;
-    --font-title-lg: "Plus Jakarta Sans", sans-serif;
-    --font-label-lg: "Plus Jakarta Sans", sans-serif;
-    --font-headline-md-mobile: "Plus Jakarta Sans", sans-serif;
-    --font-title-md: "Plus Jakarta Sans", sans-serif;
-    --font-headline-lg: "Plus Jakarta Sans", sans-serif;
-    --font-headline-md: "Plus Jakarta Sans", sans-serif;
-    --font-body-md: "Plus Jakarta Sans", sans-serif;
-    --font-display-lg: "Plus Jakarta Sans", sans-serif;
+    --font-sans: var(--gv-font-sans);
+    --font-body-lg: var(--gv-font-sans);
+    --font-label-md: var(--gv-font-sans);
+    --font-title-lg: var(--gv-font-sans);
+    --font-label-lg: var(--gv-font-sans);
+    --font-headline-md-mobile: var(--gv-font-sans);
+    --font-title-md: var(--gv-font-sans);
+    --font-headline-lg: var(--gv-font-sans);
+    --font-headline-md: var(--gv-font-sans);
+    --font-body-md: var(--gv-font-sans);
+    --font-display-lg: var(--gv-font-sans);
 
     --text-display-lg: 57px;
     --text-display-lg--line-height: 64px;
@@ -118,7 +122,8 @@
 @layer base {
     :root {
         color-scheme: light;
-        font-family: "Plus Jakarta Sans", sans-serif;
+        font-family: var(--gv-font-sans);
+        font-optical-sizing: auto;
         font-synthesis: none;
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
@@ -223,7 +228,7 @@
     --md-sys-color-on-surface-muted: #707784;
     --md-sys-color-on-surface-secondary: #535f70;
     --md-sys-color-error-soft: #fff1ef;
-    --md-sys-typescale-font: "Plus Jakarta Sans", sans-serif;
+    --md-sys-typescale-font: var(--gv-font-sans);
 }
 
 @layer utilities {

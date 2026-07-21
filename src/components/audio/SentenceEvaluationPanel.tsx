@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, Cpu, MessageSquareText, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, AudioLines, CheckCircle2, MessageSquareText, ShieldCheck, Sparkles } from 'lucide-react';
 import type { SentenceEvaluationResult, SentenceMetrics } from '../../services/ml/sentenceEvaluation';
 import type { SentenceEvaluationStage } from '../../hooks/useLocalSentenceEvaluation';
 import '../../styles/sentence-evaluation.css';
@@ -33,7 +33,7 @@ export function SentenceEvaluationPanel({
     return (
       <div className="sentence-evaluation sentence-evaluation--idle">
         <ShieldCheck size={18} />
-        <span>LingWav2Vec2, Voice AI và Trợ lý AI sẽ chấm câu này ngay trên thiết bị.</span>
+        <span>Bản thu sẽ được đối chiếu với câu mẫu để tạo điểm và gợi ý cải thiện.</span>
       </div>
     );
   }
@@ -43,9 +43,9 @@ export function SentenceEvaluationPanel({
     return (
       <div className="sentence-evaluation sentence-evaluation--loading" aria-live="polite">
         <div className="sentence-evaluation__status">
-          <Cpu size={19} />
+          {stage === 'speech' ? <AudioLines size={19} /> : <Sparkles size={19} />}
           <span>
-            <strong>{stage === 'speech' ? 'Đang nhận dạng giọng nói' : 'Trợ lý AI đang tạo nhận xét'}</strong>
+            <strong>{stage === 'speech' ? 'Đang phân tích bản thu' : 'Đang tạo điểm và nhận xét'}</strong>
             <small>{detail}</small>
           </span>
           <b>{percent}%</b>
@@ -75,11 +75,11 @@ export function SentenceEvaluationPanel({
         <strong>{result.score}<small>/100</small></strong>
       </div>
       <div className="sentence-evaluation__metrics">
-        <Metric label="Khớp văn bản" value={result.transcriptAccuracy} />
-        <Metric label="Tin cậy âm vị" value={result.acousticConfidence} />
+        <Metric label="Khớp câu mẫu" value={result.transcriptAccuracy} />
+        <Metric label="Độ rõ phát âm" value={result.acousticConfidence} />
       </div>
       <div className="sentence-evaluation__transcript">
-        <small>Voice AI nghe được</small>
+        <small>Nội dung nhận diện</small>
         <p>{result.transcript || 'Không nhận dạng được nội dung rõ ràng.'}</p>
       </div>
       <div className="sentence-evaluation__feedback">
@@ -92,11 +92,6 @@ export function SentenceEvaluationPanel({
           {result.improvements.map(item => <span key={item}>→ {item}</span>)}
         </div>
       )}
-      <details>
-        <summary>Dữ liệu phân tích cục bộ</summary>
-        <p>Âm vị: {result.phonemes.join(' ') || 'Không có'}</p>
-        <p>Thời gian xử lý: {(result.processingTimeMs / 1000).toFixed(1)} giây</p>
-      </details>
     </div>
   );
 }

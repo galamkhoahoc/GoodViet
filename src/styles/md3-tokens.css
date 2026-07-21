@@ -4,9 +4,6 @@
    Seed Color: #769CDF (Blue)
    ============================================================ */
 
-/* ============= GOOGLE SANS FLEX FONT ============= */
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap');
-
 /* ============= MATERIAL DESIGN 3 COLOR TOKENS ============= */
 :root {
     /* Primary - Sage Green */
@@ -99,7 +96,7 @@
 
     /* ============= TYPOGRAPHY ============= */
     /* Font Family */
-    --md-sys-typescale-font: "Google Sans Flex", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --md-sys-typescale-font: var(--gv-font-sans);
     
     /* Display */
     --md-sys-typescale-display-large-size: 57px;
