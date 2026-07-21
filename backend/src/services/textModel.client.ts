@@ -107,7 +107,8 @@ export class TextModelClient {
    */
   async generateChatResponse(
     message: string,
-    history: Array<{ role: string; content: string }> = []
+    history: Array<{ role: string; content: string }> = [],
+    systemPrompt?: string
   ): Promise<string> {
     try {
       console.log(`[TextModelClient] Generating chat response for: "${message.substring(0, 50)}..."`);
@@ -115,6 +116,7 @@ export class TextModelClient {
       const request: ChatRequest = {
         message,
         history,
+        system_prompt: systemPrompt,
       };
 
       const response = await this.client.post<ChatResponse>('/chat', request);

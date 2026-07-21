@@ -192,24 +192,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
     };
 
     try {
-      const history = get().messages.slice(-14).map(message => ({
+      const history = get().messages.slice(0, -1).slice(-14).map(message => ({
         role: message.senderType === 'user' ? 'user' as const : 'assistant' as const,
         content: message.content,
       }));
       const { apiClient } = await import('../services/api/apiClient');
-      const apiResponse = await apiClient.post<any>('/api/chat/evaluate', {
+      const apiResponse = await apiClient.post<{ success: boolean; result: string }>('/api/chat/evaluate', {
         prompt: text,
-        history: [
-          {
-            role: 'user',
-            content: 'Hãy đóng vai "Chị Gà", một trợ lý AI thông minh và nhiệt tình của ứng dụng GOODVIET. Xưng hô là "tôi" hoặc "Chị Gà", và gọi người dùng là "bạn". Thỉnh thoảng có thể dùng một từ cảm thán vui vẻ như "Cục tác" ở đầu cuộc trò chuyện, nhưng tuyệt đối không lạm dụng hoặc spam tiếng gà kêu. Nhiệm vụ của bạn là hỗ trợ luyện phát âm, sửa ngọng, và trò chuyện tâm lý nhẹ nhàng. Hãy trả lời tự nhiên, lịch sự, ngắn gọn và thân thiện nhé! Thỉnh thoảng có thể thả emoji gà 🐔.',
-          },
-          {
-            role: 'assistant',
-            content: 'Cục ta cục tác! Chào bạn, tôi là Chị Gà đây! Tôi sẵn sàng giúp bạn luyện giọng thật hay và trò chuyện cho hết muộn phiền rồi đây! 🐔',
-          },
-          ...history,
-        ]
+        history,
+        context: 'goodviet-assistant',
       });
       const response = apiResponse.result;
       
@@ -217,7 +208,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       updateReply(response || 'Mình chưa tạo được câu trả lời rõ ràng. Bạn thử diễn đạt lại câu hỏi nhé.');
       set({ isTyping: false });
       persistState(get());
-    } catch (error) {
+    } catch {
       if (requestGeneration !== chatGeneration) return;
       set({ isTyping: false });
       persistState(get());

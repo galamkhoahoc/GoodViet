@@ -1243,3 +1243,25 @@
     transition-duration: 0.01ms !important;
   }
 }
+.gv-chat-internal-link {
+  padding: 0;
+  border: 0;
+  color: #285f91;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.gv-chat-internal-link:hover {
+  color: #183f64;
+}
+
+.gv-chat-internal-link:focus-visible {
+  border-radius: 4px;
+  outline: 2px solid rgb(51 97 141 / 45%);
+  outline-offset: 3px;
+}

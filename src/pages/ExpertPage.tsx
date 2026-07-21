@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Bell,
   Brain,
@@ -14,7 +15,7 @@ import {
   X,
   RotateCcw,
 } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
@@ -126,6 +127,7 @@ function ContactAvatar({ contact, size = 'md' }: { contact: Contact; size?: 'sm'
 }
 
 export function ExpertPage() {
+  const navigate = useNavigate();
   const botMessages = useChatStore((state) => state.messages);
   const botIsTyping = useChatStore((state) => state.isTyping);
 
@@ -146,6 +148,23 @@ export function ExpertPage() {
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const replyTimersRef = useRef<number[]>([]);
+  const markdownComponents = useMemo<Components>(() => ({
+    a: ({ href, children }) => {
+      if (href?.startsWith('/')) {
+        return (
+          <button
+            type="button"
+            className="gv-chat-internal-link"
+            onClick={() => navigate(href)}
+          >
+            {children}
+          </button>
+        );
+      }
+
+      return <a href={href} target="_blank" rel="noreferrer">{children}</a>;
+    },
+  }), [navigate]);
 
   const activeContactMeta = CONTACTS.find((contact) => contact.id === activeContact) ?? CONTACTS[0];
   const currentHumanMessages = activeContact === 'doctor' ? doctorMessages : expertMessages;
@@ -392,7 +411,7 @@ export function ExpertPage() {
                       {message.senderType === 'user' ? (
                         message.content
                       ) : (
-                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                        <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                           {message.content || ''}
                         </ReactMarkdown>
                       )}
@@ -422,7 +441,7 @@ export function ExpertPage() {
                     {message.sender === 'user' ? (
                       message.text
                     ) : (
-                      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                      <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                         {message.text || ''}
                       </ReactMarkdown>
                     )}

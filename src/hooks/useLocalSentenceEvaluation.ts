@@ -41,10 +41,8 @@ export function useLocalSentenceEvaluation() {
       const { apiClient } = await import('../services/api/apiClient');
       const response = await apiClient.post<{ success: boolean; result: string }>('/api/chat/evaluate', {
         prompt,
-        history: [
-          { role: 'user', content: 'Bạn đánh giá phát âm tiếng Việt cho người học. Luôn trả về đúng JSON theo yêu cầu và không thêm markdown.' },
-          { role: 'assistant', content: '{"status":"ready"}' }
-        ]
+        history: [],
+        context: 'sentence-evaluation',
       });
       const gemmaOutput = response.result;
 

@@ -1,4 +1,8 @@
 import { env } from '../config/env';
+import {
+  DEFAULT_COACHING_SYSTEM_PROMPT,
+  getNavigationFallback,
+} from '../config/assistantPrompts';
 
 /**
  * Service to handle interactions with XAH AI API (replacing Gemini)
@@ -35,7 +39,11 @@ export class GeminiService {
   /**
    * Generate a response for a chat message given conversation history
    */
-  async generateChatResponse(message: string, history: any[] = []): Promise<string> {
+  async generateChatResponse(
+    message: string,
+    history: any[] = [],
+    systemPrompt = DEFAULT_COACHING_SYSTEM_PROMPT
+  ): Promise<string> {
     const maxRetries = Math.max(1, this.apiKeys.length);
     let attempts = 0;
 
@@ -48,8 +56,6 @@ export class GeminiService {
       try {
         console.log('[AI Service] Generating response for message:', message);
         
-        const systemPrompt = `[System Instruction: Bạn là trợ lý hỗ trợ người dùng cải thiện giọng nói tiếng Việt trên nền tảng GOODVIET. Hãy động viên, kiên nhẫn và chuyên nghiệp. Luôn trả lời bằng tiếng Việt, ngắn gọn và thân thiện. Không đưa ra chẩn đoán y khoa.]`;
-
         const formattedHistory = history.map(msg => ({
           role: msg.role === 'assistant' ? 'model' : 'user',
           parts: [{ text: msg.content }],
@@ -125,6 +131,8 @@ export class GeminiService {
    */
   private async generateMockResponse(message: string): Promise<string> {
     await new Promise(resolve => setTimeout(resolve, 1000));
+    const navigationResponse = getNavigationFallback(message);
+    if (navigationResponse) return navigationResponse;
     return `[Hệ thống]: API AI hiện tại đang gặp lỗi (có thể do sai tên Model, sai API Key hoặc hết Quota). Bạn đang thấy tin nhắn dự phòng tự động. Xin vui lòng thử lại sau.`;
   }
 

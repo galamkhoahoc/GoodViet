@@ -1,4 +1,5 @@
 import { Ollama } from 'ollama';
+import { DEFAULT_COACHING_SYSTEM_PROMPT } from '../config/assistantPrompts';
 
 /**
  * Service to handle interactions with LocalEngine (Local Text AI model)
@@ -41,7 +42,11 @@ export class LocalEngineService {
     }
   }
 
-  async generateChatResponse(message: string, history: any[] = []): Promise<string> {
+  async generateChatResponse(
+    message: string,
+    history: any[] = [],
+    systemPrompt = DEFAULT_COACHING_SYSTEM_PROMPT
+  ): Promise<string> {
     if (!this.ollama || !this.isAvailable) {
       throw new Error('LocalEngine service is not available');
     }
@@ -52,10 +57,14 @@ export class LocalEngineService {
       const messages = [
         {
           role: 'system',
-          content: `Bạn là trợ lý hỗ trợ người dùng cải thiện giọng nói tiếng Việt trên nền tảng GOODVIET. Hãy động viên, kiên nhẫn và chuyên nghiệp. Luôn trả lời bằng tiếng Việt, ngắn gọn và thân thiện (2-3 câu). Không đưa ra chẩn đoán y khoa.`
+          content: systemPrompt
         },
         ...history.slice(-10).map(msg => ({
-          role: msg.senderType === 'user' ? 'user' : 'assistant',
+          role: msg.role === 'system'
+            ? 'system'
+            : msg.role === 'assistant' || msg.senderType === 'bot'
+              ? 'assistant'
+              : 'user',
           content: msg.content
         })),
         {

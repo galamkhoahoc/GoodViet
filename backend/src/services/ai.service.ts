@@ -1,6 +1,7 @@
 import { geminiService } from './gemini.service';
 import { localEngineService } from './localEngine.service';
 import { textModelClient } from './textModel.client';
+import { getNavigationFallback } from '../config/assistantPrompts';
 
 /**
  * Unified AI Service that can switch between Gemini, LocalEngine, and Gemma4
@@ -67,24 +68,24 @@ export class AIService {
    * 
    * Requirements: 7.1, 7.2, 7.4, 7.5
    */
-  async generateChatResponse(message: string, history: any[] = []): Promise<string> {
+  async generateChatResponse(message: string, history: any[] = [], systemPrompt?: string): Promise<string> {
     console.log(`[AI Service] Using provider: ${this.provider}`);
     
     try {
       // Try primary provider
       if (this.provider === 'gemma4') {
-        return await textModelClient.generateChatResponse(message, history);
+        return await textModelClient.generateChatResponse(message, history, systemPrompt);
       } else if (this.provider === 'ollama') {
-        return await localEngineService.generateChatResponse(message, history);
+        return await localEngineService.generateChatResponse(message, history, systemPrompt);
       } else {
-        return await geminiService.generateChatResponse(message, history);
+        return await geminiService.generateChatResponse(message, history, systemPrompt);
       }
     } catch (error: any) {
       console.error(`[AI Service] ${this.provider} failed:`, error.message);
       console.log(`[AI Service] Attempting fallback chain...`);
       
       // Implement fallback chain: gemma4 → ollama → gemini
-      return await this.fallbackGenerateChatResponse(message, history);
+      return await this.fallbackGenerateChatResponse(message, history, systemPrompt);
     }
   }
 
@@ -96,14 +97,14 @@ export class AIService {
    * 
    * Requirements: 7.1, 7.2, 7.3, 7.4, 7.5
    */
-  private async fallbackGenerateChatResponse(message: string, history: any[]): Promise<string> {
+  private async fallbackGenerateChatResponse(message: string, history: any[], systemPrompt?: string): Promise<string> {
     const errors: string[] = [];
 
     // Try Gemma4 if not already tried
     if (this.provider !== 'gemma4') {
       try {
         console.log('[AI Service] Attempting fallback to Gemma4...');
-        const response = await textModelClient.generateChatResponse(message, history);
+        const response = await textModelClient.generateChatResponse(message, history, systemPrompt);
         console.log('[AI Service] Gemma4 fallback successful ✓');
         return response;
       } catch (error: any) {
@@ -116,7 +117,7 @@ export class AIService {
     if (this.provider !== 'ollama') {
       try {
         console.log('[AI Service] Attempting fallback to LocalEngine...');
-        const response = await localEngineService.generateChatResponse(message, history);
+        const response = await localEngineService.generateChatResponse(message, history, systemPrompt);
         console.log('[AI Service] LocalEngine fallback successful ✓');
         return response;
       } catch (error: any) {
@@ -129,7 +130,7 @@ export class AIService {
     if (this.provider !== 'gemini') {
       try {
         console.log('[AI Service] Attempting fallback to Gemini...');
-        const response = await geminiService.generateChatResponse(message, history);
+        const response = await geminiService.generateChatResponse(message, history, systemPrompt);
         console.log('[AI Service] Gemini fallback successful ✓');
         return response;
       } catch (error: any) {
@@ -152,6 +153,9 @@ export class AIService {
    */
   private async generateMockResponse(message: string): Promise<string> {
     await new Promise(resolve => setTimeout(resolve, 500));
+
+    const navigationResponse = getNavigationFallback(message);
+    if (navigationResponse) return navigationResponse;
     
     const responses = [
       `Xin chào! Hiện tại hệ thống AI đang bảo trì. Tin nhắn của bạn đã được ghi nhận. Chúng tôi sẽ phản hồi sớm nhất có thể. 🙏`,

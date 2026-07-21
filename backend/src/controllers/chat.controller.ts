@@ -7,6 +7,10 @@ import { runWithRequestSessionWrite } from '../middleware/auth.middleware';
 import { aiService } from '../services/ai.service';
 import { normalizeVietnamese, normalizeHistory } from '../utils/vietnamese.utils';
 import validator from 'validator';
+import {
+  GOODVIET_ASSISTANT_SYSTEM_PROMPT,
+  getAssistantSystemPrompt,
+} from '../config/assistantPrompts';
 
 /**
  * Chat controller
@@ -148,7 +152,11 @@ export class ChatController {
       const normalizedHistory = normalizeHistory(formattedHistory);
 
       // Generate response from AI service (Gemma4, LocalEngine, or Gemini)
-      const botResponseContent = await aiService.generateChatResponse(content, normalizedHistory);
+      const botResponseContent = await aiService.generateChatResponse(
+        content,
+        normalizedHistory,
+        GOODVIET_ASSISTANT_SYSTEM_PROMPT
+      );
 
       // A reset may happen while the AI call is running, so acquire a fresh
       // write transaction for the bot response rather than reusing the first one.
@@ -198,14 +206,18 @@ export class ChatController {
       const userId = req.userId;
       if (!userId) throw new AppError(401, 'Unauthorized');
 
-      const { prompt, history } = req.body;
+      const { prompt, history, context } = req.body;
 
       if (!prompt || prompt.trim() === '') {
         throw new AppError(400, 'Nội dung không được để trống');
       }
 
       // Generate response from AI service
-      const botResponseContent = await aiService.generateChatResponse(prompt, history || []);
+      const botResponseContent = await aiService.generateChatResponse(
+        prompt,
+        history || [],
+        getAssistantSystemPrompt(context)
+      );
 
       res.status(200).json({
         success: true,
