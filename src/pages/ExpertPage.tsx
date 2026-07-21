@@ -12,10 +12,12 @@ import {
   Plus,
   Search,
   Send,
+  Sparkles,
+  Wind,
+  X,
   RotateCcw,
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { useChatStore } from '../store/chatStore';
 import '../styles/expert-chat.css';
 
@@ -390,8 +392,8 @@ export function ExpertPage() {
                       {message.senderType === 'user' ? (
                         message.content
                       ) : (
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {message.content}
+                        <ReactMarkdown>
+                          {message.content || ''}
                         </ReactMarkdown>
                       )}
                     </div>
@@ -420,8 +422,8 @@ export function ExpertPage() {
                     {message.sender === 'user' ? (
                       message.text
                     ) : (
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {message.text}
+                      <ReactMarkdown>
+                        {message.text || ''}
                       </ReactMarkdown>
                     )}
                   </div>
