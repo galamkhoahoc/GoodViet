@@ -3,7 +3,7 @@ chatbot_phobert
 *.txt
 *.bat
 *.ps1
-*.png
+figma-design.png
 .git
 .kiro
 fonts

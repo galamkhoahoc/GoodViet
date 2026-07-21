@@ -25,9 +25,53 @@ import { SentenceEvaluationPanel } from '../components/audio/SentenceEvaluationP
 import { useLocalSentenceEvaluation } from '../hooks/useLocalSentenceEvaluation';
 import type { SentenceEvaluationResult } from '../services/ml/sentenceEvaluation';
 import { useAuthStore } from '../store/authStore';
+import { practiceApi } from '../services/api/practiceApi';
 import '../styles/pathway-page.css';
 
-const COMPLETED_DAYS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+const VIETNAM_TIME_ZONE = 'Asia/Ho_Chi_Minh';
+
+interface CalendarDateParts {
+  year: number;
+  month: number;
+  day: number;
+}
+
+const getVietnamDateParts = (date = new Date()): CalendarDateParts => {
+  const values = new Intl.DateTimeFormat('en-US', {
+    timeZone: VIETNAM_TIME_ZONE,
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  }).formatToParts(date).reduce<Record<string, string>>((result, part) => {
+    if (part.type !== 'literal') result[part.type] = part.value;
+    return result;
+  }, {});
+
+  return {
+    year: Number(values.year),
+    month: Number(values.month),
+    day: Number(values.day),
+  };
+};
+
+const toCalendarDateKey = (year: number, month: number, day: number) =>
+  `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+const toVietnamDateKey = (value: string | Date) => {
+  const date = typeof value === 'string' ? new Date(value) : value;
+  const parts = getVietnamDateParts(date);
+  return toCalendarDateKey(parts.year, parts.month, parts.day);
+};
+
+const formatVietnamToday = (date: Date) => {
+  const label = new Intl.DateTimeFormat('vi-VN', {
+    timeZone: VIETNAM_TIME_ZONE,
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(date);
+  return label.charAt(0).toUpperCase() + label.slice(1);
+};
 
 type LessonMode = 'short' | 'long';
 type LessonIcon = 'book' | 'headphones' | 'mic';
@@ -58,7 +102,12 @@ export function PathwayPage() {
   const navigate = useNavigate();
   const user = useAuthStore(state => state.user);
   const isTemporaryAccount = user?.accountType === 'temporary';
-  const [currentMonth, setCurrentMonth] = useState(() => new Date(2024, 9, 1));
+  const [now, setNow] = useState(() => new Date());
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const today = getVietnamDateParts();
+    return new Date(today.year, today.month - 1, 1);
+  });
+  const [completedDateKeys, setCompletedDateKeys] = useState<Set<string>>(() => new Set());
   const [selectedLesson, setSelectedLesson] = useState<PracticeLesson | null>(null);
   const [lessonMode, setLessonMode] = useState<LessonMode>('short');
   const [startedLessons, setStartedLessons] = useState<Set<string>>(() => new Set());
@@ -67,6 +116,8 @@ export function PathwayPage() {
   const [practiceResults, setPracticeResults] = useState<Map<number, SentenceEvaluationResult>>(new Map());
   const practiceEvaluation = useLocalSentenceEvaluation();
   const resetPracticeEvaluation = practiceEvaluation.reset;
+  const today = useMemo(() => getVietnamDateParts(now), [now]);
+  const todayDateKey = toCalendarDateKey(today.year, today.month, today.day);
 
   const calendarDays = useMemo(() => {
     const year = currentMonth.getFullYear();
@@ -79,6 +130,29 @@ export function PathwayPage() {
     while (cells.length % 7 !== 0) cells.push(null);
     return cells;
   }, [currentMonth]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (isTemporaryAccount) return undefined;
+    let isActive = true;
+
+    void practiceApi.getHistory()
+      .then(({ history }) => {
+        if (!isActive) return;
+        setCompletedDateKeys(new Set(history.map((entry) => toVietnamDateKey(entry.completedAt))));
+      })
+      .catch((error) => {
+        console.error('Unable to load practice history for the calendar', error);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [isTemporaryAccount]);
 
   useEffect(() => {
     if (!selectedLesson) return undefined;
@@ -141,7 +215,6 @@ export function PathwayPage() {
     closeLesson();
   };
 
-  const isReferenceMonth = currentMonth.getFullYear() === 2024 && currentMonth.getMonth() === 9;
   const recommendedLessons = [practiceLessons[3], practiceLessons[7]];
   const displaySummary = isTemporaryAccount
     ? { ...practiceSummary, currentStreak: 0, longestStreak: 0, completedLessons: 0, weeklyCompleted: 0 }
@@ -156,7 +229,7 @@ export function PathwayPage() {
       <div className="gv-pathway__content">
         <header className="gv-pathway__header">
           <div>
-            <p>Thứ Năm, 24 Tháng 10</p>
+            <p>{formatVietnamToday(now)}</p>
             <h1>Tiến độ hôm nay</h1>
           </div>
           <button type="button" className="gv-pathway__avatar" onClick={() => navigate('/profile')} aria-label="Mở hồ sơ">
@@ -300,8 +373,11 @@ export function PathwayPage() {
             </div>
             <div className="gv-pathway__calendar-days">
               {calendarDays.map((day, index) => {
-                const isToday = isReferenceMonth && day === 24;
-                const isCompleted = !isTemporaryAccount && isReferenceMonth && day !== null && COMPLETED_DAYS.includes(day);
+                const dateKey = day === null
+                  ? null
+                  : toCalendarDateKey(currentMonth.getFullYear(), currentMonth.getMonth() + 1, day);
+                const isToday = dateKey === todayDateKey;
+                const isCompleted = !isTemporaryAccount && dateKey !== null && completedDateKeys.has(dateKey);
                 return (
                   <span
                     key={`${day ?? 'empty'}-${index}`}
