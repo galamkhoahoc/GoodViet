@@ -29,14 +29,14 @@ export function ConversationsPanel() {
       title: 'ThS. Lê Trần (Chuyên gia)',
       lastMessage: 'Chào bạn, tôi đã xem qua đánh giá...',
       time: 'Hôm qua',
-      avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAVCgl7W-tWs83qNjAlhYXc4TcdUDWwtDbndOFChbcbxm3xLf6AWqAQ4DjVQpElT5JgoLvSdq8pnIfg84TKii5jwtiWiGAVvJHvh7-UfvCXmyS9bZGyuysHsTfnyFhixF8__5GOhostBEXHtvhGznTTLBnuysybTQBYd6fWVnboMGg15YrJvk-cnko56q1cZ-7gLfG-O3ixaSu3-sV85nDpFONyU-5nTgZba45-bB8XX6ZCJuTfQfscJExyjQ9sYxB-v661e8Qt9Kc'
+      avatarUrl: '/images/avatars/expert_2.png'
     },
     {
       _id: 'mock_2',
       title: 'Bác sĩ Ngọc Phạm (Chuyên gia)',
       lastMessage: 'Lịch hẹn của bạn đã được xác nhận...',
       time: 'Thứ 2',
-      avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA4_NRzcjKqYTdRKCLFclqWgDugKc1BWqQYAC2ofwB1kODE9rMUHybaxXKr0qH4xhQeadHX1vWZNEbWm9cUdZNuvXBEEkBdNoaH4hKEL1K7pe3IpTDBEWgZi2252T622J_hO-36JW8O9B3uMrmY9FJh6mI7RMJoToWKPdqOyq_V4zGOn51U9htmKusMjABDtJg1h88jgmhmW0aOR05R6IMj526XDp2OmtDv6Et5moKRV-rX46P63mgMBnJEdbtyox49FWwqUvQPnCM'
+      avatarUrl: '/images/avatars/expert_3.png'
     }
   ];
 
