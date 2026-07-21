@@ -103,7 +103,7 @@ export class GeminiService {
           throw new Error(`API error ${res.status}: ${text}`);
         }
 
-        const data = await res.json();
+        const data = (await res.json()) as any;
         const textResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text;
         
         if (!textResponse) {
@@ -187,7 +187,7 @@ Chỉ trả về JSON hợp lệ (không kèm markdown \`\`\` hay văn bản kh�
           throw new Error(`API error ${res.status}: ${text}`);
         }
         
-        const data = await res.json();
+        const data = (await res.json()) as any;
         let textResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text;
         
         if (!textResponse) {
