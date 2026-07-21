@@ -49,7 +49,7 @@ const CONTACTS: Contact[] = [
     name: 'ThS. Lê Trần',
     preview: 'Chào bạn, tôi đã xem qua đánh giá...',
     time: 'H.qua',
-    avatar: '/images/avatars/expert_2.png',
+    avatar: '/images/avatars/expert_2.png?v=2',
     role: 'Chuyên gia ngôn ngữ trị liệu',
   },
   {
@@ -57,7 +57,7 @@ const CONTACTS: Contact[] = [
     name: 'Bác sĩ Ngọc Phạm',
     preview: 'Lịch hẹn của bạn đã được xác nhận...',
     time: 'T2',
-    avatar: '/images/avatars/expert_3.png',
+    avatar: '/images/avatars/expert_3.png?v=2',
     role: 'Bác sĩ tư vấn phát âm',
   },
 ];
@@ -108,7 +108,7 @@ function BotAvatar({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   const mappedSize = size === 'lg' ? 'md' : 'sm';
   return (
     <span className={`gv-chat-contact-avatar gv-chat-contact-avatar--${mappedSize}`} aria-hidden="true">
-      <img src="/images/avatars/chiga.jpg" alt="Chị Gà" />
+      <img src="/images/avatars/chiga.jpg?v=2" alt="Chị Gà" />
     </span>
   );
 }

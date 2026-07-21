@@ -29,14 +29,14 @@ export function ConversationsPanel() {
       title: 'ThS. Lê Trần (Chuyên gia)',
       lastMessage: 'Chào bạn, tôi đã xem qua đánh giá...',
       time: 'Hôm qua',
-      avatarUrl: '/images/avatars/expert_2.png'
+      avatarUrl: '/images/avatars/expert_2.png?v=2'
     },
     {
       _id: 'mock_2',
       title: 'Bác sĩ Ngọc Phạm (Chuyên gia)',
       lastMessage: 'Lịch hẹn của bạn đã được xác nhận...',
       time: 'Thứ 2',
-      avatarUrl: '/images/avatars/expert_3.png'
+      avatarUrl: '/images/avatars/expert_3.png?v=2'
     }
   ];
 
@@ -70,7 +70,7 @@ export function ConversationsPanel() {
               <div className="w-12 h-12 rounded-full bg-[#BDF59B] shrink-0 flex items-center justify-center overflow-hidden">
                 <img 
                   className="w-full h-full object-cover" 
-                  src="/images/avatars/chiga.jpg" 
+                  src="/images/avatars/chiga.jpg?v=2" 
                   alt="Chị Gà Avatar" 
                 />
               </div>
