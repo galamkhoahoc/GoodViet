@@ -38,7 +38,11 @@ export function DashboardPage() {
         />
 
         <section className="gv-dashboard__hero" aria-labelledby="dashboard-hero-title">
-          <img src="/images/home-temple-hero.png" alt="Không gian kiến trúc Việt Nam" />
+          <img
+            src="https://images.pexels.com/photos/4476163/pexels-photo-4476163.jpeg?auto=compress&cs=tinysrgb&w=1800"
+            alt="Người dùng luyện giọng với tai nghe và micro tại nhà"
+            fetchPriority="high"
+          />
           <div className="gv-dashboard__hero-overlay" />
           <div className="gv-dashboard__hero-copy">
             <span><Sparkles size={15} /> Gợi ý dành cho bạn</span>
