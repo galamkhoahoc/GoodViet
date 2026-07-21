@@ -15,6 +15,7 @@ import {
   Sparkles,
   Wind,
   X,
+  RotateCcw,
 } from 'lucide-react';
 import { useChatStore } from '../store/chatStore';
 import '../styles/expert-chat.css';
@@ -132,6 +133,7 @@ export function ExpertPage() {
   const loadSessions = useChatStore((state) => state.loadSessions);
   const createSession = useChatStore((state) => state.createSession);
   const sendBotMessage = useChatStore((state) => state.sendMessage);
+  const resetChat = useChatStore((state) => state.reset);
 
 
   const [activeContact, setActiveContact] = useState<ContactId>('bot');
@@ -450,6 +452,20 @@ export function ExpertPage() {
                   {suggestion}
                 </button>
               ))}
+              {activeContact === 'bot' && (
+                <button
+                  type="button"
+                  className="gv-chat-reset-btn"
+                  onClick={() => {
+                    if (window.confirm('Bạn có chắc muốn xóa toàn bộ lịch sử trò chuyện với AI?')) {
+                      resetChat();
+                    }
+                  }}
+                  title="Xóa lịch sử trò chuyện"
+                >
+                  <RotateCcw size={16} /> Reset
+                </button>
+              )}
             </div>
 
             <div className="gv-chat-composer">
