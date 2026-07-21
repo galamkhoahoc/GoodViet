@@ -783,6 +783,14 @@
   flex: 1;
 }
 
+.gv-chat-composer input:focus,
+.gv-chat-composer input:focus-visible,
+.gv-chat-composer input:active {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 .gv-chat-composer input::placeholder {
   color: #8b8f98;
 }
