@@ -89,7 +89,7 @@ async function createTranscriber(requestId: string): Promise<Transcriber> {
     dtype: Record<string, 'fp16' | 'q8' | 'q4'>;
   }> = REQUESTED_DEVICE === 'webgpu' && 'gpu' in navigator
     ? [
-        { device: 'webgpu', dtype: { encoder_model: 'fp16', decoder_model_merged: 'fp16' } },
+        { device: 'webgpu', dtype: { encoder_model: 'q8', decoder_model_merged: 'q8' } },
         { device: 'wasm', dtype: { encoder_model: 'q8', decoder_model_merged: 'q8' } },
       ]
     : [{ device: 'wasm', dtype: { encoder_model: 'q8', decoder_model_merged: 'q8' } }];
