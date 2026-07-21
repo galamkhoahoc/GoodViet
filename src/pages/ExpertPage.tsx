@@ -367,15 +367,15 @@ export function ExpertPage() {
                     <div className="gv-chat-message-row gv-chat-message-row--incoming">
                       <BotAvatar />
                       <div className="gv-chat-bubble gv-chat-bubble--incoming gv-chat-bubble--welcome">
-                        <p>Chào bạn! Mình là Chị Gà. Hôm nay bạn cảm thấy thế nào? Mình ở đây để lắng nghe và hỗ trợ bạn.</p>
+                        <p>Cục ta cục tác! Chào đằng ấy, Chị Gà đây! 🐔 Hôm nay đằng ấy cảm thấy thế nào? Chị ở đây để lắng nghe và hỗ trợ đằng ấy luyện tập nhé.</p>
                         <div className="gv-chat-mood-actions">
-                          <button type="button" onClick={() => setInputValue('Hôm nay tôi cảm thấy rất tuyệt vời')}>
+                          <button type="button" onClick={() => setInputValue('Hôm nay em cảm thấy rất tuyệt vời')}>
                             <Sparkles aria-hidden="true" />
-                            Tôi cảm thấy tuyệt vời
+                            Rất tuyệt vời
                           </button>
-                          <button type="button" onClick={() => setInputValue('Hôm nay tôi cần một lời khuyên')}>
+                          <button type="button" onClick={() => setInputValue('Chị Gà ơi, em cần một lời khuyên')}>
                             <Brain aria-hidden="true" />
-                            Tôi cần lời khuyên
+                            Cần lời khuyên
                           </button>
                         </div>
                       </div>
@@ -383,20 +383,20 @@ export function ExpertPage() {
 
                     <div className="gv-chat-message-row gv-chat-message-row--outgoing">
                       <div className="gv-chat-bubble gv-chat-bubble--outgoing">
-                        Hôm nay tôi hơi căng thẳng vì công việc. Có nhiều deadline quá.
+                        Hôm nay em hơi căng thẳng vì công việc. Chị Gà có cách nào giúp không?
                       </div>
                     </div>
 
                     <div className="gv-chat-message-row gv-chat-message-row--incoming">
                       <BotAvatar />
                       <div className="gv-chat-bubble gv-chat-bubble--incoming gv-chat-bubble--exercise">
-                        <p>Mình hiểu cảm giác đó. Áp lực công việc đôi khi khiến ta quá tải. Hãy thử dành 5 phút để hít thở sâu nhé. Mình có một bài tập thư giãn nhỏ, bạn có muốn thử không?</p>
+                        <p>Ò ó o, chị hiểu cảm giác đó. Áp lực công việc thỉnh thoảng làm mình mệt mỏi lắm. Đằng ấy thử dành 5 phút để hít thở sâu cùng Chị Gà xem sao nhé? 🐥</p>
                         <div className="gv-chat-exercise-card">
                           <span className="gv-chat-exercise-icon" aria-hidden="true"><Wind /></span>
                           <span className="gv-chat-exercise-copy">
                             <strong>Hít thở Box Breathing</strong>
                             <small>4 giây hít vào, 4 giây giữ, 4 giây thở ra, 4 giây giữ.</small>
-                            <button type="button" onClick={() => setInputValue('Hướng dẫn tôi thực hiện bài tập Box Breathing')}>Bắt đầu ngay</button>
+                            <button type="button" onClick={() => setInputValue('Chị Gà hướng dẫn em bài tập Box Breathing nhé')}>Bắt đầu ngay</button>
                           </span>
                         </div>
                       </div>
