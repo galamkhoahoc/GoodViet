@@ -1,14 +1,9 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
-  ArrowRight,
   BadgeCheck,
-  Bell,
   Check,
-  Languages,
   LoaderCircle,
   Mail,
-  MapPin,
   Pencil,
   Phone,
   TrendingUp,
@@ -19,10 +14,10 @@ import { useAuthStore } from '../store/authStore';
 import '../styles/profile-settings.css';
 
 function getDisplayDate(value?: string) {
-  if (!value) return 'tháng 10/2023';
+  if (!value) return 'chưa xác định';
 
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'tháng 10/2023';
+  if (Number.isNaN(date.getTime())) return 'chưa xác định';
 
   return date.toLocaleDateString('vi-VN', { month: '2-digit', year: 'numeric' });
 }
@@ -43,6 +38,7 @@ export function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [firstName, setFirstName] = useState(currentName.firstName);
   const [lastName, setLastName] = useState(currentName.lastName);
+  const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || '');
   const [targetGoals, setTargetGoals] = useState(user?.targetGoals || '');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -50,6 +46,7 @@ export function ProfilePage() {
     const names = splitUserName(user?.fullName);
     setLastName(names.lastName);
     setFirstName(names.firstName);
+    setPhoneNumber(user?.phoneNumber || '');
     setTargetGoals(user?.targetGoals || '');
   };
 
@@ -64,11 +61,17 @@ export function ProfilePage() {
   };
 
   const handleSave = async () => {
+    const normalizedPhone = phoneNumber.replace(/\s+/g, '');
+    if (normalizedPhone && !/^0\d{9}$/.test(normalizedPhone)) {
+      toast.error('Số điện thoại chưa hợp lệ', 'Vui lòng nhập số điện thoại Việt Nam gồm 10 chữ số và bắt đầu bằng 0.');
+      return;
+    }
+
     setIsSaving(true);
 
     try {
       const fullName = `${lastName.trim()} ${firstName.trim()}`.trim();
-      await updateUser({ fullName, targetGoals: targetGoals.trim() });
+      await updateUser({ fullName, phoneNumber: normalizedPhone || undefined, targetGoals: targetGoals.trim() });
       toast.success('Đã lưu thay đổi', 'Thông tin hồ sơ của bạn đã được cập nhật.');
       setIsEditing(false);
     } catch {
@@ -96,9 +99,6 @@ export function ProfilePage() {
                   <div className="ps-avatar" role="img" aria-label={`Ảnh đại diện của ${user?.fullName || 'người dùng GoodViet'}`}>
                     {user?.fullName?.trim().charAt(0).toUpperCase() || 'G'}
                   </div>
-                  <button className="ps-avatar-edit" type="button" aria-label="Thay ảnh đại diện">
-                    <Pencil aria-hidden="true" />
-                  </button>
                 </div>
 
                 <h2>{user?.fullName || 'Nguyễn Văn A'}</h2>
@@ -106,25 +106,12 @@ export function ProfilePage() {
 
                 <div className="ps-badges" aria-label="Trạng thái tài khoản">
                   <span className="ps-badge ps-badge--primary">
-                    <BadgeCheck aria-hidden="true" />
-                    Đã xác minh
+                    {user?.verifiedEmail ? <BadgeCheck aria-hidden="true" /> : <Mail aria-hidden="true" />}
+                    {user?.verifiedEmail ? 'Email đã xác minh' : 'Email chưa xác minh'}
                   </span>
-                  <span className="ps-badge ps-badge--tertiary">Premium</span>
-                </div>
-
-                <div className="ps-contact-list">
-                  <p>
-                    <Mail aria-hidden="true" />
-                    <span>{user?.email || 'nguyen.vana@example.com'}</span>
-                  </p>
-                  <p>
-                    <Phone aria-hidden="true" />
-                    <span>{user?.phoneNumber || 'Chưa cập nhật số điện thoại'}</span>
-                  </p>
-                  <p>
-                    <MapPin aria-hidden="true" />
-                    <span>TP. Hồ Chí Minh, Việt Nam</span>
-                  </p>
+                  <span className="ps-badge ps-badge--tertiary">
+                    {user?.accountType === 'temporary' ? 'Tài khoản dùng thử' : 'Thành viên GoodViet'}
+                  </span>
                 </div>
               </div>
             </section>
@@ -139,8 +126,8 @@ export function ProfilePage() {
               </div>
               <div className="ps-stat-grid">
                 <div className="ps-stat">
-                  <strong>{user?.currentStreak || 0}</strong>
-                  <span>Ngày liên tiếp</span>
+                  <strong>{Math.round((user?.totalPracticeTime || 0) / 60)}</strong>
+                  <span>Phút luyện tập</span>
                 </div>
                 <div className="ps-stat">
                   <strong>{user?.totalRecordings || 0}</strong>
@@ -197,6 +184,38 @@ export function ProfilePage() {
                 </div>
 
                 <div className="ps-field ps-field--wide">
+                  <label htmlFor="profile-email">Email đăng nhập</label>
+                  <div className="ps-field__with-icon">
+                    <Mail aria-hidden="true" />
+                    <div id="profile-email" className="ps-field__value ps-field__value--readonly">{user?.email || 'Chưa cập nhật'}</div>
+                  </div>
+                  <small className="ps-field__hint">Email đăng nhập được quản lý bởi hệ thống và không thể đổi tại đây.</small>
+                </div>
+
+                <div className="ps-field ps-field--wide">
+                  <label htmlFor="profile-phone">Số điện thoại</label>
+                  {isEditing ? (
+                    <div className="ps-field__with-icon">
+                      <Phone aria-hidden="true" />
+                      <input
+                        id="profile-phone"
+                        type="tel"
+                        value={phoneNumber}
+                        onChange={(event) => setPhoneNumber(event.target.value)}
+                        placeholder="0901 234 567"
+                        autoComplete="tel"
+                        inputMode="tel"
+                      />
+                    </div>
+                  ) : (
+                    <div className="ps-field__with-icon">
+                      <Phone aria-hidden="true" />
+                      <div id="profile-phone" className="ps-field__value">{user?.phoneNumber || 'Chưa cập nhật'}</div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="ps-field ps-field--wide">
                   <label htmlFor="profile-goals">Mục tiêu luyện tập</label>
                   {isEditing ? (
                     <textarea
@@ -214,26 +233,6 @@ export function ProfilePage() {
                 </div>
               </div>
             </section>
-
-            <div className="ps-shortcut-grid">
-              <Link className="ps-card ps-shortcut-card" to="/settings">
-                <span className="ps-icon-circle"><Languages aria-hidden="true" /></span>
-                <span>
-                  <strong>Ngôn ngữ &amp; Khu vực</strong>
-                  <small>Tiếng Việt · Giờ Đông Dương</small>
-                </span>
-                <ArrowRight className="ps-shortcut-card__arrow" aria-hidden="true" />
-              </Link>
-
-              <Link className="ps-card ps-shortcut-card" to="/settings">
-                <span className="ps-icon-circle ps-icon-circle--tertiary"><Bell aria-hidden="true" /></span>
-                <span>
-                  <strong>Thông báo</strong>
-                  <small>Email, tin nhắn và nhắc lịch</small>
-                </span>
-                <ArrowRight className="ps-shortcut-card__arrow" aria-hidden="true" />
-              </Link>
-            </div>
 
             {isEditing && (
               <div className="ps-actions" aria-label="Thao tác chỉnh sửa hồ sơ">

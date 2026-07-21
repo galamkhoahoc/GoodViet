@@ -6,6 +6,8 @@ export interface SettingsState {
   timezone: string;
   emailNotifications: boolean;
   pushNotifications: boolean;
+  practiceReminders: boolean;
+  feedbackSounds: boolean;
   
   updateSettings: (updates: Partial<Omit<SettingsState, 'updateSettings' | 'reset'>>) => void;
   reset: () => void;
@@ -16,6 +18,8 @@ const defaultSettings = {
   timezone: 'Asia/Ho_Chi_Minh',
   emailNotifications: true,
   pushNotifications: true,
+  practiceReminders: true,
+  feedbackSounds: true,
 };
 
 export const useSettingsStore = create<SettingsState>()(

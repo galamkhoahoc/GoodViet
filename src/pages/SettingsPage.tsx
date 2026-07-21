@@ -1,16 +1,15 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Bell,
   CheckCircle,
   ChevronDown,
-  ChevronRight,
   CloudCheck,
+  Headphones,
   KeyRound,
   Languages,
-  Settings as SettingsIcon,
+  LogOut,
+  RotateCcw,
   Shield,
-  Smartphone,
-  User,
 } from 'lucide-react';
 import { toast } from '../components/common/Toast';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -40,11 +39,27 @@ function SettingSwitch({ checked, label, onChange }: SettingSwitchProps) {
 }
 
 export function SettingsPage() {
-  const user = useAuthStore((state) => state.user);
-  const { language, timezone, emailNotifications, pushNotifications, updateSettings } = useSettingsStore();
+  const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
+  const {
+    language,
+    timezone,
+    emailNotifications,
+    pushNotifications,
+    practiceReminders,
+    feedbackSounds,
+    updateSettings,
+    reset,
+  } = useSettingsStore();
 
-  const showSecurityNotice = (feature: string) => {
-    toast.info(`${feature} đang được hoàn thiện`, 'Tính năng này sẽ sớm có mặt trong bản cập nhật tiếp theo.');
+  const restoreDefaults = () => {
+    reset();
+    toast.success('Đã khôi phục cài đặt', 'Các tùy chọn đã trở về trạng thái mặc định.');
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
   };
 
   return (
@@ -56,41 +71,15 @@ export function SettingsPage() {
           description="Quản lý ngôn ngữ, thông báo và bảo mật trong một không gian thống nhất."
         />
 
-        <div className="ps-layout">
-          <aside className="ps-sidebar" aria-label="Điều hướng tài khoản">
-            <section className="ps-card ps-account-card">
-              <div className="ps-account-card__identity">
-                <div className="ps-account-avatar" role="img" aria-label="Ảnh đại diện người dùng">
-                  {user?.fullName?.trim().charAt(0).toUpperCase() || 'G'}
-                </div>
-                <div>
-                  <h2>{user?.fullName || 'Nguyễn Văn A'}</h2>
-                  <p>{user?.email || 'nguyen.vana@example.com'}</p>
-                </div>
-              </div>
-
-              <nav className="ps-account-nav" aria-label="Hồ sơ và cài đặt">
-                <Link to="/profile">
-                  <User aria-hidden="true" />
-                  Hồ sơ cá nhân
-                  <ChevronRight className="ps-account-nav__arrow" aria-hidden="true" />
-                </Link>
-                <Link className="ps-account-nav__active" to="/settings" aria-current="page">
-                  <SettingsIcon aria-hidden="true" />
-                  Cài đặt tài khoản
-                  <ChevronRight className="ps-account-nav__arrow" aria-hidden="true" />
-                </Link>
-              </nav>
-            </section>
-
-            <section className="ps-card ps-save-note">
-              <span className="ps-icon-circle"><CloudCheck aria-hidden="true" /></span>
-              <div>
-                <h2>Tự động lưu</h2>
-                <p>Mọi thay đổi trên trang này được lưu ngay trên thiết bị của bạn.</p>
-              </div>
-            </section>
-          </aside>
+        <div className="ps-settings-layout">
+          <section className="ps-card ps-settings-savebar" aria-label="Trạng thái lưu cài đặt">
+            <span className="ps-icon-circle"><CloudCheck aria-hidden="true" /></span>
+            <div>
+              <h2>Tự động lưu trên thiết bị</h2>
+              <p>Mọi thay đổi có hiệu lực ngay. Bạn có thể khôi phục các giá trị mặc định bất cứ lúc nào.</p>
+            </div>
+            <button type="button" onClick={restoreDefaults}><RotateCcw size={16} /> Khôi phục mặc định</button>
+          </section>
 
           <section className="ps-content" aria-label="Các tùy chọn tài khoản">
             <div className="ps-settings-grid">
@@ -172,6 +161,44 @@ export function SettingsPage() {
                   />
                 </div>
               </section>
+
+              <section className="ps-card ps-setting-card ps-setting-card--wide" aria-labelledby="practice-settings-title">
+                <div className="ps-card__title-row ps-card__title-row--top">
+                  <div className="ps-setting-card__heading">
+                    <span className="ps-icon-circle ps-icon-circle--practice"><Headphones aria-hidden="true" /></span>
+                    <div>
+                      <p className="ps-card__kicker">Luyện tập</p>
+                      <h2 id="practice-settings-title">Âm thanh &amp; nhắc lịch</h2>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="ps-practice-options">
+                  <div className="ps-toggle-row">
+                    <div>
+                      <strong>Nhắc lịch luyện tập</strong>
+                      <span>Nhận lời nhắc nhẹ nhàng để duy trì thói quen mỗi ngày</span>
+                    </div>
+                    <SettingSwitch
+                      checked={practiceReminders}
+                      label="Nhắc lịch luyện tập"
+                      onChange={() => updateSettings({ practiceReminders: !practiceReminders })}
+                    />
+                  </div>
+
+                  <div className="ps-toggle-row">
+                    <div>
+                      <strong>Âm thanh phản hồi</strong>
+                      <span>Phát hiệu ứng âm thanh sau khi thu âm hoặc hoàn thành bài</span>
+                    </div>
+                    <SettingSwitch
+                      checked={feedbackSounds}
+                      label="Âm thanh phản hồi"
+                      onChange={() => updateSettings({ feedbackSounds: !feedbackSounds })}
+                    />
+                  </div>
+                </div>
+              </section>
             </div>
 
             <section className="ps-card ps-security-card" aria-labelledby="security-title">
@@ -185,7 +212,7 @@ export function SettingsPage() {
                 </div>
                 <span className="ps-security-status">
                   <span aria-hidden="true" />
-                  Đang bảo vệ
+                  Bảo vệ cơ bản
                 </span>
               </div>
 
@@ -194,26 +221,23 @@ export function SettingsPage() {
                   <span><KeyRound aria-hidden="true" /></span>
                   <div>
                     <strong>Mật khẩu</strong>
-                    <small>Thay đổi lần cuối khoảng 3 tháng trước</small>
+                    <small>Mật khẩu được mã hóa và quản lý bởi tài khoản GoodViet</small>
                   </div>
-                  <button type="button" onClick={() => showSecurityNotice('Đổi mật khẩu')}>Cập nhật</button>
+                  <span className="ps-security-row__status"><CheckCircle size={15} /> Được bảo vệ</span>
                 </div>
 
                 <div className="ps-security-row">
-                  <span><Smartphone aria-hidden="true" /></span>
+                  <span><LogOut aria-hidden="true" /></span>
                   <div>
-                    <strong>Xác thực hai yếu tố</strong>
-                    <small><span className="ps-online-dot" aria-hidden="true" /> Hiện đang bật</small>
+                    <strong>Phiên đăng nhập hiện tại</strong>
+                    <small>Đăng xuất an toàn khỏi thiết bị này</small>
                   </div>
-                  <button type="button" onClick={() => showSecurityNotice('Xác thực hai yếu tố')}>Quản lý</button>
+                  <button type="button" onClick={handleLogout}>Đăng xuất</button>
                 </div>
               </div>
             </section>
 
-            <div className="ps-settings-footer" role="status">
-              <CheckCircle aria-hidden="true" />
-              Các thay đổi được lưu tự động
-            </div>
+            <div className="ps-settings-footer" role="status"><CheckCircle aria-hidden="true" /> Đã đồng bộ các tùy chọn trên thiết bị</div>
           </section>
         </div>
       </div>
