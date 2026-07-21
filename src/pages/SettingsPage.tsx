@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { toast } from '../components/common/Toast';
 import { PageHeader } from '../components/layout/PageHeader';
+import { goodVietIllustrations } from '../data/illustrations';
 import { useAuthStore } from '../store/authStore';
 import { useSettingsStore } from '../store/settingsStore';
 import '../styles/profile-settings.css';
@@ -173,29 +174,36 @@ export function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="ps-practice-options">
-                  <div className="ps-toggle-row">
-                    <div>
-                      <strong>Nhắc lịch luyện tập</strong>
-                      <span>Nhận lời nhắc nhẹ nhàng để duy trì thói quen mỗi ngày</span>
+                <div className="ps-practice-layout">
+                  <img
+                    className="ps-practice-visual"
+                    src={goodVietIllustrations.dailyRoutine}
+                    alt="Lịch, tai nghe và micro gợi nhắc thói quen luyện tập mỗi ngày"
+                  />
+                  <div className="ps-practice-options">
+                    <div className="ps-toggle-row">
+                      <div>
+                        <strong>Nhắc lịch luyện tập</strong>
+                        <span>Nhận lời nhắc nhẹ nhàng để duy trì thói quen mỗi ngày</span>
+                      </div>
+                      <SettingSwitch
+                        checked={practiceReminders}
+                        label="Nhắc lịch luyện tập"
+                        onChange={() => updateSettings({ practiceReminders: !practiceReminders })}
+                      />
                     </div>
-                    <SettingSwitch
-                      checked={practiceReminders}
-                      label="Nhắc lịch luyện tập"
-                      onChange={() => updateSettings({ practiceReminders: !practiceReminders })}
-                    />
-                  </div>
 
-                  <div className="ps-toggle-row">
-                    <div>
-                      <strong>Âm thanh phản hồi</strong>
-                      <span>Phát hiệu ứng âm thanh sau khi thu âm hoặc hoàn thành bài</span>
+                    <div className="ps-toggle-row">
+                      <div>
+                        <strong>Âm thanh phản hồi</strong>
+                        <span>Phát hiệu ứng âm thanh sau khi thu âm hoặc hoàn thành bài</span>
+                      </div>
+                      <SettingSwitch
+                        checked={feedbackSounds}
+                        label="Âm thanh phản hồi"
+                        onChange={() => updateSettings({ feedbackSounds: !feedbackSounds })}
+                      />
                     </div>
-                    <SettingSwitch
-                      checked={feedbackSounds}
-                      label="Âm thanh phản hồi"
-                      onChange={() => updateSettings({ feedbackSounds: !feedbackSounds })}
-                    />
                   </div>
                 </div>
               </section>

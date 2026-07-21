@@ -39,8 +39,8 @@ export function LoginPage() {
 
           <div className="gv-login__form-wrap">
             <header className="gv-login__heading">
-              <h1 id="login-title">Đăng nhập</h1>
-              <p>Để tiếp tục đến không gian của bạn.</p>
+              <h1 id="login-title">Chào mừng trở lại</h1>
+              <p>Tiếp tục hành trình cải thiện giọng nói của bạn.</p>
             </header>
 
             <form className="gv-login__form" onSubmit={handleLogin} noValidate>

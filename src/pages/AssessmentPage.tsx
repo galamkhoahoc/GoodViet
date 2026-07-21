@@ -12,6 +12,7 @@ import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { WaveformVisualizer } from '../components/audio/WaveformVisualizer';
 import { SentenceEvaluationPanel } from '../components/audio/SentenceEvaluationPanel';
 import { PageHeader } from '../components/layout/PageHeader';
+import { goodVietIllustrations } from '../data/illustrations';
 import { useLocalSentenceEvaluation } from '../hooks/useLocalSentenceEvaluation';
 import type { SentenceEvaluationResult } from '../services/ml/sentenceEvaluation';
 import type { AssessmentSentence } from '../services/api/assessmentApi';
@@ -25,6 +26,11 @@ function IntroPhase({ onStart, isLoading }: { onStart: () => void, isLoading: bo
         <span className="assessment-intro__eyebrow">GOODVIET Check</span>
         <h2 id="assessment-intro-title">Hiểu rõ giọng nói của bạn trong một lần đánh giá.</h2>
         <p>AI phân tích phát âm, độ rõ, nhịp điệu và cách diễn đạt để đề xuất lộ trình phù hợp.</p>
+        <img
+          className="assessment-intro__illustration"
+          src={goodVietIllustrations.voiceCheck}
+          alt="Micro và làn sóng âm tượng trưng cho bài đánh giá giọng nói"
+        />
         <div className="assessment-intro__meta">
           <span><strong>15–20</strong> phút</span>
           <span><strong>3</strong> giai đoạn</span>

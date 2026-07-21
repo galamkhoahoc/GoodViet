@@ -9,6 +9,7 @@ import {
   Users,
 } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
+import { goodVietIllustrations } from '../data/illustrations';
 import { useAuthStore } from '../store/authStore';
 import '../styles/dashboard-page.css';
 
@@ -39,7 +40,7 @@ export function DashboardPage() {
 
         <section className="gv-dashboard__hero" aria-labelledby="dashboard-hero-title">
           <img
-            src="https://images.pexels.com/photos/4476163/pexels-photo-4476163.jpeg?auto=compress&cs=tinysrgb&w=1800"
+            src={goodVietIllustrations.practiceHero}
             alt="Người dùng luyện giọng với tai nghe và micro tại nhà"
             fetchPriority="high"
           />
@@ -92,6 +93,7 @@ export function DashboardPage() {
           </article>
 
           <aside className="gv-dashboard__reminder">
+            <img src={goodVietIllustrations.dailyRoutine} alt="" aria-hidden="true" />
             <span className="gv-dashboard__reminder-icon"><CalendarClock size={24} /></span>
             <p>Nhắc bạn</p>
             <h2>Một khung giờ cố định giúp việc luyện tập dễ duy trì hơn.</h2>
@@ -109,6 +111,7 @@ export function DashboardPage() {
 
           <div className="gv-dashboard__activity-grid">
             <button className="gv-dashboard__activity gv-dashboard__activity--assessment" type="button" onClick={() => navigate('/assessment')}>
+              <img className="gv-dashboard__activity-visual" src={goodVietIllustrations.voiceCheck} alt="" aria-hidden="true" />
               <span className="gv-dashboard__activity-icon"><Mic2 size={23} /></span>
               <span className="gv-chip">Đánh giá AI</span>
               <strong>Hiểu rõ giọng nói của bạn</strong>
@@ -117,6 +120,7 @@ export function DashboardPage() {
             </button>
 
             <button className="gv-dashboard__activity gv-dashboard__activity--compact" type="button" onClick={() => navigate('/chat')}>
+              <img className="gv-dashboard__activity-visual" src={goodVietIllustrations.aiSupport} alt="" aria-hidden="true" />
               <span className="gv-dashboard__activity-icon gv-dashboard__activity-icon--tertiary"><Bot size={22} /></span>
               <span className="gv-chip">Trợ lý AI</span>
               <strong>Trò chuyện cùng Chị Gà</strong>
@@ -125,6 +129,7 @@ export function DashboardPage() {
             </button>
 
             <button className="gv-dashboard__activity gv-dashboard__activity--compact" type="button" onClick={() => navigate('/experts')}>
+              <img className="gv-dashboard__activity-visual" src={goodVietIllustrations.expertCoaching} alt="" aria-hidden="true" />
               <span className="gv-dashboard__activity-icon gv-dashboard__activity-icon--neutral"><Users size={22} /></span>
               <span className="gv-chip">Tư vấn 1:1</span>
               <strong>Kết nối chuyên gia</strong>

@@ -1,6 +1,7 @@
 import { ArrowRight, Bot, CheckCircle2, Map, Mic2, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
+import { goodVietIllustrations } from '../data/illustrations';
 import '../styles/guide-page.css';
 
 const STEPS = [
@@ -12,6 +13,7 @@ const STEPS = [
     points: ['Đọc các câu sàng lọc âm L/N, S/X, TR/CH', 'Đo tốc độ, độ rõ và nhịp điệu', 'Kể chuyện ngắn để đánh giá khả năng diễn đạt'],
     link: '/assessment',
     action: 'Bắt đầu đánh giá',
+    illustration: goodVietIllustrations.voiceCheck,
   },
   {
     number: '02',
@@ -21,6 +23,7 @@ const STEPS = [
     points: ['Bài học ngắn và dễ duy trì', 'Phản hồi ngay sau từng bản ghi', 'Theo dõi chuỗi ngày học và mục tiêu tuần'],
     link: '/pathway',
     action: 'Mở lộ trình',
+    illustration: goodVietIllustrations.learningPath,
   },
   {
     number: '03',
@@ -30,6 +33,7 @@ const STEPS = [
     points: ['Hỏi đáp tức thì với trợ lý AI', 'Gửi tin nhắn cho chuyên gia', 'Đặt lịch tư vấn phù hợp với nhu cầu'],
     link: '/chat',
     action: 'Mở tin nhắn',
+    illustration: goodVietIllustrations.aiSupport,
   },
 ] as const;
 
@@ -61,6 +65,7 @@ export function GuidePage() {
             const Icon = step.icon;
             return (
               <article className="gv-guide__step" key={step.number}>
+                <img className="gv-guide__step-visual" src={step.illustration} alt="" aria-hidden="true" />
                 <div className="gv-guide__step-top">
                   <span className="gv-guide__step-icon"><Icon size={23} /></span>
                   <span className="gv-guide__step-number">{step.number}</span>
@@ -78,7 +83,9 @@ export function GuidePage() {
 
         <footer className="gv-guide__support">
           <div>
-            <span className="gv-guide__support-icon"><Bot size={24} /></span>
+            <span className="gv-guide__support-icon">
+              <img src={goodVietIllustrations.aiSupport} alt="" aria-hidden="true" />
+            </span>
             <div><strong>Bạn vẫn cần trợ giúp?</strong><p>Hãy nhắn cho Chị Gà hoặc liên hệ đội ngũ GoodViet qua galamkhoahoc@gmail.com.</p></div>
           </div>
           <Link to="/chat">Trò chuyện ngay <ArrowRight size={16} /></Link>

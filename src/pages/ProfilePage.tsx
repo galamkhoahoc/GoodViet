@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { toast } from '../components/common/Toast';
 import { PageHeader } from '../components/layout/PageHeader';
+import { goodVietIllustrations } from '../data/illustrations';
 import { useAuthStore } from '../store/authStore';
 import '../styles/profile-settings.css';
 
@@ -93,7 +94,9 @@ export function ProfilePage() {
         <div className="ps-layout">
           <aside className="ps-sidebar" aria-label="Tóm tắt hồ sơ">
             <section className="ps-card ps-profile-card">
-              <div className="ps-profile-card__banner" />
+              <div className="ps-profile-card__banner">
+                <img src={goodVietIllustrations.dailyRoutine} alt="" aria-hidden="true" />
+              </div>
               <div className="ps-profile-card__body">
                 <div className="ps-avatar-wrap">
                   <div className="ps-avatar" role="img" aria-label={`Ảnh đại diện của ${user?.fullName || 'người dùng GoodViet'}`}>

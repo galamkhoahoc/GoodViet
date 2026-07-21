@@ -7,8 +7,6 @@ import {
   ChevronRight,
   Flame,
   Headphones,
-  Languages,
-  MessageSquareText,
   Mic,
   Play,
   Sparkles,
@@ -20,6 +18,7 @@ import {
   practiceSummary,
   type PracticeLesson,
 } from '../data/mockPractice';
+import { goodVietIllustrations } from '../data/illustrations';
 import { AudioRecorder } from '../components/audio/AudioRecorder';
 import { SentenceEvaluationPanel } from '../components/audio/SentenceEvaluationPanel';
 import { useLocalSentenceEvaluation } from '../hooks/useLocalSentenceEvaluation';
@@ -80,6 +79,12 @@ const getLessonIcon = (lesson: PracticeLesson): LessonIcon => {
   if (lesson.order % 3 === 2) return 'headphones';
   if (lesson.order % 3 === 0) return 'mic';
   return 'book';
+};
+
+const lessonIllustrations: Record<LessonIcon, string> = {
+  book: goodVietIllustrations.learningPath,
+  headphones: goodVietIllustrations.dailyRoutine,
+  mic: goodVietIllustrations.voiceCheck,
 };
 
 const getStatusLabel = (
@@ -313,6 +318,12 @@ export function PathwayPage() {
                   type="button"
                   onClick={() => openLesson(lesson)}
                 >
+                  <img
+                    className="gv-pathway__exercise-art"
+                    src={lessonIllustrations[icon]}
+                    alt=""
+                    aria-hidden="true"
+                  />
                   <span className={`gv-pathway__exercise-icon gv-pathway__exercise-icon--${icon}`}>
                     <LessonIconView type={icon} />
                   </span>
@@ -336,12 +347,16 @@ export function PathwayPage() {
             <p>Dựa trên kết quả bài kiểm tra gần nhất, chúng tôi đề xuất các chủ đề này để cải thiện kỹ năng của bạn.</p>
 
             <button type="button" onClick={() => openLesson(recommendedLessons[0])}>
-              <span className="gv-pathway__recommendation-icon"><Languages size={24} /></span>
+              <span className="gv-pathway__recommendation-icon">
+                <img src={goodVietIllustrations.learningPath} alt="" aria-hidden="true" />
+              </span>
               <span><strong>{recommendedLessons[0].title}</strong><small>Luyện rõ âm TR/CH và S/X</small></span>
               <span className="gv-pathway__play"><Play size={15} fill="currentColor" /></span>
             </button>
             <button type="button" onClick={() => openLesson(recommendedLessons[1])}>
-              <span className="gv-pathway__recommendation-icon gv-pathway__recommendation-icon--secondary"><MessageSquareText size={22} /></span>
+              <span className="gv-pathway__recommendation-icon gv-pathway__recommendation-icon--secondary">
+                <img src={goodVietIllustrations.aiSupport} alt="" aria-hidden="true" />
+              </span>
               <span><strong>{recommendedLessons[1].title}</strong><small>Luyện sự tự tin và thông điệp rõ ràng</small></span>
               <span className="gv-pathway__play"><Play size={15} fill="currentColor" /></span>
             </button>

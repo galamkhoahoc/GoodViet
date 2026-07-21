@@ -190,6 +190,7 @@
 .gv-dashboard__routine > button > svg { color: var(--gv-secondary); }
 
 .gv-dashboard__reminder {
+  position: relative;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -201,6 +202,24 @@
     radial-gradient(circle at 100% 0, rgb(255 255 255 / 18%), transparent 42%),
     var(--gv-primary);
   box-shadow: 0 9px 22px rgb(51 97 141 / 18%);
+  overflow: hidden;
+}
+
+.gv-dashboard__reminder > img {
+  position: absolute;
+  right: -26px;
+  bottom: -14px;
+  width: 172px;
+  height: 145px;
+  object-fit: cover;
+  border-radius: 38px 0 0 0;
+  opacity: .24;
+  pointer-events: none;
+}
+
+.gv-dashboard__reminder > :not(img) {
+  position: relative;
+  z-index: 1;
 }
 
 .gv-dashboard__reminder-icon {
@@ -287,6 +306,17 @@
   transition: transform 170ms ease, border-color 170ms ease, box-shadow 170ms ease;
 }
 
+.gv-dashboard__activity-visual {
+  width: 100%;
+  height: 108px;
+  flex: 0 0 108px;
+  margin-bottom: 18px;
+  border-radius: 18px;
+  object-fit: cover;
+  object-position: center 46%;
+  background: var(--gv-surface-container);
+}
+
 .gv-dashboard__activity:hover {
   transform: translateY(-3px);
   border-color: rgb(51 97 141 / 28%);
@@ -353,7 +383,7 @@
 }
 
 .gv-dashboard__activity--compact {
-  min-height: 220px;
+  min-height: 348px;
 }
 
 .gv-dashboard__activity--compact strong {
