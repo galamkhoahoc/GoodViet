@@ -1,5 +1,4 @@
 import { useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import '../styles/login-page.css';
 
@@ -111,9 +110,6 @@ export function LoginPage() {
                 )}
               </button>
 
-              <p className="gv-login__register-link">
-                Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
-              </p>
             </form>
           </div>
 
@@ -121,17 +117,13 @@ export function LoginPage() {
         </div>
 
         <div className="gv-login__art-panel" aria-hidden="true">
-          <div className="gv-login__orbit gv-login__orbit--outer">
-            <span className="gv-login__shape gv-login__shape--sparkle">✦</span>
-            <span className="gv-login__shape gv-login__shape--diamond" />
-            <span className="gv-login__shape gv-login__shape--triangle" />
-            <span className="gv-login__shape gv-login__shape--star">✧</span>
-            <div className="gv-login__orbit gv-login__orbit--inner">
-              <div className="gv-login__orbit gv-login__orbit--core">
-                <span className="material-symbols-outlined gv-login__book">auto_stories</span>
-              </div>
-            </div>
-          </div>
+          <img
+            className="gv-login__art-image"
+            src="/images/login-voice-practice.webp"
+            alt=""
+            decoding="async"
+            fetchPriority="high"
+          />
         </div>
       </section>
     </main>

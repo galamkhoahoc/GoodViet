@@ -276,116 +276,30 @@
   text-transform: uppercase;
 }
 
-.gv-login__register-link {
-  margin: 2px 0 0;
-  color: var(--login-secondary);
-  font-size: 11px;
-  text-align: right;
-}
-
-.gv-login__register-link a {
-  color: var(--login-primary);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.gv-login__register-link a:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
 .gv-login__art-panel {
+  position: relative;
   min-width: 0;
-  display: grid;
-  place-items: center;
   overflow: hidden;
   border-left: 1px solid rgb(83 95 112 / 7%);
-  background:
-    radial-gradient(circle at center, rgb(51 97 141 / 7%), transparent 46%),
-    linear-gradient(145deg, #f7f8fd 0%, #f2f4fa 100%);
+  background: #eef4fa;
 }
 
-.gv-login__orbit {
-  position: relative;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-}
-
-.gv-login__orbit--outer {
-  width: min(69%, 456px);
-  aspect-ratio: 1;
-  border: 1px dashed rgb(83 95 112 / 58%);
-}
-
-.gv-login__orbit--inner {
-  width: 67%;
-  aspect-ratio: 1;
-  border: 1px solid rgb(83 95 112 / 62%);
-}
-
-.gv-login__orbit--core {
-  width: 50%;
-  aspect-ratio: 1;
-  border: 1px dashed rgb(83 95 112 / 65%);
-  background: rgb(249 249 255 / 58%);
-}
-
-.gv-login__book {
-  color: var(--login-primary);
-  font-size: 74px;
-  font-variation-settings: "FILL" 0, "wght" 250, "GRAD" 0, "opsz" 48;
-}
-
-.gv-login__shape {
-  position: absolute;
-  color: rgb(83 95 112 / 72%);
-}
-
-.gv-login__shape--sparkle {
-  top: 10%;
-  left: 13%;
-  font-size: 46px;
-  font-weight: 300;
-}
-
-.gv-login__shape--diamond {
-  top: 15%;
-  right: 8%;
-  width: 62px;
-  height: 62px;
-  transform: rotate(45deg);
-  border: 1px solid rgb(83 95 112 / 62%);
-  background: rgb(249 249 255 / 55%);
-}
-
-.gv-login__shape--triangle {
-  bottom: 15%;
-  left: 13%;
-  width: 0;
-  height: 0;
-  border-right: 36px solid transparent;
-  border-bottom: 36px solid rgb(83 95 112 / 58%);
-  border-left: 36px solid transparent;
-}
-
-.gv-login__shape--triangle::after {
+.gv-login__art-panel::after {
   position: absolute;
   content: "";
-  left: -33px;
-  top: 3px;
-  width: 0;
-  height: 0;
-  border-right: 33px solid transparent;
-  border-bottom: 33px solid #f4f6fb;
-  border-left: 33px solid transparent;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 12%), transparent 20%),
+    linear-gradient(180deg, transparent 72%, rgb(31 61 87 / 8%));
+  pointer-events: none;
 }
 
-.gv-login__shape--star {
-  right: 10%;
-  bottom: 8%;
-  font-size: 54px;
-  line-height: 1;
+.gv-login__art-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
 }
 
 @keyframes gv-login-spin {
