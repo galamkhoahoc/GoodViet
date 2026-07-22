@@ -1,4 +1,6 @@
-# React + TypeScript + Vite
+# GoodViet - Nền tảng Hỗ trợ Âm ngữ Trị liệu
+
+> 📖 **Xem chi tiết cách trang web được thiết kế & phát triển tại:** [`HOW_IT_WAS_BUILT.md`](HOW_IT_WAS_BUILT.md)
 
 ## Kiểm tra giọng nói cục bộ
 
