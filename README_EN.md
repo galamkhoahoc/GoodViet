@@ -230,4 +230,5 @@ This project is licensed under the **MIT License**.
 
 ## 📧 Contact
 
+- **Development Team:** Ga lam khoa hoc
 - **Email:** galamkhoahoc@gmail.com
