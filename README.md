@@ -233,4 +233,5 @@ Xem chi tiết tại [`tools/voice-model/README.md`](tools/voice-model/README.md
 
 ## 📧 Liên hệ
 
-[Thêm thông tin liên hệ nếu cần]
+- **Đơn vị phát triển:** Nhóm nghiên cứu Gà làm khoa học
+- **Email:** galamkhoahoc@gmail.com
