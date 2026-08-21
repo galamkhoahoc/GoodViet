@@ -230,5 +230,4 @@ This project is licensed under the **MIT License**.
 
 ## 📧 Contact
 
-- **Development Team:** Gà làm khoa học
 - **Email:** galamkhoahoc@gmail.com

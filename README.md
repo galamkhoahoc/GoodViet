@@ -231,5 +231,4 @@ Dự án này được bảo hộ theo giấy phép **MIT License**.
 
 ## 📧 Liên hệ
 
-- **Đơn vị phát triển:** Gà làm khoa học
 - **Email:** galamkhoahoc@gmail.com
