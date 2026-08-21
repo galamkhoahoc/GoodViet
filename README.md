@@ -2,6 +2,8 @@
 
 Nền tảng web tích hợp AI hỗ trợ đánh giá và cải thiện khả năng ngôn ngữ, phát âm tiếng Việt cho trẻ em và người cần trị liệu âm ngữ.
 
+**Tiếng Việt** | [English](README_EN.md)
+
 ## 🎯 Tính năng chính
 
 ### 1. Đánh giá giọng nói cục bộ (On-device Voice Assessment)
