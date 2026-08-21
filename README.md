@@ -225,11 +225,7 @@ Xem chi tiết tại [`tools/voice-model/README.md`](tools/voice-model/README.md
 
 ## 📝 License
 
-[Thêm license của bạn]
-
-## 👥 Contributing
-
-[Thêm hướng dẫn đóng góp nếu cần]
+Dự án này được bảo hộ theo giấy phép **MIT License**.
 
 ## 📧 Liên hệ
 
