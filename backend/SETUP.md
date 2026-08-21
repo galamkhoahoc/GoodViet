@@ -24,9 +24,9 @@ The MongoDB Atlas connection is timing out. This is usually because:
    - Option B: Add `0.0.0.0/0` (allow from anywhere - for development only!)
 
 **2. Incorrect Credentials**
-   - Verify username: `galamkhoahoctr_db_user`
-   - Verify password: `4VQsfyNTe6I3w4E3`
+   - Verify your MongoDB Atlas username and password
    - Check in MongoDB Atlas → Database Access
+   - Ensure credentials match those in your `.env` file
 
 **3. Database User Permissions**
    - User needs "Read and write to any database" permission
@@ -39,7 +39,7 @@ The MongoDB Atlas connection is timing out. This is usually because:
    https://cloud.mongodb.com
    ```
 
-2. **Select your cluster** (`glkh2`)
+2. **Select your cluster** (check MongoDB Atlas dashboard for cluster name)
 
 3. **Whitelist IP Address:**
    - Click "Network Access" in left sidebar
@@ -49,7 +49,7 @@ The MongoDB Atlas connection is timing out. This is usually because:
 
 4. **Verify Database User:**
    - Click "Database Access"
-   - Find user `galamkhoahoctr_db_user`
+   - Find your MongoDB database user
    - Ensure role is "Atlas admin" or "Read and write to any database"
 
 5. **Test Connection Again:**
