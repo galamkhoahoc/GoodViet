@@ -22,6 +22,12 @@ Nền tảng web tích hợp AI hỗ trợ đánh giá và cải thiện khả n
 - Phân quyền theo vai trò (student, parent, therapist, admin)
 - Theo dõi tiến độ học tập
 
+## 🔑 Tài khoản dùng thử (Demo / Guest Account)
+
+Để trải nghiệm ứng dụng nhanh chóng, bạn có thể sử dụng tài khoản thử nghiệm:
+- **Tên đăng nhập / Email:** `guest@goodviet.glkh.vn`
+- **Mật khẩu:** `Guest2026#`
+
 ### 4. Luyện tập phát âm
 - Bài tập tương tác theo cấp độ
 - Ghi âm và phản hồi tức thì
